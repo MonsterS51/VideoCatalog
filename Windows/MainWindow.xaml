@@ -1,0 +1,98 @@
+﻿<Window x:Class="VideoCatalog.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VideoCatalog"
+		xmlns:local2="clr-namespace:VideoCatalog.Windows"
+        mc:Ignorable="d"
+		WindowStyle="SingleBorderWindow"
+        Title="Video Catalog" 
+		Height="900" Width="1600">
+	<Window.Resources>
+		<Style x:Key="btnIconStl" TargetType="Button">
+			<Setter Property="Margin" Value="0" />
+			<Setter Property="Padding" Value="0" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderBrush" Value="Transparent" />
+			<Setter Property="Padding" Value="0" />
+		</Style>
+		<Style x:Key="imgIconStl" TargetType="Image">
+			<Setter Property="Source" Value="/Assets/cross.png" />
+		</Style>
+		<Style x:Key="imgToolBarBtn" TargetType="Image">
+			<Style.Triggers>
+				<Trigger Property="IsEnabled" Value="False">
+					<Setter Property="Opacity" Value="0.25"></Setter>
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+		<Style x:Key="tabItemCustomStl" TargetType="TabItem">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="TabItem" >
+						<Grid Name="Panel">
+							<Border Name="Border" BorderThickness="1,1,1,0" BorderBrush="Black"></Border>
+							<ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="5,2"/>
+						</Grid>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsSelected" Value="True">
+								<Setter TargetName="Panel" Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+								<Setter TargetName="Panel" Property="Margin" Value="0,0,-1,-3" />
+							</Trigger>
+							<Trigger Property="IsSelected" Value="False">
+								<Setter TargetName="Panel" Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" />
+								<Setter TargetName="Panel" Property="Margin" Value="0,0,-1,-2" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Window.Resources>
+	<Grid>
+		<DockPanel Margin="-2" LastChildFill="True" SnapsToDevicePixels="True" UseLayoutRounding="True" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" >
+			<!--<ListBox x:Name="albumsListBox" DockPanel.Dock="Left" Width="300" ></ListBox>-->
+
+
+			<TabControl x:Name="tabsPanel" Padding="0,-1,0,0" Margin="0" BorderThickness="0" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}">
+				
+				<!--<TabItem Padding="0.5" Style="{StaticResource tabItemCustomStl}">
+					<TabItem.Header>
+						<StackPanel Orientation="Horizontal" >
+							<TextBlock MaxWidth="150" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0.5" TextTrimming ="CharacterEllipsis">Main</TextBlock>
+						</StackPanel>
+					</TabItem.Header >
+					<TabItem.Content>
+						<local2:AlbumPanel />
+					</TabItem.Content>
+				</TabItem>-->
+
+			</TabControl>
+
+
+		</DockPanel>
+
+		<StackPanel x:Name="startToolbar" Width="200" Height="100">
+			<Button x:Name="newBtn" VerticalAlignment="Center" Click="OpenFolder" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+				<StackPanel Orientation="Horizontal">
+					<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+					<Label FontSize="16">Open Folder</Label>
+				</StackPanel>
+			</Button>
+			<Button x:Name="loadBtn" VerticalAlignment="Center" Click="LoadCatalog" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+				<StackPanel Orientation="Horizontal">
+					<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/file2.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+					<Label FontSize="16">Open Catalog File</Label>
+				</StackPanel>
+			</Button>
+		</StackPanel>
+	</Grid>
+	
+
+</Window>

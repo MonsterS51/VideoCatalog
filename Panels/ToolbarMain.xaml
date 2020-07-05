@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="VideoCatalog.Windows.ToolbarMain"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VideoCatalog.Windows"
+             mc:Ignorable="d" 
+             d:DesignHeight="40" d:DesignWidth="800">
+	<UserControl.Resources>
+	</UserControl.Resources>
+
+	<StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+		<Button x:Name="newBtn" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+		</Button>
+		<Button x:Name="loadBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/file2.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+		</Button>
+		<Button x:Name="saveBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/save.png" RenderOptions.BitmapScalingMode="HighQuality">
+			</Image>
+		</Button>
+		<Button x:Name="closeBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/cross.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+		</Button>
+		<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+		<Button x:Name="updBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/reload.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+		</Button>
+		<Button x:Name="chkBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/caution.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+		</Button>
+		<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+		<Button x:Name="settingBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/caution.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+		</Button>
+	</StackPanel>   
+
+</UserControl>
