@@ -18,15 +18,6 @@ namespace VideoCatalog.Windows {
 			MouseDown += OnClick;
 			tempColor = border.BorderBrush.Clone();
 
-			// обработка VLC с Airspace косяком (создаем сразу, обработка внутри самого предпросмотрщика)
-			if (Properties.Settings.Default.PreviewMode == "VLC") {
-				pfVLC = new PreviewFrameLibVLC(this);
-				previewGrid.Children.Clear();
-				previewGrid.Children.Add(pfVLC);
-
-				pfVLC.playerRect.MouseDown += OnClick;
-			}
-
 			TurnOffPreviewMode();
 		}
 
@@ -41,8 +32,6 @@ namespace VideoCatalog.Windows {
 
 		private PreviewFrameWPF pfWPF = null;
 		private PreviewFrameFFME pfFFME = null;
-		private PreviewFrameLibVLC pfVLC = null;
-		private PreviewFrameVLC pfMetaVLC = null;
 
 		protected override void OnMouseEnter(MouseEventArgs e) {
 			base.OnMouseEnter(e);
@@ -68,15 +57,6 @@ namespace VideoCatalog.Windows {
 					pfFFME?.StartPreview(path, duration);
 					break;
 				}
-				case "VLC_META": {
-					if (pfMetaVLC == null) {
-						pfMetaVLC = new PreviewFrameVLC();
-						previewGrid.Children.Clear();
-						previewGrid.Children.Add(pfMetaVLC);
-					}
-					pfMetaVLC?.StartPreview(path, duration);
-					break;
-				}
 				default:{
             		break;
             	}
@@ -93,9 +73,6 @@ namespace VideoCatalog.Windows {
 
 			pfWPF?.StopPreview();
 			pfFFME?.StopPreview();
-
-			pfMetaVLC?.StopPreview();
-			pfMetaVLC = null;
 		}
 
 

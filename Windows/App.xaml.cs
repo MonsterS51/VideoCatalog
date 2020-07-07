@@ -16,15 +16,6 @@ namespace VideoCatalog {
 		public static VlcPlayer mediaPlayer;
 
 		private void Application_Startup(object sender, StartupEventArgs e) {
-
-			//? Meta Vlc работает, но виснет насмерть, если плитка теряет фокус во время начала воспроизведения (теребим плитки, зависаем намертво)
-			//? таймеры, задержки, статичные объекты плеера - нихрена не помогло, ну его в жопу.
-
-			//? LibVLCSharp страдает аирспейсом, для него нужно ковырять костыль с отрисовкой оверлея в его плеерный грид
-
-			//! требует наличия VideoLAN.LibVLC.Windows
-			Core.Initialize();
-
 			// загрузка библиотек ffmpeg для FFME
 			if (new DirectoryInfo(VideoCatalog.Properties.Settings.Default.FFMpegBinPath).Exists) {
 				try {

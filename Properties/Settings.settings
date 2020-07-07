@@ -11,8 +11,5 @@
     <Setting Name="PreviewMode" Type="System.String" Scope="User">
       <Value Profile="(Default)">FFME</Value>
     </Setting>
-    <Setting Name="VlcLibPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\libvlc\win-x86</Value>
-    </Setting>
   </Settings>
 </SettingsFile>

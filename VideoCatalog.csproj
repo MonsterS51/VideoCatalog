@@ -149,10 +149,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Panels\PreviewFrameLibVLC.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Panels\SettingsPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -162,10 +158,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Panels\PreviewFrameFFME.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Panels\PreviewFrameVLC.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -200,9 +192,6 @@
     <Compile Include="Main\CatalogEntry.cs" />
     <Compile Include="Main\CatalogRoot.cs" />
     <Compile Include="Main\FilterSorterModule.cs" />
-    <Compile Include="Panels\PreviewFrameLibVLC.xaml.cs">
-      <DependentUpon>PreviewFrameLibVLC.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Panels\SettingsPanel.xaml.cs">
       <DependentUpon>SettingsPanel.xaml</DependentUpon>
     </Compile>
@@ -224,9 +213,6 @@
     </Compile>
     <Compile Include="Panels\PreviewFrameFFME.xaml.cs">
       <DependentUpon>PreviewFrameFFME.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Panels\PreviewFrameVLC.xaml.cs">
-      <DependentUpon>PreviewFrameVLC.xaml</DependentUpon>
     </Compile>
     <Compile Include="Panels\PreviewFrameWPF.xaml.cs">
       <DependentUpon>PreviewFrameWPF.xaml</DependentUpon>

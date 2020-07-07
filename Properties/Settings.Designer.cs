@@ -58,17 +58,5 @@ namespace VideoCatalog.Properties {
                 this["PreviewMode"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\libvlc\\win-x86")]
-        public string VlcLibPath {
-            get {
-                return ((string)(this["VlcLibPath"]));
-            }
-            set {
-                this["VlcLibPath"] = value;
-            }
-        }
     }
 }
