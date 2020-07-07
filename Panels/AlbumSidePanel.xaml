@@ -3,7 +3,9 @@
 			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-			 xmlns:local="clr-namespace:VideoCatalog.Windows" xmlns:local1="clr-namespace:VideoCatalog.Main" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+			 xmlns:local="clr-namespace:VideoCatalog.Windows" 
+			 xmlns:local1="clr-namespace:VideoCatalog.Main" 
+			 xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
 			 mc:Ignorable="d" 
 			 d:DesignHeight="448.255" d:DesignWidth="483.273">
 

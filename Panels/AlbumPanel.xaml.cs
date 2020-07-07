@@ -3,19 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using VideoCatalog.Main;
 
 namespace VideoCatalog.Windows {
@@ -25,28 +17,22 @@ namespace VideoCatalog.Windows {
 	public partial class AlbumPanel : UserControl {
 
 		private FilterSorterModule fsm;
-
-		///<summary> Прогон всех альбомов через фильтр и обновление конечного списка. </summary>
-		public void UpdateSrcList(string str, FilterSorterModule.SortMode sortMode = FilterSorterModule.SortMode.NAME, bool ascend = true, bool broken = false) {
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
-			srcList = fsm.FilterByName(str, CatalogEngine.MainWin?.CatEng?.CatRoot?.tagsList, sortMode, ascend, broken);
-			FillPlates();
-			Console.WriteLine($"FillPlates {sw.ElapsedMilliseconds}ms");
-			sw.Stop();
-		}
-
 		public IEnumerable<AbstractEntry> baseList;
 		public IEnumerable<AbstractEntry> srcList = new List<AbstractEntry>();   // отфильтрованные альбомы
+
+		private bool isRoot = false;
 
 		public AlbumPanel() {
 			InitializeComponent();
 			Btn_SidePanelSwitch(null, null);
+			LoadSettings();
 		}
-		public AlbumPanel(IEnumerable<AbstractEntry> BaseList, bool isMain = false) {
-			InitializeComponent();
 
-			if (isMain) {
+		public AlbumPanel(IEnumerable<AbstractEntry> BaseList, bool isRoot = false) {
+			InitializeComponent();
+			this.isRoot = isRoot;
+
+			if (isRoot) {
 				toolbarMainPanel.Visibility = Visibility.Visible;
 				toolbarMainPanel.newBtn.Click += CatalogEngine.MainWin.OpenFolder;
 				toolbarMainPanel.loadBtn.Click += CatalogEngine.MainWin.LoadCatalog;
@@ -59,12 +45,10 @@ namespace VideoCatalog.Windows {
 				toolbarMainPanel.Visibility = Visibility.Collapsed;
 			}
 
-
-
-
 			baseList = BaseList;
 			fsm = new FilterSorterModule(baseList);
 			Btn_SidePanelSwitch(null, null);
+			LoadSettings();
 		}
 
 		/// <summary> Очистка панели (для повторного использования плашек). </summary>
@@ -87,19 +71,19 @@ namespace VideoCatalog.Windows {
 				// в зависимости от режима сортировки выводим справочную надпись
 				switch (mode) {
 					case FilterSorterModule.SortMode.NAME: {
-						scrollLetter.Text = "" + ent.Name.First();
+						scrollHelperLbl.Text = "" + ent.Name.First();
 						break;
 					}
 					case FilterSorterModule.SortMode.CREATE_DATE: {
-						scrollLetter.Text = "" + ent.GetDateCreate().ToString("dd/MM/yyyy");
+						scrollHelperLbl.Text = "" + ent.GetDateCreate().ToString("dd/MM/yyyy");
 						break;
 					}
 					case FilterSorterModule.SortMode.MODIF_DATE_FILE: {
-						scrollLetter.Text = "" + ent.GetDateModify().ToString("dd/MM/yyyy");
+						scrollHelperLbl.Text = "" + ent.GetDateModify().ToString("dd/MM/yyyy");
 						break;
 					}
 					case FilterSorterModule.SortMode.CREATE_DATE_FILE: {
-						scrollLetter.Text = "" + ent.GetDateCreate().ToString("dd/MM/yyyy");
+						scrollHelperLbl.Text = "" + ent.GetDateCreate().ToString("dd/MM/yyyy");
 						break;
 					}
 					default: {
@@ -108,9 +92,9 @@ namespace VideoCatalog.Windows {
 				}
 
 				if (Mouse.LeftButton == MouseButtonState.Pressed) {
-					scrollLetter.Visibility = Visibility.Visible;
+					scrollHelperLbl.Visibility = Visibility.Visible;
 				} else {
-					scrollLetter.Visibility = Visibility.Hidden;
+					scrollHelperLbl.Visibility = Visibility.Hidden;
 				}
 
 			}
@@ -118,8 +102,7 @@ namespace VideoCatalog.Windows {
 
 
 		private void Scroll_MouseUp(object sender, EventArgs e) {
-			scrollLetter.Visibility = Visibility.Hidden;
-
+			scrollHelperLbl.Visibility = Visibility.Hidden;
 		}
 
 
@@ -143,9 +126,11 @@ namespace VideoCatalog.Windows {
 					if (item is UniformGrid) {
 						var grid = item as UniformGrid;
 						grid.Columns = (int)e.NewValue;
+						SaveSettings();
 					}
 				}
 			}
+
 		}
 
 		private FilterSorterModule.SortMode mode;
@@ -178,8 +163,18 @@ namespace VideoCatalog.Windows {
 
 		}
 
+		///<summary> Прогон всех альбомов через фильтр и обновление конечного списка. </summary>
+		public void UpdateSrcList(string str, FilterSorterModule.SortMode sortMode = FilterSorterModule.SortMode.NAME, bool ascend = true, bool broken = false) {
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+			srcList = fsm.FilterByName(str, CatalogEngine.MainWin?.CatEng?.CatRoot?.tagsList, sortMode, ascend, broken);
+			FillPlates();
+			Console.WriteLine($"FillPlates {sw.ElapsedMilliseconds}ms");
+			sw.Stop();
+		}
 
-		/// <summary> Перезаполнение плашками панель. </summary>
+
+		/// <summary> Перезаполнение плитками альбомов панели. </summary>
 		public void FillPlates() {
 			foreach (var panelEnt in entPlates.Children) {
 				if (panelEnt is UniformGrid) {
@@ -193,7 +188,7 @@ namespace VideoCatalog.Windows {
 				//+ режим альбомов
 				UniformGrid newGrid = new UniformGrid();
 				newGrid.VerticalAlignment = VerticalAlignment.Top;
-				newGrid.Columns = 4;
+				newGrid.Columns = (int)sliderGridCol.Value;
 				foreach (var ent in srcList) {
 					ent.CreatePlate();
 					if (ent.vp.Parent != null) MainWindow.RemoveChild(ent.vp.Parent, ent.vp);
@@ -237,7 +232,7 @@ namespace VideoCatalog.Windows {
 
 					UniformGrid newGrid = new UniformGrid();
 					newGrid.VerticalAlignment = VerticalAlignment.Top;
-					newGrid.Columns = 4;
+					newGrid.Columns = (int) sliderGridCol.Value;
 					foreach (var entPath in dirEnt.Value) {
 						var catEnt = srcList.Where(ent => (ent as CatalogEntry).EntAbsPath == entPath).FirstOrDefault();
 						catEnt.CreatePlate();
@@ -259,7 +254,7 @@ namespace VideoCatalog.Windows {
 			toolbarMainPanel.updBtn.IsEnabled = false;
 			toolbarMainPanel.closeBtn.IsEnabled = false;
 			filterPanel.IsEnabled = false;
-			scrollLetter.Visibility = Visibility.Hidden;
+			scrollHelperLbl.Visibility = Visibility.Hidden;
 			filterPanel.filterBox.Text = "";
 			infoText.Text = "";
 			lblCountTotal.Text = "";
@@ -275,7 +270,7 @@ namespace VideoCatalog.Windows {
 			toolbarMainPanel.updBtn.IsEnabled = false;
 			toolbarMainPanel.closeBtn.IsEnabled = true;
 			filterPanel.IsEnabled = false;
-			scrollLetter.Visibility = Visibility.Hidden;
+			scrollHelperLbl.Visibility = Visibility.Hidden;
 			filterPanel.filterBox.Text = "";
 		}
 
@@ -285,7 +280,7 @@ namespace VideoCatalog.Windows {
 			toolbarMainPanel.updBtn.IsEnabled = true;
 			toolbarMainPanel.closeBtn.IsEnabled = true;
 			filterPanel.IsEnabled = true;
-			scrollLetter.Visibility = Visibility.Hidden;
+			scrollHelperLbl.Visibility = Visibility.Hidden;
 		}
 
 
@@ -350,5 +345,20 @@ namespace VideoCatalog.Windows {
 				spIsShown = true;
 			}
 		}
+
+		///<summary> Загрузка настроек панели и ее элементов. </summary>
+		private void LoadSettings() {
+			// восстанавливаем настройку сетки плиток
+			if (isRoot) sliderGridCol.Value = Properties.Settings.Default.GridSizeAlbum;
+			else sliderGridCol.Value = Properties.Settings.Default.GridSizeEnt;
+			if (sliderGridCol.Value <= 0) sliderGridCol.Value = 4;
+		}
+
+		///<summary> Сохранение настроек панели и ее элементов. </summary>
+		private void SaveSettings() {
+			if (isRoot) Properties.Settings.Default.GridSizeAlbum = (int) sliderGridCol.Value;
+			else Properties.Settings.Default.GridSizeEnt = (int)sliderGridCol.Value;
+		}
+
 	}
 }

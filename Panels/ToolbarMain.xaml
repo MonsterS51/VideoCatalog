@@ -32,7 +32,7 @@
 		</Button>
 		<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
 		<Button x:Name="settingBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/caution.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/settings.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
 	</StackPanel>   
 

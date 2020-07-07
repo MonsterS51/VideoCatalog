@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 using VideoCatalog.Main;
 
 namespace VideoCatalog.Windows {
@@ -33,9 +30,14 @@ namespace VideoCatalog.Windows {
 		private PreviewFrameWPF pfWPF = null;
 		private PreviewFrameFFME pfFFME = null;
 
+		///<summary> Навели мышь на плитку - обводим, запускаем предпросмотр. </summary>
 		protected override void OnMouseEnter(MouseEventArgs e) {
 			base.OnMouseEnter(e);
-			if (Properties.Settings.Default.PreviewMode == "VLC") return;
+
+			border.BorderBrush = new SolidColorBrush(Color.FromRgb(230, 230, 230));
+
+			// если предпросмотр отключен
+			if (!Properties.Settings.Default.PreviewEnabled) return;
 
 			// определяем метод отрисовки предпросмотра и формируем нужную панель
 			switch (Properties.Settings.Default.PreviewMode) {
@@ -49,6 +51,7 @@ namespace VideoCatalog.Windows {
 					break;
             	}
 				case "FFME": {
+					if (!App.FoundFFMpegLibs) break;
 					if (pfFFME == null) {
 						pfFFME = new PreviewFrameFFME();
 						previewGrid.Children.Clear();
@@ -65,9 +68,10 @@ namespace VideoCatalog.Windows {
 			TurnOnPreviewMode();
 		}
 
+		///<summary> Кбрали мышь с плитки - снимаем обводку, прячем и останавливаем предпросмотр. </summary>
 		protected override void OnMouseLeave(MouseEventArgs e) {
 			base.OnMouseLeave(e);
-			if (Properties.Settings.Default.PreviewMode == "VLC") return;
+			border.BorderBrush = tempColor;
 
 			TurnOffPreviewMode();
 
@@ -77,12 +81,10 @@ namespace VideoCatalog.Windows {
 
 
 		public void TurnOnPreviewMode() {
-			border.BorderBrush = new SolidColorBrush(Color.FromRgb(230, 230, 230));
 			previewGrid.Visibility = Visibility.Visible;
 		}
 
 		public void TurnOffPreviewMode() {
-			border.BorderBrush = tempColor;
 			previewGrid.Visibility = Visibility.Hidden;
 		}
 

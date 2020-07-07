@@ -4,32 +4,97 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 			 xmlns:local="clr-namespace:VideoCatalog.Windows"
+			 xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
 			 mc:Ignorable="d" 
 			 d:DesignHeight="450" d:DesignWidth="800">
 	<Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,0,0,0">
-		<DockPanel>
-			<Label Content="Settings" DockPanel.Dock="Top"/>
-			<StackPanel DockPanel.Dock="Top">
-				<GroupBox>
-					<GroupBox.Header>
-						<Label FontSize="9" Padding="0">Preview Mode</Label>
-					</GroupBox.Header>
-					<StackPanel Orientation="Horizontal">
-						<Label Content="Mode: "/>
-						<ComboBox Name="CB_previewMode" Width="100" SelectedValuePath="Content">
-							<ComboBoxItem Content="WPF" IsSelected="True" />
-							<ComboBoxItem Content="FFME"/>
-						</ComboBox>
-					</StackPanel>
-				</GroupBox>
-			</StackPanel>
+		<Border BorderBrush="Black" BorderThickness="1">
+			<DockPanel LastChildFill="True"  SnapsToDevicePixels="True" UseLayoutRounding="True" Margin="0">
+			<Label Content="Settings" DockPanel.Dock="Top" FontSize="16" 
+					Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
 
-			<UniformGrid Rows="1" Columns="2">
-				<Button Content="Применить" Height="25" DockPanel.Dock="Bottom" Grid.Column="0" Grid.Row="0" Click="Accept_Click"/>
-				<Button Content="Отмена" Height="25" DockPanel.Dock="Bottom" Grid.Column="1" Grid.Row="0"/>
+			<!--Кнопки подтверждения и отмены-->
+			<UniformGrid Rows="1" Columns="2" VerticalAlignment="Bottom" DockPanel.Dock="Bottom">
+				<Button Content="Apply" Height="25" DockPanel.Dock="Bottom" Grid.Column="0" Grid.Row="0" Click="Accept_Click"/>
+				<Button Content="Cancel" Height="25" DockPanel.Dock="Bottom" Grid.Column="1" Grid.Row="0"/>
 			</UniformGrid>
-			
+
+			<ScrollViewer x:Name="scrollViewer" DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" Margin="2">
+				<StackPanel>
+					<GroupBox Margin="1,1,1,5">
+						<GroupBox.Header>
+							<Label FontSize="9" Padding="0">Preview</Label>
+						</GroupBox.Header>
+						<StackPanel Orientation="Vertical">
+							<!-- число шагов предпросмотра -->
+							<DockPanel>
+								<Label Content="Enabled: " Width="100"/>
+								<CheckBox x:Name="PreviewEnabler" IsChecked="True" VerticalAlignment="Center" Click="CheckBox_Click" />
+							</DockPanel>
+
+							<StackPanel x:Name="PreviewOpts">
+								<!-- режим предпросмотра -->
+								<DockPanel>
+									<Label Content="Mode:" Width="100"/>
+									<ComboBox Name="CB_previewMode" SelectedValuePath="Content" SelectionChanged="CB_previewMode_SelectionChanged" Width="100" HorizontalAlignment="Left">
+										<ComboBoxItem Content="WPF" IsSelected="True" />
+										<ComboBoxItem Content="FFME"/>
+									</ComboBox>
+								</DockPanel>
+
+								<!-- путь до библиотек -->
+								<Grid x:Name="ffmePathOpt">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="100"/>
+										<ColumnDefinition Width="*"/>
+										<ColumnDefinition Width="25"/>
+									</Grid.ColumnDefinitions>
+									<Label Content="FFMpeg path: "  Grid.Column="0" Margin="0,0,0.364,0.182" Grid.RowSpan="2"/>
+									<TextBox x:Name="ffmpegPath" Grid.ColumnSpan="3" Margin="100,0,25.073,-0.818" Grid.RowSpan="2" Height="Auto"/>
+									<Button x:Name="btnSelectFFMpegPath" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnSelectFFMpegPath_Click" Margin="0.236,0,0.073,0.182" Grid.RowSpan="2">
+										<Image Height="20" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+									</Button>
+								</Grid>
+
+								<!-- число шагов предпросмотра -->
+								<DockPanel>
+									<Label Content="Steps: " Width="100"/>
+									<xctk:IntegerUpDown x:Name="PreviewSteps"
+							Increment="1" Value="8" Minimum="2" Width="100" HorizontalAlignment="Left"
+							Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+							Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+							BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+								</DockPanel>
+
+								<!-- время предпросмотра каждого шага -->
+								<DockPanel>
+									<Label Content="Time (sec): " Width="100"/>
+									<xctk:IntegerUpDown x:Name="PreviewTime"
+							Increment="1" Value="2" Minimum="1" Width="100" HorizontalAlignment="Left"
+							Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+							Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+							BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+								</DockPanel>
+							</StackPanel>
+
+						</StackPanel>
+					</GroupBox>
+
+					<GroupBox Margin="1,1,1,5">
+						<GroupBox.Header>
+							<Label FontSize="9" Padding="0">Context menu</Label>
+						</GroupBox.Header>
+						<StackPanel Orientation="Horizontal">
+							<Button Content="Add" Width="100" Click="AddContextActionToReg"/>
+							<Button Content="Remove" Width="100" Click="RemoveContextActionFromReg"/>
+						</StackPanel>
+					</GroupBox>
+
+				</StackPanel>
+			</ScrollViewer>
+
 
 		</DockPanel>
+		</Border>
 	</Grid>
 </UserControl>

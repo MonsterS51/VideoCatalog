@@ -25,18 +25,6 @@ namespace VideoCatalog.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool FoundFFMpegLibs {
-            get {
-                return ((bool)(this["FoundFFMpegLibs"]));
-            }
-            set {
-                this["FoundFFMpegLibs"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("C:\\ffmpeg\\bin\\")]
         public string FFMpegBinPath {
             get {
@@ -56,6 +44,66 @@ namespace VideoCatalog.Properties {
             }
             set {
                 this["PreviewMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int GridSizeAlbum {
+            get {
+                return ((int)(this["GridSizeAlbum"]));
+            }
+            set {
+                this["GridSizeAlbum"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int GridSizeEnt {
+            get {
+                return ((int)(this["GridSizeEnt"]));
+            }
+            set {
+                this["GridSizeEnt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int PreviewTime {
+            get {
+                return ((int)(this["PreviewTime"]));
+            }
+            set {
+                this["PreviewTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        public int PreviewSteps {
+            get {
+                return ((int)(this["PreviewSteps"]));
+            }
+            set {
+                this["PreviewSteps"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool PreviewEnabled {
+            get {
+                return ((bool)(this["PreviewEnabled"]));
+            }
+            set {
+                this["PreviewEnabled"] = value;
             }
         }
     }

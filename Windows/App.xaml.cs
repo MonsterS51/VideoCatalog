@@ -11,23 +11,10 @@ namespace VideoCatalog {
 	public partial class App : Application {
 		public static string[] mArgs;
 
+		public static bool FoundFFMpegLibs;
+
 		private void Application_Startup(object sender, StartupEventArgs e) {
-			// загрузка библиотек ffmpeg для FFME
-			if (new DirectoryInfo(VideoCatalog.Properties.Settings.Default.FFMpegBinPath).Exists) {
-				try {
-					Unosquare.FFME.Library.FFmpegDirectory = VideoCatalog.Properties.Settings.Default.FFMpegBinPath;
-					Unosquare.FFME.Library.LoadFFmpeg();
-					VideoCatalog.Properties.Settings.Default.FoundFFMpegLibs = true;
-				} catch (FileNotFoundException) {
-					VideoCatalog.Properties.Settings.Default.FoundFFMpegLibs = false;
-					Console.WriteLine("Cant load FFmpeg libs at " + VideoCatalog.Properties.Settings.Default.FFMpegBinPath);
-				}
-			} else {
-				VideoCatalog.Properties.Settings.Default.FoundFFMpegLibs = false;
-				Console.WriteLine("Folder with FFmpeg libs at " + VideoCatalog.Properties.Settings.Default.FFMpegBinPath + " not found !");
-			}
-
-
+			LoadFFMpegLibs();
 
 			MainWindow mainWindow = new MainWindow();
 			mainWindow.Show();
@@ -37,8 +24,30 @@ namespace VideoCatalog {
 				mainWindow.OpenFolder(new DirectoryInfo(mArgs.FirstOrDefault()));
 			}
 
+			// сохранение настроек по закрытию приложения
+			Exit += (s, eea) => { VideoCatalog.Properties.Settings.Default.Save(); };
 
 		}
+
+		///<summary> Загрузка библиотек ffmpeg для FFME. </summary>
+		public static void LoadFFMpegLibs() {
+			if (new DirectoryInfo(VideoCatalog.Properties.Settings.Default.FFMpegBinPath).Exists) {
+				try {
+					Console.WriteLine("Try load FFmpeg libs at " + VideoCatalog.Properties.Settings.Default.FFMpegBinPath);
+					Unosquare.FFME.Library.FFmpegDirectory = VideoCatalog.Properties.Settings.Default.FFMpegBinPath;
+					Unosquare.FFME.Library.LoadFFmpeg();
+					FoundFFMpegLibs = true;
+				} catch (FileNotFoundException) {
+					FoundFFMpegLibs = false;
+					Console.WriteLine("Can`t load FFmpeg libs at " + VideoCatalog.Properties.Settings.Default.FFMpegBinPath);
+				}
+			} else {
+				FoundFFMpegLibs = false;
+				Console.WriteLine("Folder with FFmpeg libs at " + VideoCatalog.Properties.Settings.Default.FFMpegBinPath + " not found !");
+			}
+		}
+
+
 
 	}
 

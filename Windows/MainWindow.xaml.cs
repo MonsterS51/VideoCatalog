@@ -22,8 +22,6 @@ namespace VideoCatalog {
 		public MainWindow() {
 			InitializeComponent();
 			CatEng = new CatalogEngine(this);
-			//Console.WriteLine("The number of processors = {0}", Environment.ProcessorCount);
-
 		}
 
 
@@ -42,16 +40,6 @@ namespace VideoCatalog {
 					CatEng.LoadCatalogRoot(dialog.FileName);
 				}
 			}
-
-			//using (var fbd = new Microsoft.Win32.FolderBrowserDialog()) {
-			//	if (!string.IsNullOrEmpty(prevPath)) fbd.SelectedPath = prevPath;	// открываем с последней открытой папки
-			//	var result = fbd.ShowDialog();
-			//	if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath)) {
-			//		CloseCatalog(null, null);
-			//		prevPath = fbd.SelectedPath;
-			//		CatEng.LoadCatalogRoot(fbd.SelectedPath);
-			//	}
-			//}
 		}
 
 		///<summary> Открытие папки через путь (обычно используется при открытии из проводника). Имеет проверку на наличие файла каталога и диалог его открытия. </summary>
@@ -79,7 +67,7 @@ namespace VideoCatalog {
 		}
 
 		/// <summary> Сохранение каталога. </summary>
-		public void SaveCatalog(object sender, System.EventArgs e) {
+		public void SaveCatalog(object sender, EventArgs e) {
 			var sfd = new Microsoft.Win32.SaveFileDialog();
 			sfd.InitialDirectory = CatalogRoot.CatDir.FullName;
 			sfd.Filter = "vcat files (*.vcat)|*.vcat|All files (*.*)|*.*";
@@ -92,7 +80,7 @@ namespace VideoCatalog {
 		}
 
 		/// <summary> Загрузка каталога из файла сохранения. </summary>
-		public void LoadCatalog(object sender, System.EventArgs e) {
+		public void LoadCatalog(object sender, EventArgs e) {
 			var ofd = new Microsoft.Win32.OpenFileDialog();
 			//ofd.InitialDirectory = CatEng.CatDir.FullName;
 			ofd.Filter = "vcat files (*.vcat)|*.vcat|All files (*.*)|*.*";
@@ -105,7 +93,7 @@ namespace VideoCatalog {
 		}
 
 		/// <summary> Закрытие каталога и очистка ресурсов. </summary>
-		public void CloseCatalog(object sender, System.EventArgs e) {
+		public void CloseCatalog(object sender, EventArgs e) {
 			CloseAllTab();
 
 			var albList = CatEng?.CatRoot?.AlbumsList;
@@ -128,7 +116,7 @@ namespace VideoCatalog {
 			GC_Forcer();
 		}
 
-		public void UpdateCatalog(object sender, System.EventArgs e) {
+		public void UpdateCatalog(object sender, EventArgs e) {
 			CatEng?.CatRoot?.LoadRootFolder(CatEng.CatRoot.CatPath);
 			GC_Forcer();
 		}
@@ -143,10 +131,7 @@ namespace VideoCatalog {
 			});
 		}
 
-		///<summary> Действия по закрытию. </summary>
-		private void OnExit(object sender, ExitEventArgs e) {
-			Properties.Settings.Default.Save();
-		}
+
 
 		#endregion
 
@@ -201,7 +186,7 @@ namespace VideoCatalog {
 
 
 
-		public void OpenSettingTab(object sender, System.EventArgs e) {
+		public void OpenSettingTab(object sender, EventArgs e) {
 			string tabname = "Settings";
 			if (tabMap.ContainsKey(tabname)) {
 				Dispatcher.BeginInvoke((Action)(() => tabMap[tabname].IsSelected = true));
@@ -285,31 +270,10 @@ namespace VideoCatalog {
 				};
 			}
 
-
-
 			albPanel.SetSidePanel(asp);
 		}
 
 		//---R
-
-		private void AddContextActionToReg(object sender, System.EventArgs e) {
-			// добавление открытия через контекстное меню папки винды
-			string exePath = "\"" + System.Reflection.Assembly.GetExecutingAssembly().Location + "\"";
-
-			Microsoft.Win32.RegistryKey classShell2 = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software").OpenSubKey("Classes").OpenSubKey("Directory").OpenSubKey("Background").OpenSubKey("shell", true);
-			Microsoft.Win32.RegistryKey rootKey2 = classShell2.CreateSubKey("Open with VidCat");
-			rootKey2.SetValue("Icon", $"{exePath},0");
-			Microsoft.Win32.RegistryKey comKey2 = rootKey2.CreateSubKey("command");
-			comKey2.SetValue(null, $"{exePath} \"%V\"");
-			rootKey2.Close();
-
-			Microsoft.Win32.RegistryKey classShell = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software").OpenSubKey("Classes").OpenSubKey("Directory").OpenSubKey("shell", true);
-			Microsoft.Win32.RegistryKey rootKey = classShell.CreateSubKey("Open with VidCat");
-			rootKey.SetValue("Icon", $"{exePath},0");
-			Microsoft.Win32.RegistryKey comKey = rootKey.CreateSubKey("command");
-			comKey.SetValue(null, $"{exePath} \"%1\"");
-			rootKey.Close();
-		}
 
 		public void btnEnterName_Click(object sender, RoutedEventArgs e) {
 			InputDialog inputDialog = new InputDialog("Please enter your name:", "John Doe");

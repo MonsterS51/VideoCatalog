@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -14,6 +10,9 @@ namespace VideoCatalog.Windows {
 	public partial class PreviewFrameWPF : UserControl {
 		public PreviewFrameWPF() {
 			InitializeComponent();
+
+			totalSteps = Properties.Settings.Default.PreviewSteps;
+			secSpan = Properties.Settings.Default.PreviewTime;
 		}
 
 		private int curStep = 1;
@@ -37,8 +36,8 @@ namespace VideoCatalog.Windows {
 
 				timer = new DispatcherTimer() { Interval = new TimeSpan(0, 0, secSpan) };     // смещение через 2 секунды
 				timer.Tick += Timer_Tick;
-
 				Timer_Tick(null, null);
+
 				mediaPlayer.Play();
 				if (timer != null) timer.Start();
 			} else {
@@ -46,8 +45,7 @@ namespace VideoCatalog.Windows {
 				prevProgress.Visibility = Visibility.Visible;
 				prevProgress.IsIndeterminate = true;
 				mediaPlayer.MediaEnded += new RoutedEventHandler(m_MediaEnded);	// заLOOPа
-				mediaPlayer.Play();
-				
+				mediaPlayer.Play();		
 			}
 
 		}

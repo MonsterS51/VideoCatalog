@@ -2,14 +2,26 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="VideoCatalog.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="FoundFFMpegLibs" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="FFMpegBinPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\ffmpeg\bin\</Value>
     </Setting>
     <Setting Name="PreviewMode" Type="System.String" Scope="User">
       <Value Profile="(Default)">FFME</Value>
+    </Setting>
+    <Setting Name="GridSizeAlbum" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="GridSizeEnt" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="PreviewTime" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2</Value>
+    </Setting>
+    <Setting Name="PreviewSteps" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8</Value>
+    </Setting>
+    <Setting Name="PreviewEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>
