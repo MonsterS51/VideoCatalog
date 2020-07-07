@@ -1,6 +1,4 @@
-﻿using LibVLCSharp.Shared;
-using Meta.Vlc.Wpf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,8 +10,6 @@ namespace VideoCatalog {
 	/// </summary>
 	public partial class App : Application {
 		public static string[] mArgs;
-
-		public static VlcPlayer mediaPlayer;
 
 		private void Application_Startup(object sender, StartupEventArgs e) {
 			// загрузка библиотек ffmpeg для FFME

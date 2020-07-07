@@ -146,7 +146,6 @@ namespace VideoCatalog {
 		///<summary> Действия по закрытию. </summary>
 		private void OnExit(object sender, ExitEventArgs e) {
 			Properties.Settings.Default.Save();
-			Meta.Vlc.Wpf.ApiManager.ReleaseAll();
 		}
 
 		#endregion

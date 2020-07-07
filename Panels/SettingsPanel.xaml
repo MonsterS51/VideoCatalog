@@ -4,7 +4,6 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 			 xmlns:local="clr-namespace:VideoCatalog.Windows"
-			 xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
 			 mc:Ignorable="d" 
 			 d:DesignHeight="450" d:DesignWidth="800">
 	<Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,0,0,0">
@@ -20,8 +19,6 @@
 						<ComboBox Name="CB_previewMode" Width="100" SelectedValuePath="Content">
 							<ComboBoxItem Content="WPF" IsSelected="True" />
 							<ComboBoxItem Content="FFME"/>
-							<ComboBoxItem Content="VLC"/>
-							<ComboBoxItem Content="VLC_META"/>
 						</ComboBox>
 					</StackPanel>
 				</GroupBox>
