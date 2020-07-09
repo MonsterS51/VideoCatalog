@@ -26,6 +26,8 @@ namespace VideoCatalog.Panels {
 
 			PreviewSteps.Value = Properties.Settings.Default.PreviewSteps;
 			PreviewTime.Value = Properties.Settings.Default.PreviewTime;
+
+			CoverMaxSize.Value = Properties.Settings.Default.CoverMaxSize;
 		}
 
 		///<summary> Принятие изменений в настройках. </summary>
@@ -46,6 +48,8 @@ namespace VideoCatalog.Panels {
 
 			Properties.Settings.Default.PreviewSteps = (int) PreviewSteps.Value;
 			Properties.Settings.Default.PreviewTime = (int) PreviewTime.Value;
+
+			Properties.Settings.Default.CoverMaxSize = (int) CoverMaxSize.Value;
 
 			//---
 
@@ -140,10 +144,10 @@ namespace VideoCatalog.Panels {
 				classShell_0?.DeleteSubKeyTree(comString);
 
 				Microsoft.Win32.RegistryKey classShell_1 = Microsoft.Win32.Registry.LocalMachine.
-				OpenSubKey("Software")?.
-				OpenSubKey("Classes")?.
-				OpenSubKey("Directory")?.
-				OpenSubKey("shell", true);
+					OpenSubKey("Software")?.
+					OpenSubKey("Classes")?.
+					OpenSubKey("Directory")?.
+					OpenSubKey("shell", true);
 
 				classShell_1?.DeleteSubKeyTree(comString);
 			} catch (Exception ex) {

@@ -55,6 +55,7 @@
 			</Setter>
 		</Style>
 	</Window.Resources>
+	
 	<Grid>
 		<DockPanel Margin="-2" LastChildFill="True" SnapsToDevicePixels="True" UseLayoutRounding="True" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" >
 			<!--<ListBox x:Name="albumsListBox" DockPanel.Dock="Left" Width="300" ></ListBox>-->
@@ -78,7 +79,7 @@
 
 		</DockPanel>
 
-		<StackPanel x:Name="startToolbar" Width="200" Height="100">
+		<StackPanel x:Name="startToolbar" Width="200" Height="120">
 			<Button x:Name="newBtn" VerticalAlignment="Center" Click="OpenFolder" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 				<StackPanel Orientation="Horizontal">
 					<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
@@ -89,6 +90,12 @@
 				<StackPanel Orientation="Horizontal">
 					<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/file2.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 					<Label FontSize="16">Open Catalog File</Label>
+				</StackPanel>
+			</Button>
+			<Button x:Name="configBtn" VerticalAlignment="Center" Click="OpenSettings" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+				<StackPanel Orientation="Horizontal">
+					<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/settings.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+					<Label FontSize="16">Settings</Label>
 				</StackPanel>
 			</Button>
 		</StackPanel>

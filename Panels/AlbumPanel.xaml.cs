@@ -22,12 +22,17 @@ namespace VideoCatalog.Windows {
 
 		private bool isRoot = false;
 
-		public AlbumPanel() {
-			InitializeComponent();
-			Btn_SidePanelSwitch(null, null);
-			LoadSettings();
-		}
+		//public AlbumPanel() {
+		//	InitializeComponent();
+		//	Btn_SidePanelSwitch(null, null);
+		//	LoadSettings();
+		//}
 
+		/// <summary>
+		/// Панель представления набора элементов каталога.
+		/// </summary>
+		/// <param name="BaseList"> Набор элементов для панели. </param>
+		/// <param name="isRoot"> Является панелью каталога. </param>
 		public AlbumPanel(IEnumerable<AbstractEntry> BaseList, bool isRoot = false) {
 			InitializeComponent();
 			this.isRoot = isRoot;
@@ -51,17 +56,8 @@ namespace VideoCatalog.Windows {
 			LoadSettings();
 		}
 
-		/// <summary> Очистка панели (для повторного использования плашек). </summary>
-		public void ClearPanel() {
-			foreach (var panelEnt in entPlates.Children) {
-				if (panelEnt is UniformGrid) {
-					var grid = panelEnt as UniformGrid;
-					grid.Children.Clear();
-				}
-			}
-			entPlates.Children.Clear();
-		}
-
+		//---B
+		#region Scroll and helper label
 
 		///<summary> Обработка изменения скролла с панелями альбомов. </summary>
 		private void Scroll_ValueChanged(object sender, EventArgs e) {
@@ -132,10 +128,19 @@ namespace VideoCatalog.Windows {
 			}
 
 		}
+		#endregion
+
+		//---Y
+		#region Panel Content Update
+
+		///<summary> Переформирование содержимого панели с учетом фильтрации/сортировки. </summary>
+		public void UpdatePanelContent() {
+			FilterChanged(null, null);
+		}
 
 		private FilterSorterModule.SortMode mode;
 		///<summary> Обновление после изменения одного из контролов фильтра. </summary>
-		public void FilterChanged(object sender, RoutedEventArgs e) {
+		private void FilterChanged(object sender, RoutedEventArgs e) {
 			switch (filterPanel.sortMode.SelectedIndex) {
 				case 0: {
 					mode = FilterSorterModule.SortMode.NAME;
@@ -160,11 +165,10 @@ namespace VideoCatalog.Windows {
 			}
 			UpdateSrcList(filterPanel.filterBox.Text, mode, filterPanel.ascendChkBox.IsChecked ?? false, filterPanel.brokenChkBox.IsChecked ?? false);
 			FillPlates();
-
 		}
 
 		///<summary> Прогон всех альбомов через фильтр и обновление конечного списка. </summary>
-		public void UpdateSrcList(string str, FilterSorterModule.SortMode sortMode = FilterSorterModule.SortMode.NAME, bool ascend = true, bool broken = false) {
+		private void UpdateSrcList(string str, FilterSorterModule.SortMode sortMode = FilterSorterModule.SortMode.NAME, bool ascend = true, bool broken = false) {
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			srcList = fsm.FilterByName(str, CatalogEngine.MainWin?.CatEng?.CatRoot?.tagsList, sortMode, ascend, broken);
@@ -175,7 +179,7 @@ namespace VideoCatalog.Windows {
 
 
 		/// <summary> Перезаполнение плитками альбомов панели. </summary>
-		public void FillPlates() {
+		private void FillPlates() {
 			foreach (var panelEnt in entPlates.Children) {
 				if (panelEnt is UniformGrid) {
 					var grid = panelEnt as UniformGrid;
@@ -246,6 +250,18 @@ namespace VideoCatalog.Windows {
 			Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.lblCountTotal.Text = "Total: " + srcList.Count()));
 		}
 
+		/// <summary> Очистка панели (для повторного использования плашек). </summary>
+		public void ClearPanel() {
+			foreach (var panelEnt in entPlates.Children) {
+				if (panelEnt is UniformGrid) {
+					var grid = panelEnt as UniformGrid;
+					grid?.Children.Clear();
+				}
+			}
+			entPlates.Children.Clear();
+		}
+		#endregion
+
 		//---
 		#region UI States
 		public void SetUiStateClosed() {
@@ -290,37 +306,6 @@ namespace VideoCatalog.Windows {
 		//---
 
 		private bool spIsShown = true;
-		//private void btnRightMenuHide_Click(object sender, RoutedEventArgs e) {
-		//	ShowHideMenu("sbHideRightMenu", btnRightMenuHide, btnRightMenuShow, pnlRightMenu);
-		//}
-
-		//private void btnRightMenuShow_Click(object sender, RoutedEventArgs e) {
-		//	ShowHideMenu("sbShowRightMenu", btnRightMenuHide, btnRightMenuShow, pnlRightMenu);
-		//}
-		//private void ShowHideMenu(string StoryboardStr, Button btnHide, Button btnShow, StackPanel pnl) {
-		//	Storyboard sb = Resources[StoryboardStr] as Storyboard;
-		//	sb.Begin(pnl);
-
-		//	if (StoryboardStr.Contains("Show")) {
-		//		btnHide.Visibility = System.Windows.Visibility.Visible;
-		//		btnShow.Visibility = System.Windows.Visibility.Hidden;
-		//		spIsShown = true;
-		//	} else if (StoryboardStr.Contains("Hide")) {
-		//		btnHide.Visibility = System.Windows.Visibility.Hidden;
-		//		btnShow.Visibility = System.Windows.Visibility.Visible;
-		//		spIsShown = false;
-		//	}
-		//}
-
-		//public void ShowSidePanel(UIElement contPanel) {
-		//	sidePanelSlot.Children.Clear();
-		//	if (contPanel == null) return;
-		//	sidePanelSlot.Children.Add(contPanel);
-
-		//	if (!spIsShown) {
-		//		ShowHideMenu("sbShowRightMenu", btnRightMenuHide, btnRightMenuShow, pnlRightMenu);
-		//	}
-		//}
 
 		public void SetSidePanel(UIElement contPanel) {
 			sidePanelSlot.Children.Clear();

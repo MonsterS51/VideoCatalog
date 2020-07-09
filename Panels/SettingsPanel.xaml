@@ -90,7 +90,24 @@
 						</StackPanel>
 					</GroupBox>
 
-				</StackPanel>
+						<GroupBox Margin="1,1,1,5">
+							<GroupBox.Header>
+								<Label FontSize="9" Padding="0">Cover</Label>
+							</GroupBox.Header>
+							<StackPanel Orientation="Horizontal">
+								<!-- время предпросмотра каждого шага -->
+								<DockPanel>
+									<Label Content="Max Size (px): " Width="100"/>
+									<xctk:IntegerUpDown x:Name="CoverMaxSize"
+							Increment="100" Value="0" Minimum="1" Width="100" HorizontalAlignment="Left"
+							Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+							Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+							BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+								</DockPanel>
+							</StackPanel>
+						</GroupBox>
+
+					</StackPanel>
 			</ScrollViewer>
 
 

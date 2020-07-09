@@ -94,7 +94,11 @@ namespace VideoCatalog.Main {
 					bmi = CatalogEngine.LoadBitMap(coverArtPath);
 				} else {
 					// создаем ковер из кадра файла
-					bmi = CatalogEngine.LoadBitMapFromVideo(EntAbsPath);
+
+					float vidPos = 0;
+					if (duration > 1) vidPos = (float)(duration / 2);       // если меньше секунды, кадр из середины выдернуть не может и выбрасывает
+
+					bmi = CatalogEngine.LoadBitMapFromVideo(EntAbsPath, int.Parse(width), vidPos);
 				}
 				CoverImage = bmi;
 			}

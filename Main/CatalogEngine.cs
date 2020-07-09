@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -21,32 +22,29 @@ namespace VideoCatalog.Main {
 		public UdpClientModule udpCM;
 		public static MainWindow MainWin;
 
-		public static int coverWidth = 1000;
+		//public static int maxCoverWidth = 0;
 		public static int maxThreads = 8;
 
 		public CatalogEngine(MainWindow mw) {
 			MainWin = mw;
 
 			//emptyCover = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/cross.png", UriKind.RelativeOrAbsolute));
-			
-			//udpCM = new UdpClientModule();
-			//udpCM.SendUdp("VERSION");
-			//udpCM.TestUdp("MonsterS51", "555833iddqd", "");
 		}
 
 
-
-
+		///<summary> Формирование нового объекта каталога по папке. </summary>
 		public void LoadCatalogRoot(string path) {
 			CatRoot = new CatalogRoot();
 			CatRoot.LoadRootFolder(path);
 		}
 
+		///<summary> Сохранение каталога сериализацией объекта CatalogRoot. </summary>
 		public void SaveCatalogXML(string path) {
 			XElement catData = Serialize_YAX(CatRoot);
 			catData.Save(path);
 		}
 
+		///<summary> Восстановление каталога десериализацией файла. </summary>
 		public void LoadCatalogXML(string path) {
 			XDocument xDoc = XDocument.Load(path);
 			if (xDoc != null) {
@@ -54,7 +52,6 @@ namespace VideoCatalog.Main {
 				CatalogRoot loadedCatRoot = Deserialize_YAX(xDoc.Root) as CatalogRoot;
 				if (loadedCatRoot != null) {
 					Console.WriteLine($"Loaded <{path}>");
-					CatalogEngine.MainWin.startToolbar.Visibility = Visibility.Hidden;
 					CatRoot = loadedCatRoot;
 					CatRoot.CatPath = new FileInfo(path).Directory.FullName;    // корень - папка с файлом
 					CatRoot.LoadDeserial();
@@ -67,23 +64,38 @@ namespace VideoCatalog.Main {
 
 		}
 
-
+		//---B
+		#region Util`s
 
 		/// <summary> Загрузка изображения по пути к файлу. </summary>
 		public static BitmapImage LoadBitMap(string path) {
 			BitmapImage coverImage = new BitmapImage();
-
-			//TODO подсовывать зафризеную пустышку
 			if (string.IsNullOrWhiteSpace(path)) return coverImage;
 			FileInfo fi = new FileInfo(path);
 			if (!fi.Exists) return coverImage;
 
-			using (FileStream memory = File.OpenRead(path)) {
+			int imgWidth = Properties.Settings.Default.CoverMaxSize;
+
+			// читаем ширину, только если ограничили размер, иначе и так читает по размеру файла
+			if (imgWidth != 0) {
+				int width = 0;
+				using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+					using (var image = Image.FromStream(fileStream)) {
+						width = image.Width;
+					}
+				}
+				if (width < imgWidth) imgWidth = width;   // формируем кавер размером с оригинальное изображение для экономии
+			}
+
+			using (FileStream memory = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 				try {
+					memory.Position = 0;
+
 					coverImage.BeginInit();
 					coverImage.StreamSource = memory;
 					coverImage.CacheOption = BitmapCacheOption.OnLoad;
-					coverImage.DecodePixelWidth = CatalogEngine.coverWidth;
+					coverImage.DecodePixelWidth = imgWidth;
+
 					coverImage.EndInit();
 					coverImage.StreamSource = null;
 					memory.Close();
@@ -96,8 +108,10 @@ namespace VideoCatalog.Main {
 			return coverImage;
 		}
 
+
+
 		/// <summary> Загрузка изображения из середины видео по пути к файлу. </summary>
-		public static BitmapImage LoadBitMapFromVideo(string path) {
+		public static BitmapImage LoadBitMapFromVideo(string path, int vidWidth, float vidPos) {
 			BitmapImage coverImage = new BitmapImage();
 
 			if (string.IsNullOrWhiteSpace(path)) return coverImage;
@@ -108,10 +122,10 @@ namespace VideoCatalog.Main {
 				try {
 					FFMpegConverter ffMpeg = new FFMpegConverter();
 
-					var totDur = ffProbe.GetMediaInfo(path).Duration.TotalSeconds;
-					float middle = 0;
-					if (totDur > 1) middle = (float)(totDur / 2) ;		// если меньше секунды, кадр из середины выдернуть не может и выбрасывает
-					ffMpeg.GetVideoThumbnail(path, memory, middle);
+					var imgWidth = Properties.Settings.Default.CoverMaxSize;
+					if (vidWidth < imgWidth) imgWidth = vidWidth;	// формируем кавер размером с видео для экономии
+
+					ffMpeg.GetVideoThumbnail(path, memory, vidPos);
 					memory.Position = 0;
 
 					try {
@@ -119,7 +133,7 @@ namespace VideoCatalog.Main {
 						coverImage.BeginInit();
 						coverImage.StreamSource = memory;
 						coverImage.CacheOption = BitmapCacheOption.OnLoad;
-						coverImage.DecodePixelWidth = CatalogEngine.coverWidth;
+						coverImage.DecodePixelWidth = imgWidth;
 						coverImage.EndInit();
 						coverImage.StreamSource = null;
 					} catch (NotSupportedException ex2) { 
@@ -145,7 +159,7 @@ namespace VideoCatalog.Main {
 			return coverImage;
 		}
 
-		/// <summary> Получить продолжительность видео в секундах. </summary>
+		/// <summary> Получить продолжительность видео в секундах. Сначала через ShellFile, при неудаче - через FFProbe. </summary>
 		public static int GetDuration(string path) {
 			if (string.IsNullOrWhiteSpace(path)) return 1;
 			FileInfo fi = new FileInfo(path);
@@ -156,14 +170,15 @@ namespace VideoCatalog.Main {
 				var file = ShellFile.FromFilePath(path);
 				dur = file?.Properties?.System?.Media?.Duration?.ValueAsObject;
 			} catch (ArgumentException ex) {
-				Console.WriteLine(ex.Message);
+				Console.WriteLine("GetDuration() ex: " + ex.Message);
 			}
 
 			if (dur == null) {
 				// на случай, если не смогли получить через шел
 				try {
 					return (int)ffProbe.GetMediaInfo(path).Duration.TotalSeconds;
-				} catch (Exception) {
+				} catch (Exception ex2) {
+					Console.WriteLine("GetDuration() ex: " + ex2.Message);
 					return 0;
 				}
 			}
@@ -171,6 +186,7 @@ namespace VideoCatalog.Main {
 			var t = (ulong) dur;
 			return (int) TimeSpan.FromTicks((long)t).TotalSeconds;
 		}
+		#endregion
 
 		//---R
 
@@ -193,6 +209,8 @@ namespace VideoCatalog.Main {
 			return null;
 		}
 		#endregion
+
+		//---B
 
 		#region Shell32
 		public static void OpenExplorer(string filePath) {

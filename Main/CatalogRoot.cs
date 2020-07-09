@@ -34,7 +34,6 @@ namespace VideoCatalog.Main {
 			Console.WriteLine($"Load Root <{CatDir}>");
 
 			CatalogEngine.MainWin.OpenMainTab();
-			CatalogEngine.MainWin.startToolbar.Visibility = Visibility.Hidden;
 			CatalogEngine.MainWin.MainPanel.SetUiStateLoading();
 			CatalogEngine.MainWin.MainPanel.pBar.IsIndeterminate = false;
 
@@ -75,7 +74,7 @@ namespace VideoCatalog.Main {
 			RunLoadAlbumesCoversThread();
 			UpdateTagsList();
 			ChkAlbAndEntState();
-			CatalogEngine.MainWin.MainPanel.FilterChanged(null, null);  // дергаем обновление фильтра через форму, чтобы подхватить установленные значения
+			CatalogEngine.MainWin.MainPanel.UpdatePanelContent();
 			CatalogEngine.MainWin.MainPanel.loadingPanel.Visibility = Visibility.Hidden;
 			CatalogEngine.MainWin.MainPanel.SetUiStateOpened();
 		}
@@ -85,7 +84,6 @@ namespace VideoCatalog.Main {
 			Console.WriteLine($"Load Root <{CatDir}>");
 
 			CatalogEngine.MainWin.OpenMainTab();
-			CatalogEngine.MainWin.startToolbar.Visibility = Visibility.Hidden;
 			CatalogEngine.MainWin.MainPanel.SetUiStateLoading();
 			CatalogEngine.MainWin.MainPanel.pBar.IsIndeterminate = true;
 

@@ -48,6 +48,7 @@ namespace VideoCatalog.Main {
 		public bool isBroken = false;
 
 		//---
+		
 		///<summary> Возвращает самую раннюю(позднюю) дату создания файла из всех входящих элементов. </summary>
 		public virtual DateTime GetDateCreate(bool byLatest = false) {
 			return DateTime.Now;
@@ -75,6 +76,7 @@ namespace VideoCatalog.Main {
 		}
 
 		//---
+		
 		public event PropertyChangedEventHandler PropertyChanged;
 		public void OnPropertyChanged([CallerMemberName]string prop = "") {
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
