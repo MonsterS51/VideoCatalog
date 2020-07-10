@@ -1,12 +1,14 @@
-﻿namespace System.Windows.Data {
-    using System.Collections.Generic;
+﻿namespace VideoCatalog.Util {
+	using System;
+	using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+	using System.Windows.Data;
 
-    public class WpfObservableRangeCollection<T> : ObservableRangeCollection<T> {
+	public class WpfObservableRangeCollection<T> : ObservableRangeCollection<T> {
         DeferredEventsCollection _deferredEvents;
 
         public WpfObservableRangeCollection() {

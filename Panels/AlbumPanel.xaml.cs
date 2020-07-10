@@ -9,8 +9,9 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using VideoCatalog.Main;
+using VideoCatalog.Windows;
 
-namespace VideoCatalog.Windows {
+namespace VideoCatalog.Panels {
 	/// <summary>
 	/// Interaction logic for AlbumPanel.xaml
 	/// </summary>

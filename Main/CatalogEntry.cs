@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using VideoCatalog.Panels;
 using VideoCatalog.Windows;
 using YAXLib;
 

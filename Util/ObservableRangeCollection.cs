@@ -1,15 +1,18 @@
-﻿namespace System.Collections.ObjectModel {
-    // Licensed to the .NET Foundation under one or more agreements.
-    // The .NET Foundation licenses this file to you under the MIT license.
-    // See the LICENSE file in the project root for more information.
+﻿namespace VideoCatalog.Util {
+	using System;
+	using System.Collections;
+	// Licensed to the .NET Foundation under one or more agreements.
+	// The .NET Foundation licenses this file to you under the MIT license.
+	// See the LICENSE file in the project root for more information.
 
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
+	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
+	using System.Collections.Specialized;
     using System.ComponentModel;
     using System.Diagnostics;
 
     /// <summary>
-    /// Implementation of a dynamic data collection based on generic Collection&lt;T&gt;,
+    /// Implementation of a dynamic data collection based on generic Collection &lt;T&gt;,
     /// implementing INotifyCollectionChanged to notify listeners
     /// when items get added, removed or the whole list is refreshed.
     /// </summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VideoCatalog.Main {
+namespace VideoCatalog.Util {
     public static class StringExtensions {
 
         ///<summary> Сравнение строк без учета регистра букв. </summary>

@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
-namespace VideoCatalog.Main {
+namespace VideoCatalog.Tabs {
     public class UniformTabPanel : UniformGrid {
         public UniformTabPanel() {
             IsItemsHost = true;

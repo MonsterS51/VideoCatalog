@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace VideoCatalog.Windows {
+namespace VideoCatalog.Panels {
 	/// <summary>
 	/// Interaction logic for FilterPanel.xaml
 	/// </summary>

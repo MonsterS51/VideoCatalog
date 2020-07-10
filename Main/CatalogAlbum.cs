@@ -11,6 +11,8 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 using System.Windows.Documents;
+using VideoCatalog.Panels;
+using VideoCatalog.Util;
 
 namespace VideoCatalog.Main {
 	/// <summary>
@@ -58,6 +60,8 @@ namespace VideoCatalog.Main {
 			UpdatePaths();
 			WithSubDir = withSubDir;
 			Name = dir.Name;
+			atrMap.Add(new AtrEnt( "1", "test 1"));
+			atrMap.Add(new AtrEnt("2", "test 2"));
 		}
 
 		public void UpdatePaths() {

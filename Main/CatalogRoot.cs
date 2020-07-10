@@ -14,7 +14,7 @@ using YAXLib;
 namespace VideoCatalog.Main {
 	public class CatalogRoot {
 		[YAXDontSerialize]
-		public static DirectoryInfo CatDir { get; set; }   //	например D:\data
+		public static DirectoryInfo CatDir { get; set; }   // например D:\data
 		[YAXDontSerialize]
 		public string CatPath { get { return CatDir.FullName; } set { CatDir = new DirectoryInfo(value); } }
 		public List<CatalogAlbum> AlbumsList { get; set; } = new List<CatalogAlbum>();

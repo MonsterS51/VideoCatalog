@@ -4,8 +4,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using VideoCatalog.Main;
+using VideoCatalog.Windows;
 
-namespace VideoCatalog.Windows {
+namespace VideoCatalog.Panels {
 	/// <summary>
 	/// Interaction logic for AlbumPlate.xaml
 	/// </summary>

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Media.Imaging;
+using VideoCatalog.Panels;
 using VideoCatalog.Windows;
 using YAXLib;
 
@@ -21,14 +24,34 @@ namespace VideoCatalog.Main {
 
 		//---
 
-		public string TagStr { get; set; } = "";
+		private string _tagStr = "";
+
+		public string TagStr { get { return _tagStr; } set { _tagStr = value; OnPropertyChanged("TagStr"); } }
+
 		[YAXDontSerialize]
 		public string[] TagList {
 			get {
-				if (string.IsNullOrWhiteSpace(TagStr)) return new string[0];
-				return TagStr.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(tag => tag.Trim().ToLower()).ToArray();
+				if (string.IsNullOrWhiteSpace(_tagStr)) return new string[0];
+				return _tagStr.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(tag => tag.Trim().ToLower()).ToArray();
 			}
 		}
+
+		//---
+
+		///<summary> Хранилище атрибутов элемента каталога. </summary>
+		public ObservableCollection<AtrEnt> atrMap { get; set; } = new ObservableCollection<AtrEnt>();
+
+		public class AtrEnt{
+			public AtrEnt() { }
+			public AtrEnt(string AtrName, string AtrData) {
+				this.AtrName = AtrName;
+				this.AtrData = AtrData;
+			}
+
+			public string AtrName { get; set; }
+			public string AtrData { get; set; }
+		}
+
 
 		//---
 

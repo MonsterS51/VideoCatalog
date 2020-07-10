@@ -15,13 +15,11 @@ using System.Windows.Shapes;
 
 namespace VideoCatalog.Panels {
 	/// <summary>
-	/// Interaction logic for ToolbarMain.xaml
+	/// Interaction logic for TagPlate.xaml
 	/// </summary>
-	public partial class ToolbarMain : UserControl {
-		public ToolbarMain() {
+	public partial class TagPlate : UserControl {
+		public TagPlate() {
 			InitializeComponent();
 		}
-
-
 	}
 }

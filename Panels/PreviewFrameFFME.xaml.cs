@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
-namespace VideoCatalog.Windows {
+namespace VideoCatalog.Panels {
 	/// <summary>
 	/// Interaction logic for PreviewFrameFFME.xaml
 	/// </summary>

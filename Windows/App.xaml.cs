@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 
-namespace VideoCatalog {
+namespace VideoCatalog.Windows {
 	/// <summary>
 	/// Interaction logic for App.xaml
 	/// </summary>

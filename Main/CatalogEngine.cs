@@ -8,7 +8,9 @@ using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 using Microsoft.WindowsAPICodePack.Shell;
 using NReco.VideoConverter;     // для FFMpegConverter (выдергивание кадра)
-using NReco.VideoInfo;			// для FFProbe
+using NReco.VideoInfo;          // для FFProbe
+using VideoCatalog.Util;
+using VideoCatalog.Windows;
 using YAXLib;
 
 namespace VideoCatalog.Main {

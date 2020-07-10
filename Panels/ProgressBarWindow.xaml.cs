@@ -14,7 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace VideoCatalog.Windows {
+namespace VideoCatalog.Panels {
 	/// <summary>
 	/// Interaction logic for ProgressBar.xaml
 	/// </summary>

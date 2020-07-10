@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VideoCatalog.Main {
+namespace VideoCatalog.Util {
 	public class UdpClientModule {
 
 		public void TestUdp(string username, string pass, string apiVer) {

@@ -8,9 +8,10 @@ using System.Windows;
 using System.Windows.Controls;
 using VideoCatalog.Main;
 using VideoCatalog.Panels;
+using VideoCatalog.Tabs;
 using VideoCatalog.Windows;
 
-namespace VideoCatalog {
+namespace VideoCatalog.Windows {
 	/// <summary>
 	/// Логика главного окна каталога. 
 	/// </summary>
@@ -120,15 +121,13 @@ namespace VideoCatalog {
 			GC_Forcer();
 		}
 
-		public void OpenSettings(object sender, EventArgs e) {
-			OpenSettingTab(sender, e);
-		}
-
+		///<summary> Запуск обновления открытого каталога. </summary>
 		public void UpdateCatalog(object sender, EventArgs e) {
 			CatEng?.CatRoot?.LoadRootFolder(CatEng.CatRoot.CatPath);
 			GC_Forcer();
 		}
 
+		///<summary> Принудительный запуск GC. </summary>
 		private void GC_Forcer() {
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
@@ -139,10 +138,7 @@ namespace VideoCatalog {
 			});
 		}
 
-
-
 		#endregion
-
 
 		//---G
 

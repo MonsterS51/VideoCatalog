@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using VideoCatalog.Main;
 
-namespace VideoCatalog.Windows {
+namespace VideoCatalog.Tabs {
 	/// <summary>
 	/// Author: Ed Fink
 	/// https://www.codeproject.com/Articles/84213/How-to-add-a-Close-button-to-a-WPF-TabItem
