@@ -33,9 +33,9 @@ namespace VideoCatalog.Main {
 			CatPath = path;
 			Console.WriteLine($"Load Root <{CatDir}>");
 
-			CatalogEngine.MainWin.OpenMainTab();
-			CatalogEngine.MainWin.MainPanel.SetUiStateLoading();
-			CatalogEngine.MainWin.MainPanel.pBar.IsIndeterminate = false;
+			App.MainWindow.OpenMainTab();
+			App.MainWindow.MainPanel.SetUiStateLoading();
+			App.MainWindow.MainPanel.pBar.IsIndeterminate = false;
 
 			worker = new BackgroundWorker();
 			worker.DoWork += new DoWorkEventHandler(Worker_CreateAlbums);
@@ -65,27 +65,28 @@ namespace VideoCatalog.Main {
 
 			Console.WriteLine("Search files done!");
 
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.infoText.Text = "Search files done!"));
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = "Search files done!"));
 
 		}
 
 		void Worker_CreateAlbumsDone(object sender, RunWorkerCompletedEventArgs e) {
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.infoText.Text = "Done!"));
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = "Done!"));
 			RunLoadAlbumesCoversThread();
 			UpdateTagsList();
+			UpdateAttributesList();
 			ChkAlbAndEntState();
-			CatalogEngine.MainWin.MainPanel.UpdatePanelContent();
-			CatalogEngine.MainWin.MainPanel.loadingPanel.Visibility = Visibility.Hidden;
-			CatalogEngine.MainWin.MainPanel.SetUiStateOpened();
+			App.MainWindow.MainPanel.UpdatePanelContent();
+			App.MainWindow.MainPanel.loadingPanel.Visibility = Visibility.Hidden;
+			App.MainWindow.MainPanel.SetUiStateOpened();
 		}
 
 
 		public void LoadDeserial() {
 			Console.WriteLine($"Load Root <{CatDir}>");
 
-			CatalogEngine.MainWin.OpenMainTab();
-			CatalogEngine.MainWin.MainPanel.SetUiStateLoading();
-			CatalogEngine.MainWin.MainPanel.pBar.IsIndeterminate = true;
+			App.MainWindow.OpenMainTab();
+			App.MainWindow.MainPanel.SetUiStateLoading();
+			App.MainWindow.MainPanel.pBar.IsIndeterminate = true;
 
 			worker = new BackgroundWorker();
 			worker.DoWork += new DoWorkEventHandler(DataRestore);
@@ -96,7 +97,7 @@ namespace VideoCatalog.Main {
 		private int restCount = 0;
 		///<summary> Восстановленние элементов каталога. </summary>
 		public void DataRestore(object sender, DoWorkEventArgs e) {
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.infoText.Text = "Restore data"));
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = "Restore data"));
 			List<Task> tasksList = new List<Task>();
 			foreach (var alb in AlbumsList) {
 				alb.UpdatePaths();
@@ -106,13 +107,13 @@ namespace VideoCatalog.Main {
 						ent.UpdatePaths();
 						ent.GetMetaData();
 						Interlocked.Increment(ref restCount);
-						Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.infoText.Text = $"Restore data ({restCount})"));
+						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"Restore data ({restCount})"));
 					}, TaskCreationOptions.AttachedToParent);
 					tasksList.Add(newTask);
 				}
 			}
 			Task.WaitAll(tasksList.ToArray());
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.infoText.Text = $"Restored {restCount} entry. Generate plates."));
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"Restored {restCount} entry. Generate plates."));
 
 		}
 
@@ -125,8 +126,8 @@ namespace VideoCatalog.Main {
 					CatalogAlbum oldAlbume = AlbumsList.First(alb => alb.AlbAbsPath == path.FullName);
 					oldAlbume.UpdateAlbumFiles();
 					Interlocked.Increment(ref procDone);
-					Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
-					Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.infoText.Text = $"({procDone} / {dirsCount})  {path}"));
+					Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
+					Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"({procDone} / {dirsCount})  {path}"));
 					return;
 				}
 			}
@@ -143,8 +144,8 @@ namespace VideoCatalog.Main {
 
 			lock (locker) {
 				Interlocked.Increment(ref procDone);
-				Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
-				Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.infoText.Text = $"({procDone} / {dirsCount})  {path}" ));
+				Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
+				Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"({procDone} / {dirsCount})  {path}" ));
 			}
 		}
 
@@ -186,19 +187,56 @@ namespace VideoCatalog.Main {
 		}
 		#endregion
 
+
+		#region Tags & Attributes
+
 		//---
 
-		public List<string> tagsList = new List<string>();
+		public static List<string> tagsList = new List<string>();
+
 		///<summary> Обновление списка всех тегов, использованных в альбомах. </summary>
 		public void UpdateTagsList() {
 			tagsList.Clear();
 			foreach (var alb in AlbumsList) {
+				// тэги самого альбома
 				foreach (var tag in alb.TagList) {
 					if (!tagsList.Contains(tag)) tagsList.Add(tag);
+				}
+
+				// тэги элементов альбома
+				foreach (var ent in alb.EntryList) {
+					foreach (var tag in ent.TagList) {
+						if (!tagsList.Contains(tag)) tagsList.Add(tag);
+					}
 				}
 			}
 		}
 
+		//---
+
+		public static List<string> atrList = new List<string>();
+
+		///<summary> Обновление списка всех тегов, использованных в альбомах. </summary>
+		public void UpdateAttributesList() {
+			atrList.Clear();
+			foreach (var alb in AlbumsList) {
+				// атрибуты самого альбома
+				foreach (var atrEnt in alb.atrMap) {
+					if (!atrList.Contains(atrEnt.AtrName)) atrList.Add(atrEnt.AtrName);
+				}
+
+				// атрибуты элементов альбома
+				foreach (var ent in alb.EntryList) {
+					foreach (var atrEnt in ent.atrMap) {
+						if (!atrList.Contains(atrEnt.AtrName)) atrList.Add(atrEnt.AtrName);
+					}
+				}
+			}
+		}
+
+
+
+		#endregion
 
 	}
 }

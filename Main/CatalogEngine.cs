@@ -21,15 +21,11 @@ namespace VideoCatalog.Main {
 		public static FFProbe ffProbe = new FFProbe();
 		public static string[] vidExt = new string[] { ".mkv", ".mp4", ".m4v", ".avi", ".mpg", ".m2ts", ".mpeg", ".wmv", ".flw", ".flv", ".mov", ".divx", ".webm", ".gif", ".vob"};
 		public CatalogRoot CatRoot;
-		public UdpClientModule udpCM;
-		public static MainWindow MainWin;
 
 		//public static int maxCoverWidth = 0;
 		public static int maxThreads = 8;
 
-		public CatalogEngine(MainWindow mw) {
-			MainWin = mw;
-
+		public CatalogEngine() {
 			//emptyCover = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/cross.png", UriKind.RelativeOrAbsolute));
 		}
 
@@ -61,7 +57,7 @@ namespace VideoCatalog.Main {
 				}
 			} else {
 				System.Windows.MessageBox.Show($"Can`t load <{path}>", "Error");
-				CatalogEngine.MainWin.CloseCatalog(null, null);
+				App.MainWindow.CloseCatalog(null, null);
 			}
 
 		}
@@ -100,6 +96,8 @@ namespace VideoCatalog.Main {
 
 					coverImage.EndInit();
 					coverImage.StreamSource = null;
+					coverImage.UriSource = null;
+
 					memory.Close();
 					memory.Dispose();
 				} catch (Exception ex) {
@@ -171,7 +169,7 @@ namespace VideoCatalog.Main {
 			try {
 				var file = ShellFile.FromFilePath(path);
 				dur = file?.Properties?.System?.Media?.Duration?.ValueAsObject;
-			} catch (ArgumentException ex) {
+			} catch (Exception ex) {
 				Console.WriteLine("GetDuration() ex: " + ex.Message);
 			}
 

@@ -17,6 +17,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -42,6 +43,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -184,6 +187,7 @@
     <Compile Include="Main\CatalogEntry.cs" />
     <Compile Include="Main\CatalogRoot.cs" />
     <Compile Include="Main\FilterSorterModule.cs" />
+    <Compile Include="Util\AlphanumComparatorFast.cs" />
     <Compile Include="Util\OutlinedTextBlock.cs" />
     <Compile Include="Panels\SettingsPanel.xaml.cs">
       <DependentUpon>SettingsPanel.xaml</DependentUpon>

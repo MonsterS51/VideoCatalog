@@ -6,10 +6,13 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using VideoCatalog.Main;
+using VideoCatalog.Util;
 using VideoCatalog.Windows;
+using static VideoCatalog.Main.FilterSorterModule;
 
 namespace VideoCatalog.Panels {
 	/// <summary>
@@ -17,17 +20,10 @@ namespace VideoCatalog.Panels {
 	/// </summary>
 	public partial class AlbumPanel : UserControl {
 
-		private FilterSorterModule fsm;
-		public IEnumerable<AbstractEntry> baseList;
-		public IEnumerable<AbstractEntry> srcList = new List<AbstractEntry>();   // отфильтрованные альбомы
+		private IEnumerable<AbstractEntry> baseList;
+		private IEnumerable<AbstractEntry> srcList = new List<AbstractEntry>();   // отфильтрованные альбомы
 
 		private bool isRoot = false;
-
-		//public AlbumPanel() {
-		//	InitializeComponent();
-		//	Btn_SidePanelSwitch(null, null);
-		//	LoadSettings();
-		//}
 
 		/// <summary>
 		/// Панель представления набора элементов каталога.
@@ -40,19 +36,18 @@ namespace VideoCatalog.Panels {
 
 			if (isRoot) {
 				toolbarMainPanel.Visibility = Visibility.Visible;
-				toolbarMainPanel.newBtn.Click += CatalogEngine.MainWin.OpenFolder;
-				toolbarMainPanel.loadBtn.Click += CatalogEngine.MainWin.LoadCatalog;
-				toolbarMainPanel.saveBtn.Click += CatalogEngine.MainWin.SaveCatalog;
-				toolbarMainPanel.closeBtn.Click += CatalogEngine.MainWin.CloseCatalog;
-				toolbarMainPanel.updBtn.Click += CatalogEngine.MainWin.UpdateCatalog;
-				toolbarMainPanel.chkBtn.Click += CatalogEngine.MainWin.CatEng.CatRoot.ChkAlbAndEntState;
-				toolbarMainPanel.settingBtn.Click += CatalogEngine.MainWin.OpenSettingTab;
+				toolbarMainPanel.newBtn.Click += App.MainWindow.OpenFolder;
+				toolbarMainPanel.loadBtn.Click += App.MainWindow.LoadCatalog;
+				toolbarMainPanel.saveBtn.Click += App.MainWindow.SaveCatalog;
+				toolbarMainPanel.closeBtn.Click += App.MainWindow.CloseCatalog;
+				toolbarMainPanel.updBtn.Click += App.MainWindow.UpdateCatalog;
+				toolbarMainPanel.chkBtn.Click += App.MainWindow.CatEng.CatRoot.ChkAlbAndEntState;
+				toolbarMainPanel.settingBtn.Click += App.MainWindow.OpenSettingTab;
 			} else {
 				toolbarMainPanel.Visibility = Visibility.Collapsed;
 			}
 
 			baseList = BaseList;
-			fsm = new FilterSorterModule(baseList);
 			Btn_SidePanelSwitch(null, null);
 			LoadSettings();
 		}
@@ -65,28 +60,7 @@ namespace VideoCatalog.Panels {
 			// находим первую видимую плашку альбома
 			AbstractEntry ent = srcList?.FirstOrDefault(alb => IsUserVisible(alb.vp, scrollViewer));
 			if (ent != null) {
-				// в зависимости от режима сортировки выводим справочную надпись
-				switch (mode) {
-					case FilterSorterModule.SortMode.NAME: {
-						scrollHelperLbl.Text = "" + ent.Name.First();
-						break;
-					}
-					case FilterSorterModule.SortMode.CREATE_DATE: {
-						scrollHelperLbl.Text = "" + ent.GetDateCreate().ToString("dd/MM/yyyy");
-						break;
-					}
-					case FilterSorterModule.SortMode.MODIF_DATE_FILE: {
-						scrollHelperLbl.Text = "" + ent.GetDateModify().ToString("dd/MM/yyyy");
-						break;
-					}
-					case FilterSorterModule.SortMode.CREATE_DATE_FILE: {
-						scrollHelperLbl.Text = "" + ent.GetDateCreate().ToString("dd/MM/yyyy");
-						break;
-					}
-					default: {
-						break;
-					}
-				}
+				scrollHelperLbl.Text = ent.sortHelper;
 
 				if (Mouse.LeftButton == MouseButtonState.Pressed) {
 					scrollHelperLbl.Visibility = Visibility.Visible;
@@ -113,7 +87,7 @@ namespace VideoCatalog.Panels {
 
 			Rect bounds = element.TransformToAncestor(container).TransformBounds(new Rect(0.0, 0.0, element.ActualWidth, element.ActualHeight));
 			Rect rect = new Rect(0.0, 0.0, container.ActualWidth, container.ActualHeight);
-			return rect.Contains(bounds.TopLeft) || rect.Contains(bounds.BottomRight);  // видене ЛВ или ПН угол элемента
+			return rect.Contains(bounds.TopLeft) || rect.Contains(bounds.BottomRight);  // виден ЛВ или ПН угол элемента
 		}
 
 		/// <summary> Изменение слайдера размера плашек. </summary>
@@ -137,118 +111,122 @@ namespace VideoCatalog.Panels {
 		///<summary> Переформирование содержимого панели с учетом фильтрации/сортировки. </summary>
 		public void UpdatePanelContent() {
 			FilterChanged(null, null);
+			filterPanel.FillSortCombo();
 		}
 
-		private FilterSorterModule.SortMode mode;
+		private FilterSorterModule.SortMode sortMode;
 		///<summary> Обновление после изменения одного из контролов фильтра. </summary>
 		private void FilterChanged(object sender, RoutedEventArgs e) {
-			switch (filterPanel.sortMode.SelectedIndex) {
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
+			string atrName = "";    // для проброса имени атрибута из названия пункта комбобокса сортировки 
+			GroupModes grpMode = GroupModes.NONE;
+
+			switch (filterPanel.sortModeComBox.SelectedIndex) {
 				case 0: {
-					mode = FilterSorterModule.SortMode.NAME;
+					sortMode = FilterSorterModule.SortMode.NAME;
+					grpMode = GroupModes.FIRST_CHAR;
 					break;
 				}
 				case 1: {
-					mode = FilterSorterModule.SortMode.CREATE_DATE;
+					sortMode = FilterSorterModule.SortMode.DATE_ADD;
+					grpMode = GroupModes.DATE_ADD;
 					break;
 				}
 				case 2: {
-					mode = FilterSorterModule.SortMode.CREATE_DATE_FILE;
+					sortMode = FilterSorterModule.SortMode.DATE_CREATE;
+					grpMode = GroupModes.DATE_CREATE;
 					break;
 				}
 				case 3: {
-					mode = FilterSorterModule.SortMode.MODIF_DATE_FILE;
+					sortMode = FilterSorterModule.SortMode.DATE_MODIFIED;
+					grpMode = GroupModes.DATE_MODIFIED;
 					break;
 				}
+				case -1: goto case 0;
 				default: {
-					mode = FilterSorterModule.SortMode.NAME;
+					sortMode = FilterSorterModule.SortMode.ATTRIBUTE;
+					grpMode = GroupModes.ATTRIBUTE;
+					string selItemName = (filterPanel.sortModeComBox.SelectedItem as TextBlock).Text;
+					atrName = selItemName.Substring(selItemName.IndexOf(" ") + 1);	// отрезаем слово аттрибут
 					break;
 				}
 			}
-			UpdateSrcList(filterPanel.filterBox.Text, mode, filterPanel.ascendChkBox.IsChecked ?? false, filterPanel.brokenChkBox.IsChecked ?? false);
-			FillPlates();
-		}
 
-		///<summary> Прогон всех альбомов через фильтр и обновление конечного списка. </summary>
-		private void UpdateSrcList(string str, FilterSorterModule.SortMode sortMode = FilterSorterModule.SortMode.NAME, bool ascend = true, bool broken = false) {
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
-			srcList = fsm.FilterByName(str, CatalogEngine.MainWin?.CatEng?.CatRoot?.tagsList, sortMode, ascend, broken);
-			FillPlates();
-			Console.WriteLine($"FillPlates {sw.ElapsedMilliseconds}ms");
+			bool grpEnabled = filterPanel.grpChkBox.IsChecked ?? false;
+			bool ascend = filterPanel.ascendChkBox.IsChecked ?? false;
+			bool broken = filterPanel.brokenChkBox.IsChecked ?? false;
+
+			if (!grpEnabled) {
+				grpMode = GroupModes.FOLDER;
+			}
+
+
+			srcList = FilterSorterModule.FilterAndSort(baseList, filterPanel.filterBox.Text, CatalogRoot.tagsList, sortMode, ascend, broken, atrName);
+			FillPlates(grpMode, ascend, atrName);
+			
+			Console.WriteLine($"FilterChanged {sw.ElapsedMilliseconds}ms");
 			sw.Stop();
 		}
 
+		/// <summary> Перезаполнение плитками панель. </summary>
+		private void FillPlates(GroupModes grpMode, bool ascend = true, string atrName="") {
+			// зачищаем имеющееся
+			ClearPanel();
 
-		/// <summary> Перезаполнение плитками альбомов панели. </summary>
-		private void FillPlates() {
-			foreach (var panelEnt in entPlates.Children) {
-				if (panelEnt is UniformGrid) {
-					var grid = panelEnt as UniformGrid;
-					grid.Children.Clear();
-				}
-			}
-			entPlates.Children.Clear();
+			// группируем
+			var readyMap = FilterSorterModule.GroupProcess(srcList, grpMode, ascend, atrName);
 
-			if (srcList.FirstOrDefault() is CatalogAlbum) {
-				//+ режим альбомов
+			bool isSeparable = readyMap.Count() > 1;
+
+			// заполняем в соотвествии с группами
+			foreach (var dirEnt in readyMap) {
+				// разделитель с названием подпапки
+				if (isSeparable) entPlates.Children.Add(CreateSeparator(dirEnt.Key));
+
+				//! + сюда можно запилить кнопку сворачивания / разворачивания групп
+
 				UniformGrid newGrid = new UniformGrid();
 				newGrid.VerticalAlignment = VerticalAlignment.Top;
-				newGrid.Columns = (int)sliderGridCol.Value;
-				foreach (var ent in srcList) {
-					ent.CreatePlate();
-					if (ent.vp.Parent != null) MainWindow.RemoveChild(ent.vp.Parent, ent.vp);
-					newGrid.Children.Add(ent.vp);
+				newGrid.Columns = (int) sliderGridCol.Value;
+				foreach (var entry in dirEnt.Value) {
+					entry.CreatePlate();
+					if (entry.vp.Parent != null) MainWindow.RemoveChild(entry.vp.Parent, entry.vp);
+					newGrid.Children.Add(entry.vp);
 				}
 				entPlates.Children.Add(newGrid);
-			} else {
-				//+ режим элементов
-
-				// разбиваем на подпапки
-				var subFoldersMap = new SortedDictionary<string, List<string>>();
-				foreach (var ent in srcList) {
-					var catEnt = ent as CatalogEntry;
-
-					if (!subFoldersMap.ContainsKey(catEnt.EntAbsFile.Directory.FullName)) {
-						// создаем новую подпапку
-						subFoldersMap.Add(catEnt.EntAbsFile.Directory.FullName, new List<string>());
-					}
-					subFoldersMap[catEnt.EntAbsFile.Directory.FullName].Add(catEnt.EntAbsFile.FullName);
-				}
-
-				// заполняем в соотвествии с подпапками
-				foreach (var dirEnt in subFoldersMap) {
-					// разделитель с названием подпапки, если их больше одной
-					if (subFoldersMap.Count > 1) {
-						StackPanel newSeparatorPanel = new StackPanel();
-						newSeparatorPanel.Orientation = Orientation.Horizontal;
-						newSeparatorPanel.Margin = new Thickness(5, 15, 5, 5);
-						TextBlock subHeader = new TextBlock();
-						subHeader.FontSize = 16;
-						subHeader.Foreground = SystemColors.WindowTextBrush;
-						subHeader.Text = new DirectoryInfo(dirEnt.Key).Name + "  ";
-						Separator line = new Separator();
-						line.HorizontalAlignment = HorizontalAlignment.Stretch;
-						line.Width = 4000;
-						newSeparatorPanel.Children.Add(subHeader);
-						newSeparatorPanel.Children.Add(line);
-						entPlates.Children.Add(newSeparatorPanel);
-					}
-
-
-					UniformGrid newGrid = new UniformGrid();
-					newGrid.VerticalAlignment = VerticalAlignment.Top;
-					newGrid.Columns = (int) sliderGridCol.Value;
-					foreach (var entPath in dirEnt.Value) {
-						var catEnt = srcList.Where(ent => (ent as CatalogEntry).EntAbsPath == entPath).FirstOrDefault();
-						catEnt.CreatePlate();
-						if (catEnt.vp.Parent != null) MainWindow.RemoveChild(catEnt.vp.Parent, catEnt.vp);
-						newGrid.Children.Add(catEnt.vp);
-					}
-					entPlates.Children.Add(newGrid);
-				}
 			}
 
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => CatalogEngine.MainWin.MainPanel.lblCountTotal.Text = "Total: " + srcList.Count()));
+			readyMap.Clear();
+
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => { 
+				if (App.MainWindow?.MainPanel != null) App.MainWindow.MainPanel.lblCountTotal.Text = "Total: " + srcList.Count(); 
+			}));
+		}
+
+		///<summary> Создать панель-сепаратор с названием. </summary>
+		private StackPanel CreateSeparator(string header) {
+			StackPanel newSeparatorPanel = new StackPanel();
+			newSeparatorPanel.Orientation = Orientation.Horizontal;
+			newSeparatorPanel.Margin = new Thickness(5, 15, 5, 5);
+
+			TextBlock subHeader = new TextBlock();
+			subHeader.FontSize = 16;
+			subHeader.Foreground = SystemColors.WindowTextBrush;
+			subHeader.Text = header + "  ";
+
+			Border line = new Border();
+			line.Width = 4000;
+			line.Height = 1;
+			line.HorizontalAlignment = HorizontalAlignment.Stretch;
+
+			line.BorderBrush = subHeader.Foreground;
+			line.BorderThickness = new Thickness(1);
+
+			newSeparatorPanel.Children.Add(subHeader);
+			newSeparatorPanel.Children.Add(line);
+			return newSeparatorPanel;
 		}
 
 		/// <summary> Очистка панели (для повторного использования плашек). </summary>
@@ -261,6 +239,7 @@ namespace VideoCatalog.Panels {
 			}
 			entPlates.Children.Clear();
 		}
+
 		#endregion
 
 		//---

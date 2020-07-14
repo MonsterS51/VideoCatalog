@@ -8,22 +8,25 @@ using VideoCatalog.Util;
 
 namespace VideoCatalog.Main {
 	public class FilterSorterModule {
-		IEnumerable<AbstractEntry> entList;
 
 		public enum SortMode{
 			NAME,
-			CREATE_DATE,
-			CREATE_DATE_FILE,
-			MODIF_DATE_FILE,
+			DATE_ADD,
+			DATE_CREATE,
+			DATE_MODIFIED,
+			ATTRIBUTE
 		}
 
+		///<summary> Фильтрация и сортировка списка элементов. </summary>
+		public static List<AbstractEntry> FilterAndSort(
+				IEnumerable<AbstractEntry> entList,
+				string filterStr, 
+				List<string> allTags, 
+				SortMode sortMode = SortMode.NAME, 
+				bool ascend = true, 
+				bool broken = false, 
+				string atrName = "") {
 
-
-		public FilterSorterModule(IEnumerable<AbstractEntry> EntList) {
-			entList = EntList;
-		}
-
-		public List<AbstractEntry> FilterByName(string filterStr, List<string> allTags, SortMode sortMode = SortMode.NAME, bool ascend = true, bool broken = false) {
 			if (entList == null) return new List<AbstractEntry>();
 
 			//+ вычленяем теги
@@ -129,22 +132,44 @@ namespace VideoCatalog.Main {
 				}
 			}
 
-					
+
 			//+ сортировка	
-			switch(sortMode) {
+			// здесь же заполняем метки для отображения в справочной плашке при скролле
+			switch (sortMode) {
               	case SortMode.NAME: {
-					if (ascend) resultList = resultList.OrderBy(o => o.Name, new AlphanumComparatorFast()).ToList();
-					else resultList = resultList.OrderByDescending(o => o.Name, new AlphanumComparatorFast()).ToList();
+					resultList = resultList.OrderBy(o => o.Name, new AlphanumComparatorFast()).ToList();
+					if (!ascend) resultList.Reverse();
+
+					foreach (var ent in resultList) {
+						ent.sortHelper = ent.Name.First().ToString().ToUpper();
+					}
 					break;
               	}
-				case SortMode.CREATE_DATE_FILE: {
-					if (ascend) resultList = resultList.OrderBy(o => o.GetDateCreate()).ToList();
-					else resultList = resultList.OrderByDescending(o => o.GetDateCreate(true)).ToList();
+				case SortMode.DATE_CREATE: {
+					resultList = resultList.OrderBy(o => o.GetDateCreate(!ascend)).ToList();
+					if (!ascend) resultList.Reverse();
+
+					foreach (var ent in resultList) {
+						ent.sortHelper = ent.GetDateCreate(!ascend).ToString("d");
+					}
 					break;
 				}
-				case SortMode.MODIF_DATE_FILE: {
-					if (ascend) resultList = resultList.OrderBy(o => o.GetDateModify()).ToList();
-					else resultList = resultList.OrderByDescending(o => o.GetDateModify(true)).ToList();
+				case SortMode.DATE_MODIFIED: {
+					resultList = resultList.OrderBy(o => o.GetDateModify(!ascend)).ToList();
+					if (!ascend) resultList.Reverse();
+
+					foreach (var ent in resultList) {
+						ent.sortHelper = ent.GetDateModify(!ascend).ToString("d");
+					}
+					break;
+				}
+				case SortMode.ATTRIBUTE: {
+					resultList = resultList.OrderBy(o => o.GetAttribute(atrName)).ToList();
+					if (!ascend) resultList.Reverse();
+
+					foreach (var ent in resultList) {
+						ent.sortHelper = ent.GetAttribute(atrName);
+					}
 					break;
 				}
 				default:{
@@ -152,91 +177,113 @@ namespace VideoCatalog.Main {
               	}
             }
 
-
-
-
-
 			return resultList;
 		}
 
-
-
-
-		///<summary> Цифро-буквенный сортировщик. </summary>
-		public class AlphanumComparatorFast : IComparer<string> {
-			public int Compare(string x, string y) {
-				string s1 = x as string;
-				if (s1 == null) {
-					return 0;
-				}
-				string s2 = y as string;
-				if (s2 == null) {
-					return 0;
-				}
-
-				int len1 = s1.Length;
-				int len2 = s2.Length;
-				int marker1 = 0;
-				int marker2 = 0;
-
-				// Walk through two the strings with two markers.
-				while (marker1 < len1 && marker2 < len2) {
-					char ch1 = s1[marker1];
-					char ch2 = s2[marker2];
-
-					// Some buffers we can build up characters in for each chunk.
-					char[] space1 = new char[len1];
-					int loc1 = 0;
-					char[] space2 = new char[len2];
-					int loc2 = 0;
-
-					// Walk through all following characters that are digits or
-					// characters in BOTH strings starting at the appropriate marker.
-					// Collect char arrays.
-					do {
-						space1[loc1++] = ch1;
-						marker1++;
-
-						if (marker1 < len1) {
-							ch1 = s1[marker1];
-						} else {
-							break;
-						}
-					} while (char.IsDigit(ch1) == char.IsDigit(space1[0]));
-
-					do {
-						space2[loc2++] = ch2;
-						marker2++;
-
-						if (marker2 < len2) {
-							ch2 = s2[marker2];
-						} else {
-							break;
-						}
-					} while (char.IsDigit(ch2) == char.IsDigit(space2[0]));
-
-					// If we have collected numbers, compare them numerically.
-					// Otherwise, if we have strings, compare them alphabetically.
-					string str1 = new string(space1);
-					string str2 = new string(space2);
-
-					int result;
-
-					if (char.IsDigit(space1[0]) && char.IsDigit(space2[0])) {
-						int.TryParse(str1, out int thisNumericChunk);
-						int.TryParse(str2, out int thatNumericChunk);
-						result = thisNumericChunk.CompareTo(thatNumericChunk);
-					} else {
-						result = str1.CompareTo(str2);
-					}
-
-					if (result != 0) {
-						return result;
-					}
-				}
-				return len1 - len2;
-			}
+		///<summary> Режимы группировки элементов каталога. </summary>
+		public enum GroupModes {
+			NONE,
+			FIRST_CHAR,
+			FOLDER,
+			DATE_ADD,
+			DATE_CREATE,
+			DATE_MODIFIED,
+			ATTRIBUTE
 		}
+
+		///<summary> Формирование групп для списка элементов. </summary>
+		public static List<KeyValuePair<string, List<AbstractEntry>>> GroupProcess(
+			IEnumerable<AbstractEntry> srcList, 
+			GroupModes grpMode, 
+			bool ascend = true,
+			string atrName = "") {
+
+			var subListsMap = new SortedDictionary<string, List<AbstractEntry>>(new AlphanumComparatorFast());
+			var readyMap = new List<KeyValuePair<string, List<AbstractEntry>>>();
+
+			//? по умолчанию - сортировка Alphanumeric, но для дат - сортируем вручную через парсинг.
+
+			switch (grpMode) {
+				case GroupModes.NONE: {
+					subListsMap.Add("", srcList as List<AbstractEntry>);
+
+					readyMap = subListsMap.ToList();
+					break;
+				}
+				case GroupModes.FIRST_CHAR: {
+
+					foreach (var ent in srcList) {
+						var ch = ent.Name.First().ToString().ToUpper();
+						if (!subListsMap.ContainsKey(ch)) subListsMap.Add(ch, new List<AbstractEntry>());
+						subListsMap[ch].Add(ent);
+					}
+
+					readyMap = subListsMap.ToList();
+					break;
+				}
+				case GroupModes.DATE_CREATE: {
+					foreach (var ent in srcList) {
+						var date = ent.GetDateCreate(!ascend).ToString("d");
+						if (!subListsMap.ContainsKey(date)) subListsMap.Add(date, new List<AbstractEntry>());					
+						subListsMap[date].Add(ent);
+					}
+
+					// правильная сортировка дат
+					readyMap = subListsMap.ToList().OrderBy(kv => DateTime.Parse(kv.Key)).ToList();
+					break;
+				}
+				case GroupModes.DATE_MODIFIED: {
+					foreach (var ent in srcList) {
+						var date = ent.GetDateModify(!ascend).ToString("d");
+						if (!subListsMap.ContainsKey(date)) subListsMap.Add(date, new List<AbstractEntry>());
+						subListsMap[date].Add(ent);
+					}
+
+					// правильная сортировка дат
+					readyMap = subListsMap.ToList().OrderBy(kv => DateTime.Parse(kv.Key)).ToList();
+					break;
+				}
+				case GroupModes.ATTRIBUTE: {
+					foreach (var ent in srcList) {
+						var atrData = ent.GetAttribute(atrName);
+						if (!subListsMap.ContainsKey(atrData)) subListsMap.Add(atrData, new List<AbstractEntry>());
+						subListsMap[atrData].Add(ent);
+					}
+
+					readyMap = subListsMap.ToList();
+					break;
+				}
+				case GroupModes.FOLDER: {
+					// не работает для корневого 
+					if (!(srcList.FirstOrDefault() is CatalogEntry)) goto case GroupModes.NONE;
+
+					foreach (var ent in srcList) {
+						var catEnt = ent as CatalogEntry;
+					
+						// отрезаем путь от папки альбома
+						string subPath = catEnt.EntAbsFile.Directory.FullName.Replace(catEnt.catAlb.AlbAbsPath, "").TrimStart('/', '\\');
+
+						if (!subListsMap.ContainsKey(subPath))subListsMap.Add(subPath, new List<AbstractEntry>());
+						subListsMap[subPath].Add(ent);
+					}
+
+					readyMap = subListsMap.ToList();
+					break;
+				}
+				default: {
+					break;
+				}
+			}
+
+			// обращаем порядок
+			if (!ascend) readyMap.Reverse();
+
+			subListsMap.Clear();
+
+			return readyMap;
+		}
+
+
 
 	}
 }

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using VideoCatalog.Main;
+using VideoCatalog.Windows;
 
 namespace VideoCatalog.Tabs {
 	/// <summary>
@@ -28,8 +29,8 @@ namespace VideoCatalog.Tabs {
 			clsbtn = new Button() {
 				Width = 14f,
 				Height = 14f,
-				Style = CatalogEngine.MainWin.FindResource("btnIconStl") as Style,
-				Content = new Image { Style = CatalogEngine.MainWin.FindResource("imgIconStl") as Style },
+				Style = App.MainWindow.FindResource("btnIconStl") as Style,
+				Content = new Image { Style = App.MainWindow.FindResource("imgIconStl") as Style },
 				Padding = new Thickness(-2f),
 				Margin = new Thickness(5f, 0f, 0f, 0f)
 			};
@@ -40,7 +41,7 @@ namespace VideoCatalog.Tabs {
 
 			MaxWidth = 400;
 			Padding = new Thickness(0.5f);
-			Style = CatalogEngine.MainWin.FindResource("tabItemCustomStl") as Style;
+			Style = App.MainWindow.FindResource("tabItemCustomStl") as Style;
 
 
 			// установка действий

@@ -13,6 +13,8 @@ using System.Windows.Threading;
 using System.Windows.Documents;
 using VideoCatalog.Panels;
 using VideoCatalog.Util;
+using System.Windows.Data;
+using System.Windows;
 
 namespace VideoCatalog.Main {
 	/// <summary>
@@ -44,10 +46,8 @@ namespace VideoCatalog.Main {
 
 		public bool WithSubDir { get; set; } = false;
 
-		private int duration = -1;
-
 		[YAXDontSerialize]
-		public string FirstEntPath { get { return EntryList?.FirstOrDefault()?.EntAbsPath; } }
+		public CatalogEntry FirstEntry { get { return EntryList?.FirstOrDefault(); } }
 
 		private object locker = new object();
 
@@ -60,8 +60,6 @@ namespace VideoCatalog.Main {
 			UpdatePaths();
 			WithSubDir = withSubDir;
 			Name = dir.Name;
-			atrMap.Add(new AtrEnt( "1", "test 1"));
-			atrMap.Add(new AtrEnt("2", "test 2"));
 		}
 
 		public void UpdatePaths() {
@@ -75,12 +73,13 @@ namespace VideoCatalog.Main {
 			}
 		}
 
-		public int GetDuration() {
-			if (duration < 0 & EntryList.Count > 0) {
-				duration = CatalogEngine.GetDuration(FirstEntPath);
-			}
-			return duration;
-		}
+		//public int GetDuration() {
+		//	duration = 1;
+		//	if (FirstEntry != null) {
+		//		duration = FirstEntry.duration;
+		//	}
+		//	return duration;
+		//}
 
 		///<summary> Обновление состава альбома. </summary>
 		public void UpdateAlbumFiles() {
@@ -124,10 +123,10 @@ namespace VideoCatalog.Main {
 
 			Task.WaitAll(tasksList.ToArray());
 
-			GetDuration();
-
 			// сортируем, т.к. потоки закончились в разнобой
-			EntryList.Sort((x, y) => x.Name.CompareTo(y.Name));
+			EntryList = EntryList.OrderBy(x => x.Name, new AlphanumComparatorFast()).ToList();
+
+			//atrMap.Add(new AtrEnt("Year", "" + GetDateModify().Year));
 		}
 
 		//---
@@ -136,8 +135,8 @@ namespace VideoCatalog.Main {
 
 		/// <summary> Формирование обложки альбома на основе первого эпизода. </summary>
 		public void LoadAlbumCover() {
-			EntryList.First().LoadCover(true);
-			CoverImage = EntryList.First().CoverImage;
+			FirstEntry?.LoadCover();
+			CoverImage = FirstEntry?.CoverImage;
 			vp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);   // принудительная перерисовка обложки после загрузки
 		}
 
@@ -186,13 +185,18 @@ namespace VideoCatalog.Main {
 
 		/// <summary> Создание плэйта альбома. </summary>
 		public override ViewPlate CreatePlate() {
-			if (vp == null) vp = new ViewPlate();
-			vp.DataContext = this;
-			vp.path = FirstEntPath;
-			vp.duration = GetDuration();
-			vp.onClick = () => CatalogEngine.MainWin.OpenSidePanel(this);
-			vp.onDoubleClick = () => CatalogEngine.MainWin.OpenAlbumTab(this);
-			vp.onWheelClick = () => CatalogEngine.MainWin.OpenAlbumTab(this, false);
+			if (vp == null) {
+				vp = new ViewPlate();
+				vp.DataContext = this;
+
+				vp.onClick = () => App.MainWindow.OpenSidePanel(this);
+				vp.onDoubleClick = () => App.MainWindow.OpenAlbumTab(this);
+				vp.onWheelClick = () => App.MainWindow.OpenAlbumTab(this, false);
+			}
+
+			vp.path = FirstEntry.EntAbsPath;
+			vp.duration = FirstEntry.duration;
+
 			TopRightText = ""+EntryList.Count;
 			UpdateIconBrokenState();
 			return vp;
@@ -200,14 +204,16 @@ namespace VideoCatalog.Main {
 
 		///<summary> Возвращает самую раннюю(позднюю) дату создания файла из всех входящих элементов. </summary>
 		public override DateTime GetDateCreate(bool byLatest = false) {
+			if (EntryList.Count == 0) return new DateTime();
 			if (byLatest) return EntryList.OrderBy(a => a.DateCreate).Last().DateCreate;
 			return EntryList.OrderBy(a => a.DateCreate).First().DateCreate;
 		}
 
 		///<summary> Возвращает самую раннюю(позднюю) дату изменения файла из всех входящих элементов. </summary>
 		public override DateTime GetDateModify(bool byLatest = false) {
-			if (byLatest) return EntryList.OrderBy(a => a.DateModify).Last().DateModify;
-			return EntryList.OrderBy(a => a.DateModify).First().DateModify;
+			if (EntryList.Count == 0) return new DateTime();
+			if (byLatest) return EntryList.OrderBy(a => a.DateModify).LastOrDefault().DateModify;
+			return EntryList.OrderBy(a => a.DateModify).FirstOrDefault().DateModify;
 		}
 
 		///<summary> Получение пути к первой директории или папке альбома (например для перехода в проводнике). </summary>

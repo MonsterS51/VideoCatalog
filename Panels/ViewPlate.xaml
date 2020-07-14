@@ -25,18 +25,20 @@
 					<!-- Иконка -->
 					<Image x:Name="BG" Source="/Assets/video_bg.png" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
 						   Stretch="Fill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Center" Height="128" Width="128" />
-					
+
+					<!-- Место для контрола предпросмотра -->
+					<Grid x:Name="previewGrid" Background="Black" Visibility="Hidden"/>
+
 					<!-- Обложка -->
 					<Image x:Name="CoverArt" Source="{Binding Path=CoverImage}" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
-						   Margin="0,0,0,0" Stretch="UniformToFill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+						   Margin="0,0,0,0" Stretch="UniformToFill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch">
+
+					</Image>
 					
 					<!-- Надпись в правом верхнем углу -->
 					<TextBlock x:Name="lblTopRight" Text="{Binding Path=TopRightText}"
 							   Margin="0,0,0,0" Padding="1,1,1,1" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="White" Background="#B2000000"/>
-					
-					<!-- Место для контрола предпросмотра -->
-					<Grid x:Name="previewGrid" />
-					
+		
 					<!-- Надпись внизу -->
 					<TextBlock x:Name="Header" Text="{Binding Path=Name}" 
 							   Margin="0,0,0,0" Padding="1,1,1,1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" 

@@ -22,23 +22,26 @@
 				<Label Content="Filter: " Margin="0" Padding="0" Grid.Column="0" Grid.Row="0"/>
 				<Label Content="Sort:   " Margin="0" Padding="0" Grid.Column="0" Grid.Row="1"/>
 				<StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Height="17" VerticalAlignment="Top" Grid.Column="1" Grid.Row="0">
-					<TextBox x:Name="filterBox" TextChanged="FilterChangedAct" Width="290" DockPanel.Dock="Top" FontSize="9" Padding="0"/>
+					<TextBox x:Name="filterBox" TextChanged="FilterChangedAct" Width="345" DockPanel.Dock="Top" FontSize="9" Padding="0"/>
 					<Button x:Name="clrFilterBtn" HorizontalAlignment="Left" VerticalAlignment="Center" Click="FilterBoxClr"  Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 						<Image Height="15" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/cross.png"  Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
 					</Button>
 				</StackPanel>
 				<StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Height="17" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1">
-					<ComboBox Name="sortMode" Width="200" SelectedIndex="0" FontSize="9" SelectionChanged="FilterChangedAct" Padding="0"  >
-						<TextBlock>Имя</TextBlock>
+					<ComboBox Name="sortModeComBox" Width="200" SelectedIndex="0" FontSize="9" SelectionChanged="FilterChangedAct" Padding="0">
+						<!--<TextBlock>Имя</TextBlock>
 						<TextBlock>Дата создания</TextBlock>
 						<TextBlock>Дата создания файла</TextBlock>
-						<TextBlock>Дата изменения файла</TextBlock>
+						<TextBlock>Дата изменения файла</TextBlock>-->
 					</ComboBox>
 					<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-					<CheckBox x:Name="ascendChkBox" Content="Asc" IsChecked="true" Height="17" VerticalAlignment="Center"
+					<CheckBox x:Name="ascendChkBox" Content="Asc " IsChecked="true" Height="17" VerticalAlignment="Center"
 									  Unchecked="FilterChangedAct" Checked="FilterChangedAct"/>
 					<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-					<CheckBox x:Name="brokenChkBox" Content="Broken" IsChecked="False" Height="17" VerticalAlignment="Center"
+					<CheckBox x:Name="grpChkBox" Content="Group " IsChecked="False" Height="17" VerticalAlignment="Center"
+									  Unchecked="FilterChangedAct" Checked="FilterChangedAct"/>
+					<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+					<CheckBox x:Name="brokenChkBox" Content="Broken " IsChecked="False" Height="17" VerticalAlignment="Center"
 									  Unchecked="FilterChangedAct" Checked="FilterChangedAct"/>
 					<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
 				</StackPanel>

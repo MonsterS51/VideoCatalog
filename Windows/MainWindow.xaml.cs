@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using VideoCatalog.Main;
 using VideoCatalog.Panels;
 using VideoCatalog.Tabs;
@@ -23,7 +24,6 @@ namespace VideoCatalog.Windows {
 
 		public MainWindow() {
 			InitializeComponent();
-			CatEng = new CatalogEngine(this);
 		}
 
 
@@ -39,6 +39,7 @@ namespace VideoCatalog.Windows {
 				if (dialog.ShowDialog() == CommonFileDialogResult.Ok && !string.IsNullOrWhiteSpace(dialog.FileName)) {
 					CloseCatalog(null, null);
 					prevPath = dialog.FileName;
+					CatEng = new CatalogEngine();
 					CatEng.LoadCatalogRoot(dialog.FileName);
 				}
 			}
@@ -54,15 +55,18 @@ namespace VideoCatalog.Windows {
 				var result = MessageBox.Show($"В папке найден файл каталога <{xmlList.Name}>. Открыть файл?" , "Открытие каталога", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
 				switch (result) {
 					case MessageBoxResult.Yes:
+						CatEng = new CatalogEngine();
 						CatEng.LoadCatalogXML(xmlList.FullName);
 						break;
 					case MessageBoxResult.No:
+						CatEng = new CatalogEngine();
 						CatEng.LoadCatalogRoot(path.FullName);
 						break;
 					case MessageBoxResult.Cancel:
 						break;
 				}
 			} else {
+				CatEng = new CatalogEngine();
 				CatEng.LoadCatalogRoot(path.FullName);
 			}
 
@@ -90,33 +94,26 @@ namespace VideoCatalog.Windows {
 			ofd.RestoreDirectory = true;
 
 			if (ofd.ShowDialog() == true) {
+				CatEng = new CatalogEngine();
 				CatEng.LoadCatalogXML(ofd.FileName);
 			}
 		}
 
 		/// <summary> Закрытие каталога и очистка ресурсов. </summary>
 		public void CloseCatalog(object sender, EventArgs e) {
-			CloseAllTab();
-
 			CatEng?.CatRoot?.StopLoadAlbumesCoversThread();
 
 			var albList = CatEng?.CatRoot?.AlbumsList;
 
-			if (albList != null) {
-				foreach (var alb in albList) {
-					alb.StopThread();
-					alb.CoverImage = null;
-					alb.vp = null;
-					foreach (var ent in alb.EntryList) {
-						ent.CoverImage = null;
-						ent.vp = null;
-					}
-				}
-			}
-			CatEng?.CatRoot?.AlbumsList?.Clear();
+			ForceLinkDestroy();
 
+			CatEng?.CatRoot?.AlbumsList?.Clear();
 			CatEng = null;
-			CatEng = new CatalogEngine(this);
+
+			if (MainPanel != null) {
+				CloseAllTab();
+				MainPanel = null;
+			}
 
 			GC_Forcer();
 		}
@@ -127,12 +124,43 @@ namespace VideoCatalog.Windows {
 			GC_Forcer();
 		}
 
+		///<summary> Магическая чистка, которая позволяет GC почти сразу затирать BitmapImage из неуправляемой памяти. </summary>
+		private void ForceLinkDestroy() {
+			var albList = CatEng?.CatRoot?.AlbumsList;
+			if (albList != null) {
+				foreach (var alb in albList) {
+					if (alb?.vp != null) {
+						BindingOperations.ClearAllBindings(alb.vp.CoverArt);
+						alb.vp.DataContext = null;
+						alb.vp.CoverArt.Source = null;
+						alb.vp.BG.Source = null;
+						alb.vp = null;
+					}
+					alb.StopThread();
+					alb.CoverImage = null;
+
+					foreach (var ent in alb.EntryList) {
+						if (ent?.vp != null) {
+							BindingOperations.ClearAllBindings(ent.vp.CoverArt);
+							ent.vp.DataContext = null;
+							ent.vp.CoverArt.Source = null;
+							ent.vp.BG.Source = null;
+							ent.vp = null;
+						}
+						ent.CoverImage = null;
+					}
+				}
+			}
+		}
+
 		///<summary> Принудительный запуск GC. </summary>
-		private void GC_Forcer() {
+		public static void GC_Forcer() {
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
 			//HACK - дергаем очистку еще раз через время, чтобы начал убираться наверняка
-			Task.Delay(20000).ContinueWith(_ => {
+			Task.Delay(30000).ContinueWith(_ => {
 				GC.Collect();
 				GC.WaitForPendingFinalizers();
 			});
@@ -226,16 +254,17 @@ namespace VideoCatalog.Windows {
 			foreach (var targetTab in tabMap.Values.ToArray()) {
 				string tabName = tabMap.FirstOrDefault(ent => ent.Value == targetTab).Key;
 
-				AlbumPanel albPanel = targetTab.Content as AlbumPanel;
-				albPanel.ClearPanel();
-				var album = CatEng.CatRoot.AlbumsList.Where(alb => alb.Name == tabName).FirstOrDefault();
-				album?.StopThread();
+				// вкладка с панелью альбома
+				if (targetTab.Content is AlbumPanel) {
+					AlbumPanel albPanel = targetTab.Content as AlbumPanel;
+					albPanel.ClearPanel();
+					var album = CatEng?.CatRoot?.AlbumsList.Where(alb => alb.Name == tabName).FirstOrDefault();
+					album?.StopThread();
+				}
 
 				RemoveTab(targetTab);
 			}
 
-			//MainPanel?.entPlates.Children.Clear();
-			MainPanel = null;
 		}
 
 		//---
@@ -256,15 +285,23 @@ namespace VideoCatalog.Windows {
 		private void RemoveTab(TabItem targetTab) {
 			if (targetTab == null) return;
 
-			// убираем с панели вкладок
-			tabsPanel.Items.Remove(targetTab);
+			//? // микрозадержка в комплекте с ForceLinkDestroy() дает мгновенную очистку BitmapImage из неуправляемой памяти при закрытии основного альбома.
+			Task.Delay(100).ContinueWith((task) => {
+				Console.WriteLine("Delayed close of " + targetTab);
+				Dispatcher.BeginInvoke((Action)(() => {
+				// убираем с панели вкладок
+				tabsPanel.Items.Remove(targetTab);
 
-			// убираем из карты вкладок
-			if (tabMap.ContainsValue(targetTab)) {
-				tabMap.Remove(tabMap.First(ent => ent.Value == targetTab).Key);
-			}
+					// убираем из карты вкладок
+					if (tabMap.ContainsValue(targetTab)) {
+						tabMap.Remove(tabMap.First(ent => ent.Value == targetTab).Key);
+					}
 
-			UpdateStartToolbarState();
+					UpdateStartToolbarState();
+
+				GC_Forcer();
+			}));
+			});
 		}
 
 		///<summary> При манипуляциях с вкладками решаем, показывать ли дефолтное меню. </summary>

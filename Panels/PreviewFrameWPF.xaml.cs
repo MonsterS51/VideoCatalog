@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
 namespace VideoCatalog.Panels {
@@ -25,6 +26,7 @@ namespace VideoCatalog.Panels {
 		public void StartPreview(string path, int duration) {
 			this.duration = duration;
 			mediaPlayer.Source = new Uri(@path);
+			mediaPlayer.Opacity = 0;
 
 			if (duration > totalSteps * secSpan) {
 				// режим с шагом через время для длинных видео
@@ -34,18 +36,29 @@ namespace VideoCatalog.Panels {
 				prevProgress.IsIndeterminate = false;
 				curStep = 1;
 
-				timer = new DispatcherTimer() { Interval = new TimeSpan(0, 0, secSpan) };     // смещение через 2 секунды
-				timer.Tick += Timer_Tick;
-				Timer_Tick(null, null);
+				if (timer == null) {
+					timer = new DispatcherTimer() { Interval = new TimeSpan(0, 0, secSpan) };     // смещение через 2 секунды
+					timer.Tick += Timer_Tick;
+					Timer_Tick(null, null);
+				}
 
 				mediaPlayer.Play();
+
+				// плавное появление плеера
+				var alphaIn = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(800)));
+				mediaPlayer.BeginAnimation(OpacityProperty, alphaIn);
+
 				if (timer != null) timer.Start();
 			} else {
 				// режим непрерывного проигрывания для коротких видео
 				prevProgress.Visibility = Visibility.Visible;
 				prevProgress.IsIndeterminate = true;
 				mediaPlayer.MediaEnded += new RoutedEventHandler(m_MediaEnded);	// заLOOPа
-				mediaPlayer.Play();		
+				mediaPlayer.Play();
+
+				// плавное появление плеера
+				var alphaIn = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(800)));
+				mediaPlayer.BeginAnimation(OpacityProperty, alphaIn);
 			}
 
 		}
@@ -54,6 +67,7 @@ namespace VideoCatalog.Panels {
 			prevProgress.Visibility = Visibility.Hidden;
 			if (timer != null) timer.Stop();
 			timer = null;
+			mediaPlayer.Stop();
 			mediaPlayer.Close();
 		}
 

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using VideoCatalog.Main;
 using VideoCatalog.Windows;
 
@@ -40,53 +42,83 @@ namespace VideoCatalog.Panels {
 			// если предпросмотр отключен
 			if (!Properties.Settings.Default.PreviewEnabled) return;
 
-			// определяем метод отрисовки предпросмотра и формируем нужную панель
-			switch (Properties.Settings.Default.PreviewMode) {
-            	case "WPF":{
-					if (pfWPF == null) {
-						pfWPF = new PreviewFrameWPF();
-						previewGrid.Children.Clear();
-						previewGrid.Children.Add(pfWPF);
-					}
-					pfWPF?.StartPreview(path, duration);
-					break;
-            	}
-				case "FFME": {
-					if (!App.FoundFFMpegLibs) break;
-					if (pfFFME == null) {
-						pfFFME = new PreviewFrameFFME();
-						previewGrid.Children.Clear();
-						previewGrid.Children.Add(pfFFME);
-					}
-					pfFFME?.StartPreview(path, duration);
-					break;
-				}
-				default:{
-            		break;
-            	}
-            }
+			Task.Delay(500).ContinueWith((task) => {
+				Dispatcher.BeginInvoke((Action)(() => {
+					if (IsMouseOver) {
+						// определяем метод отрисовки предпросмотра и формируем нужную панель
+						switch (Properties.Settings.Default.PreviewMode) {
+							case "WPF": {
+								if (pfWPF == null) {
+									pfWPF = new PreviewFrameWPF();
+									previewGrid.Children.Clear();
+									previewGrid.Children.Add(pfWPF);
+								}
+								pfWPF?.StartPreview(path, duration);
+								break;
+							}
+							case "FFME": {
+								if (!App.FoundFFMpegLibs) break;
+								if (pfFFME == null) {
+									pfFFME = new PreviewFrameFFME();
+									previewGrid.Children.Clear();
+									previewGrid.Children.Add(pfFFME);
+								}
+								pfFFME?.StartPreview(path, duration);
+								break;
+							}
+							default: {
+								break;
+							}
+						}
 
-			TurnOnPreviewMode();
+						TurnOnPreviewMode();
+					}
+				}));
+			});
+
+
+
+			
 		}
 
-		///<summary> Кбрали мышь с плитки - снимаем обводку, прячем и останавливаем предпросмотр. </summary>
+		///<summary> Убрали мышь с плитки - снимаем обводку, прячем и останавливаем предпросмотр. </summary>
 		protected override void OnMouseLeave(MouseEventArgs e) {
 			base.OnMouseLeave(e);
+
 			border.BorderBrush = tempColor;
 
 			TurnOffPreviewMode();
 
 			pfWPF?.StopPreview();
 			pfFFME?.StopPreview();
+
+			previewGrid.Children.Clear();
+			pfWPF = null;
+			pfFFME = null;
+
 		}
 
+		private int fadeTime = 300;
 
+		///<summary> Переход в режим превью. </summary>
 		public void TurnOnPreviewMode() {
 			previewGrid.Visibility = Visibility.Visible;
+			lblTopRight.Visibility = Visibility.Hidden;
+
+			// плавное скрытие кавера
+			var alphaIn = new DoubleAnimation(CoverArt.Opacity, 0, new Duration(TimeSpan.FromMilliseconds(fadeTime)));
+			CoverArt.BeginAnimation(Image.OpacityProperty, alphaIn);
 		}
 
+		///<summary> Переход в обычный режим. </summary>
 		public void TurnOffPreviewMode() {
-			previewGrid.Visibility = Visibility.Hidden;
+			lblTopRight.Visibility = Visibility.Visible;
+
+			// плавное проявление кавера
+			var alphaOut = new DoubleAnimation(CoverArt.Opacity, 1, new Duration(TimeSpan.FromMilliseconds(fadeTime)));
+			CoverArt.BeginAnimation(Image.OpacityProperty, alphaOut);
+
+			alphaOut.Completed += (s, e) =>	{ previewGrid.Visibility = Visibility.Hidden; };
 		}
 
 		//---

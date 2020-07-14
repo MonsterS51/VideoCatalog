@@ -38,8 +38,15 @@ namespace VideoCatalog.Main {
 
 		//---
 
-		///<summary> Хранилище атрибутов элемента каталога. </summary>
+		///<summary> Хранилище атрибутов элемента каталога. При отсутствии - возвращает строку "<null>". </summary>
 		public ObservableCollection<AtrEnt> atrMap { get; set; } = new ObservableCollection<AtrEnt>();
+
+		///<summary> Получить значение атрибута. </summary>
+		public string GetAttribute(string atrName) {
+			var atrData = atrMap.FirstOrDefault(atrEnt => atrEnt.AtrName == atrName)?.AtrData;
+			if (atrData != null) return atrData;
+			return "<null>";
+		}
 
 		public class AtrEnt{
 			public AtrEnt() { }
@@ -69,6 +76,9 @@ namespace VideoCatalog.Main {
 		//---
 
 		public bool isBroken = false;
+
+		///<summary> Строка для отображения в справочной панельке. </summary>
+		public string sortHelper = "";
 
 		//---
 		

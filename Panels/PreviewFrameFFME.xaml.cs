@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
 namespace VideoCatalog.Panels {
@@ -28,6 +29,7 @@ namespace VideoCatalog.Panels {
 		/// <summary> Запуск превью видео. </summary>
 		public void StartPreview(string path, int duration) {
 			this.duration = duration;
+			mediaPlayerFFME.Opacity = 0;
 
 			if (duration > totalSteps * secSpan) {
 				// режим с шагом через время для длинных видео
@@ -37,15 +39,21 @@ namespace VideoCatalog.Panels {
 				prevProgress.IsIndeterminate = false;
 				curStep = 1;
 
-				timer = new DispatcherTimer() { Interval = new TimeSpan(0, 0, secSpan) };     // смещение через 2 секунды
-				timer.Tick += Timer_Tick;
-				//Timer_Tick(null, null);
+				if (timer == null) {
+					timer = new DispatcherTimer() { Interval = new TimeSpan(0, 0, secSpan) };     // смещение через 2 секунды
+					timer.Tick += Timer_Tick;
+				}
 
 				Application.Current.Dispatcher.BeginInvoke((Action)(async () => {
 					await mediaPlayerFFME.Open(new Uri(@path));
 					await mediaPlayerFFME.Seek(new TimeSpan(0, 0, 0, (duration / totalSteps) * curStep));
 					curStep++;
 					await mediaPlayerFFME.Play();
+
+					// плавное появление плеера
+					var alphaIn = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(300)));
+					mediaPlayerFFME.BeginAnimation(OpacityProperty, alphaIn);
+
 					if (timer != null) timer.Start();
 				}));
 			} else {
@@ -55,7 +63,11 @@ namespace VideoCatalog.Panels {
 				mediaPlayerFFME.MediaEnded += new EventHandler(m_MediaEnded); // заLOOPа
 
 				Application.Current.Dispatcher.BeginInvoke((Action)(async () => {
+					await mediaPlayerFFME.Open(new Uri(@path));
 					await mediaPlayerFFME.Play();
+					// плавное появление плеера
+					var alphaIn = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(300)));
+					mediaPlayerFFME.BeginAnimation(OpacityProperty, alphaIn);
 				}));
 			}
 		}
@@ -64,7 +76,16 @@ namespace VideoCatalog.Panels {
 			prevProgress.Visibility = Visibility.Hidden;
 			if (timer != null) timer.Stop();
 			timer = null;
-			mediaPlayerFFME.Close();
+
+			// разрушаем плеер
+			Application.Current.Dispatcher.BeginInvoke((Action)(async () => {
+				await mediaPlayerFFME.Stop();
+				await mediaPlayerFFME.Close();
+
+				mediaPlayerFFME.Dispose();      //! обязательно - иначе не будет давать очищать элементы по всему дереву родителей
+			}));
+
+
 		}
 
 		/// <summary> Смещение видео по времени для шага. </summary>

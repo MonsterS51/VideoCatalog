@@ -17,8 +17,7 @@
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/file2.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
 		<Button x:Name="saveBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/save.png" RenderOptions.BitmapScalingMode="HighQuality">
-			</Image>
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/save.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
 		<Button x:Name="closeBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/cross.png" RenderOptions.BitmapScalingMode="HighQuality"/>
