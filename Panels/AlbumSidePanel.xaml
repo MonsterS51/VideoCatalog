@@ -82,9 +82,10 @@
 							<TextBlock TextWrapping="WrapWithOverflow" Text="{Binding Path=Name}" 
 									   FontSize="16" Margin="-2,-2,-2,2" Padding="4" 
 									   Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
-
-							<Image x:Name="CoverArt" Source="{Binding Path=CoverImage}" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
-									Margin="0,0,0,0" Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch" MinHeight="100" MaxHeight="600"/>
+							<Border BorderBrush="Black" BorderThickness="1" Padding="0" Margin="-3,-3,-3,5">
+								<Image x:Name="CoverArt" Source="{Binding Path=CoverImage}" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible" 
+									Margin="0" Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch" MinHeight="100" MaxHeight="600"/>
+							</Border>
 
 							<Button x:Name="removeEntBtn">Remove entry</Button>
 
@@ -103,7 +104,7 @@
 								<GroupBox.Header>
 									<Label FontSize="9" Padding="0">Attributes</Label>
 								</GroupBox.Header>
-								<DataGrid x:Name="atrGrid_RO" ItemsSource="{Binding Path=atrMap}" HeadersVisibility="Column" IsReadOnly="True"
+								<DataGrid x:Name="atrGrid_RO" ItemsSource="{Binding Path=atrMap}" HeadersVisibility="Column" IsReadOnly="True" Margin="-2,0,-2,-2"
 									  AutoGenerateColumns="False" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" >
 									<DataGrid.Columns>
 										<DataGridTextColumn Header="Name" Binding="{Binding AtrName}" Width="100" />
@@ -144,41 +145,46 @@
 								<GroupBox.Header>
 									<Label FontSize="9" Padding="0">Name</Label>
 								</GroupBox.Header>
-								<TextBox TextWrapping="WrapWithOverflow"  Text="{Binding Path=Name}" Margin="-2"></TextBox>
+								<TextBox TextWrapping="WrapWithOverflow"  Text="{Binding Path=Name}" Margin="-2,0,-2,-2"></TextBox>
 							</GroupBox>
 							<GroupBox>
 								<GroupBox.Header>
 									<Label FontSize="9" Padding="0">Description</Label>
 								</GroupBox.Header>
-								<TextBox TextWrapping="WrapWithOverflow" AcceptsReturn="True" AcceptsTab="True" Text="{Binding Path=Descr}" Margin="-2"></TextBox>
+								<TextBox TextWrapping="WrapWithOverflow" AcceptsReturn="True" AcceptsTab="True" Text="{Binding Path=Descr}" Margin="-2,0,-2,-2"></TextBox>
 							</GroupBox>
 							<GroupBox>
 								<GroupBox.Header>
 									<Label FontSize="9" Padding="0">Tags</Label>
 								</GroupBox.Header>
-								<TextBox TextWrapping="WrapWithOverflow"  Text="{Binding Path=TagStr}" Margin="-2"></TextBox>
+								<Grid Margin="-2,0,-2,-2">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition />
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBox x:Name="tagStr" TextWrapping="WrapWithOverflow" Text="{Binding Path=TagStr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="tagStr_TextChanged"/>
+									<StackPanel Orientation="Horizontal" VerticalAlignment="Top" Grid.Column="1" >
+										<Button HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="ShowTagPopUp">
+											<Image Height="16" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/tag.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+										</Button>
+									</StackPanel>
+								</Grid>
+
 							</GroupBox>
 							
 							<GroupBox>
 								<GroupBox.Header>
 									<Label FontSize="9" Padding="0">Directory</Label>
 								</GroupBox.Header>
-								<TextBox TextWrapping="WrapWithOverflow"  Text="{Binding Path=AlbRelPath}" Margin="-2"></TextBox>
+								<TextBox TextWrapping="WrapWithOverflow"  Text="{Binding Path=AlbRelPath}" Margin="-2,0,-2,-2"></TextBox>
 							</GroupBox>
 							
-							<GroupBox>
-								<GroupBox.Header>
-									<Label FontSize="9" Padding="0">Produced</Label>
-								</GroupBox.Header>
-								<xctk:DateTimePicker Value="{Binding Path=ProdTime}" Width="150" HorizontalAlignment="Left" Format="Custom" FormatString="dd.MM.yyyy"/>
-							</GroupBox>
-
 							<!-- Раздел атрибутов элемента коллекции -->
 							<GroupBox>
 								<GroupBox.Header>
 									<Label FontSize="9" Padding="0">Attributes</Label>
 								</GroupBox.Header>
-								<DataGrid x:Name="atrGrid" ItemsSource="{Binding Path=atrMap}" HeadersVisibility="Column"
+								<DataGrid x:Name="atrGrid" ItemsSource="{Binding Path=atrMap}" HeadersVisibility="Column" Margin="-2,0,-2,-2"
 									  AutoGenerateColumns="False" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" >
 									<DataGrid.Columns>
 										<DataGridTextColumn Header="Name" Binding="{Binding AtrName}" Width="100" />

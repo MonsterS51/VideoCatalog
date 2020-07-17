@@ -35,15 +35,44 @@ namespace VideoCatalog.Panels {
 
 			foreach (var tag in tagArray) {
 				Color bgCol = Color.FromRgb((byte)r.Next(1, 255), (byte)r.Next(1, 255), (byte)r.Next(1, 233));
-				Color lblColor = Color.FromRgb((byte)~bgCol.R, (byte)~bgCol.G, (byte)~bgCol.B);
+
+
+				//Color lblColor = Color.FromRgb((byte)~bgCol.R, (byte)~bgCol.G, (byte)~bgCol.B);	// инвертированный цвет
 
 				var newTag = new TagPlate();
 				newTag.TagLabel.Text = tag;
-				newTag.TagLabel.Fill = new SolidColorBrush(lblColor);
+				newTag.TagLabel.Fill = new SolidColorBrush(Color.FromRgb(255, 255, 255));
 				newTag.TagBrd.Background = new SolidColorBrush(bgCol);
 				TagPanel.Children.Add(newTag);
 			}
 
+		}
+
+		///<summary> Отобразить меню добавления в строку поиска существующих тэгов. </summary>
+		private void ShowTagPopUp(object sender, EventArgs e) {
+			var cm = new ContextMenu();
+
+			foreach (var tagName in CatalogRoot.tagsList) {
+				if (!tagStr.Text.Contains(tagName)) {  // убираем уже имеющиеся в строке
+					var mItem = new MenuItem();
+					mItem.Header = tagName;
+					mItem.Click += (s, ea) => {
+						tagStr.Text = tagStr.Text + " ," + tagName;
+					};
+					mItem.FontSize = 10;
+					cm.Items.Add(mItem);
+				}
+			}
+
+			if (cm.Items.Count > 0) {
+				cm.PlacementTarget = sender as Button;
+				cm.IsOpen = true;
+			}
+
+		}
+
+		private void tagStr_TextChanged(object sender, TextChangedEventArgs e) {
+			Console.WriteLine("" + tagStr.Text);
 		}
 	}
 }

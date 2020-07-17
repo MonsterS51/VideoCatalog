@@ -318,5 +318,8 @@
     <Resource Include="Assets\Icons\remove-total.png" />
     <Resource Include="Assets\Icons\remove.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\tag.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
