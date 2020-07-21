@@ -13,17 +13,17 @@ namespace VideoCatalog.Windows {
 
 		public static bool FoundFFMpegLibs;
 
-		public static MainWindow MainWindow;
+		public static MainWindow MainWin;
 
 		private void Application_Startup(object sender, StartupEventArgs e) {
 			LoadFFMpegLibs();
 
-			MainWindow = new MainWindow();
-			MainWindow.Show();
+			MainWin = new MainWindow();
+			MainWin.Show();
 
 			if (e.Args.Length > 0) {
 				mArgs = e.Args;
-				MainWindow.OpenFolder(new DirectoryInfo(mArgs.FirstOrDefault()));
+				MainWin.OpenFolder(new DirectoryInfo(mArgs.FirstOrDefault()));
 			}
 
 			// сохранение настроек по закрытию приложения

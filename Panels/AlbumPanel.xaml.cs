@@ -36,13 +36,13 @@ namespace VideoCatalog.Panels {
 
 			if (isRoot) {
 				toolbarMainPanel.Visibility = Visibility.Visible;
-				toolbarMainPanel.newBtn.Click += App.MainWindow.OpenFolder;
-				toolbarMainPanel.loadBtn.Click += App.MainWindow.LoadCatalog;
-				toolbarMainPanel.saveBtn.Click += App.MainWindow.SaveCatalog;
-				toolbarMainPanel.closeBtn.Click += App.MainWindow.CloseCatalog;
-				toolbarMainPanel.updBtn.Click += App.MainWindow.UpdateCatalog;
-				toolbarMainPanel.chkBtn.Click += App.MainWindow.CatEng.CatRoot.ChkAlbAndEntState;
-				toolbarMainPanel.settingBtn.Click += App.MainWindow.OpenSettingTab;
+				toolbarMainPanel.newBtn.Click += App.MainWin.OpenFolder;
+				toolbarMainPanel.loadBtn.Click += App.MainWin.LoadCatalog;
+				toolbarMainPanel.saveBtn.Click += App.MainWin.SaveCatalog;
+				toolbarMainPanel.closeBtn.Click += App.MainWin.CloseCatalog;
+				toolbarMainPanel.updBtn.Click += App.MainWin.UpdateCatalog;
+				toolbarMainPanel.chkBtn.Click += App.MainWin.CatEng.CatRoot.ChkAlbAndEntState;
+				toolbarMainPanel.settingBtn.Click += App.MainWin.OpenSettingTab;
 			} else {
 				toolbarMainPanel.Visibility = Visibility.Collapsed;
 			}
@@ -201,7 +201,7 @@ namespace VideoCatalog.Panels {
 			readyMap.Clear();
 
 			Application.Current.Dispatcher.BeginInvoke((Action)(() => { 
-				if (App.MainWindow?.MainPanel != null) App.MainWindow.MainPanel.lblCountTotal.Text = "Total: " + srcList.Count(); 
+				if (App.MainWin?.MainPanel != null) App.MainWin.MainPanel.lblCountTotal.Text = "Total: " + srcList.Count(); 
 			}));
 		}
 

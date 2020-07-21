@@ -23,14 +23,14 @@ namespace VideoCatalog.Tabs {
 				Text = tabname,
 				MaxWidth = 150,
 				TextTrimming = TextTrimming.CharacterEllipsis,
-				Padding = new Thickness(0.5f, 0.5f, 0.5f, 0.5f),
+				Padding = new Thickness(0f),
 			});
 
 			clsbtn = new Button() {
 				Width = 14f,
 				Height = 14f,
-				Style = App.MainWindow.FindResource("btnIconStl") as Style,
-				Content = new Image { Style = App.MainWindow.FindResource("imgIconStl") as Style },
+				Style = App.MainWin.FindResource("btnIconStl") as Style,
+				Content = new Image { Style = App.MainWin.FindResource("imgIconStl") as Style },
 				Padding = new Thickness(-2f),
 				Margin = new Thickness(5f, 0f, 0f, 0f)
 			};
@@ -40,8 +40,8 @@ namespace VideoCatalog.Tabs {
 			Content = panel;             // установка содержимого вкладки
 
 			MaxWidth = 400;
-			Padding = new Thickness(0.5f);
-			Style = App.MainWindow.FindResource("tabItemCustomStl") as Style;
+			Padding = new Thickness(0f);
+			Style = App.MainWin.FindResource("tabItemCustomStl") as Style;
 
 
 			// установка действий

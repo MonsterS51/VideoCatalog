@@ -57,7 +57,7 @@ namespace VideoCatalog.Main {
 				}
 			} else {
 				System.Windows.MessageBox.Show($"Can`t load <{path}>", "Error");
-				App.MainWindow.CloseCatalog(null, null);
+				App.MainWin.CloseCatalog(null, null);
 			}
 
 		}

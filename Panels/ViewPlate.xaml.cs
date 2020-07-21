@@ -104,6 +104,7 @@ namespace VideoCatalog.Panels {
 		public void TurnOnPreviewMode() {
 			previewGrid.Visibility = Visibility.Visible;
 			lblTopRight.Visibility = Visibility.Hidden;
+			panelTopLeft.Visibility = Visibility.Hidden;
 
 			// плавное скрытие кавера
 			var alphaIn = new DoubleAnimation(CoverArt.Opacity, 0, new Duration(TimeSpan.FromMilliseconds(fadeTime)));
@@ -113,6 +114,7 @@ namespace VideoCatalog.Panels {
 		///<summary> Переход в обычный режим. </summary>
 		public void TurnOffPreviewMode() {
 			lblTopRight.Visibility = Visibility.Visible;
+			panelTopLeft.Visibility = Visibility.Visible;
 
 			// плавное проявление кавера
 			var alphaOut = new DoubleAnimation(CoverArt.Opacity, 1, new Duration(TimeSpan.FromMilliseconds(fadeTime)));

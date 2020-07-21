@@ -8,7 +8,7 @@
 			 mc:Ignorable="d" 
 			 d:DesignHeight="450" d:DesignWidth="800">
 	<Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,0,0,0">
-		<Border BorderBrush="Black" BorderThickness="1">
+		<Border BorderBrush="Black" BorderThickness="0">
 			<DockPanel LastChildFill="True"  SnapsToDevicePixels="True" UseLayoutRounding="True" Margin="0">
 			<Label Content="Settings" DockPanel.Dock="Top" FontSize="16" 
 					Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
@@ -42,38 +42,46 @@
 									</ComboBox>
 								</DockPanel>
 
-								<!-- путь до библиотек -->
+								<!-- путь до библиотек FFMpeg -->
 								<Grid x:Name="ffmePathOpt">
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition Width="100"/>
 										<ColumnDefinition Width="*"/>
 										<ColumnDefinition Width="25"/>
 									</Grid.ColumnDefinitions>
-									<Label Content="FFMpeg path: "  Grid.Column="0" Margin="0,0,0.364,0.182" Grid.RowSpan="2"/>
-									<TextBox x:Name="ffmpegPath" Grid.ColumnSpan="3" Margin="100,0,25.073,-0.818" Grid.RowSpan="2" Height="Auto"/>
-									<Button x:Name="btnSelectFFMpegPath" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnSelectFFMpegPath_Click" Margin="0.236,0,0.073,0.182" Grid.RowSpan="2">
+									<Grid.RowDefinitions>
+											<RowDefinition/>
+											<RowDefinition/>
+									</Grid.RowDefinitions>
+									<Label Content="FFMpeg path: "  Grid.Column="0" Grid.Row="0"/>
+									<TextBox x:Name="ffmpegPath" Grid.Column="1" Height="Auto" Grid.Row="0"/>
+									<Button x:Name="btnSelectFFMpegPath" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" 
+											Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnSelectFFMpegPath_Click" Grid.Row="0">
 										<Image Height="20" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 									</Button>
-								</Grid>
+									<TextBlock Grid.Row="1" Margin="0,-2,0,5" FontSize="9" Grid.Column="1" Foreground="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}" >
+										Libs can be downloaded from <Hyperlink NavigateUri="https://ffmpeg.zeranoe.com/builds/" RequestNavigate="LinkOnRequestNavigate">this site</Hyperlink> (shared version). Unpack and select /bin folder.
+									</TextBlock>
+									</Grid>
 
 								<!-- число шагов предпросмотра -->
 								<DockPanel>
 									<Label Content="Steps: " Width="100"/>
 									<xctk:IntegerUpDown x:Name="PreviewSteps"
-							Increment="1" Value="8" Minimum="2" Width="100" HorizontalAlignment="Left"
-							Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
-							Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
-							BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+										Increment="1" Value="8" Minimum="2" Width="100" HorizontalAlignment="Left"
+										Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+										Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+										BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
 								</DockPanel>
 
 								<!-- время предпросмотра каждого шага -->
 								<DockPanel>
 									<Label Content="Time (sec): " Width="100"/>
 									<xctk:IntegerUpDown x:Name="PreviewTime"
-							Increment="1" Value="2" Minimum="1" Width="100" HorizontalAlignment="Left"
-							Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
-							Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
-							BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+										Increment="1" Value="2" Minimum="1" Width="100" HorizontalAlignment="Left"
+										Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+										Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+										BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
 								</DockPanel>
 							</StackPanel>
 

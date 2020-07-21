@@ -1,5 +1,6 @@
 ﻿using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
+using NReco.VideoInfo;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -45,8 +46,19 @@ namespace VideoCatalog.Main {
 		public int duration = 0;
 		public string width = null;
 		public string height = null;
+		public VideoResolution vidRes;
 		public DateTime DateCreate = DateTime.Now;
 		public DateTime DateModify = DateTime.Now;
+
+		///<summary> Усредненная оценка разрешения видео. </summary>
+		public enum VideoResolution {
+			LQ,
+			HD,
+			FHD,
+			QHD,
+			UHD
+		}
+
 
 		public CatalogEntry() {}
 		
@@ -127,6 +139,7 @@ namespace VideoCatalog.Main {
 			else TopRightText = $"{width}x{height}\n{hours}:{minutes}";
 
 			UpdateIconBrokenState();
+			UpdateVideoResIcons();
 
 			return vp; 
 		}
@@ -138,27 +151,36 @@ namespace VideoCatalog.Main {
 			DateCreate = EntAbsFile.CreationTime;
 			DateModify = EntAbsFile.LastWriteTime;
 
+			//+ загрузка данных через ShellFile
+			//? для древних и не стандартных видеофайлов лучше поставить кодеки (иначе не сможет читать из них данные) !
 			try {
 				var file = ShellFile.FromFilePath(EntAbsPath);
-				file.Properties.System.Video.FrameWidth.TryFormatForDisplay(PropertyDescriptionFormatOptions.None, out width);
-				file.Properties.System.Video.FrameHeight.TryFormatForDisplay(PropertyDescriptionFormatOptions.None, out height);
+				if (file != null) {
+					file.Properties.System.Video.FrameWidth.TryFormatForDisplay(PropertyDescriptionFormatOptions.None, out width);
+					file.Properties.System.Video.FrameHeight.TryFormatForDisplay(PropertyDescriptionFormatOptions.None, out height);
+				}
 			} catch (ArgumentException ex) {
 				Console.WriteLine(ex.Message);
 			} catch (IndexOutOfRangeException ex2) {
 				Console.WriteLine(ex2.Message);
 			}
 
-			// на случай, если не смогли получить через шел или надпись "Нет данных"
+			//+ на случай, если не смогли получить через шел или надпись "Нет данных"
+			//! ! значительно медленней, чем через ShellFile
 			if (string.IsNullOrWhiteSpace(width) || width.Any(x => char.IsLetter(x)) || string.IsNullOrWhiteSpace(height) || height.Any(x => char.IsLetter(x))) {
+				//Console.WriteLine("" + _entRelPath);
 				try {
-					width = "" + CatalogEngine.ffProbe.GetMediaInfo(EntAbsPath).Streams.First().Width;
-					height = "" + CatalogEngine.ffProbe.GetMediaInfo(EntAbsPath).Streams.First().Height;
-				} catch (Exception) {
-					width = "";
-					height = "";
+					var dataSrc = CatalogEngine.ffProbe.GetMediaInfo(EntAbsPath).Streams.First();
+					width = "" + dataSrc.Width;
+					height = "" + dataSrc.Height;
+				} catch (Exception ex) {
+					width = "0";
+					height = "0";
+					Console.WriteLine(ex.Message);
 				}
 			}
 
+			ChkVideoResolution();
 		}
 
 		///<summary> Возвращает самую раннюю(позднюю) дату создания файла из всех входящих элементов. </summary>
@@ -183,6 +205,48 @@ namespace VideoCatalog.Main {
 			UpdateIconBrokenState();
 		}
 
+		public void ChkVideoResolution() {
+			int.TryParse(height, out int h);
+			if (h < 700) { vidRes = VideoResolution.LQ; return; }
+			if (h < 1000) { vidRes = VideoResolution.HD; return; }
+			if (h < 1400) { vidRes = VideoResolution.FHD; return; }
+			if (h < 2100) { vidRes = VideoResolution.QHD; return; }
+			vidRes = VideoResolution.UHD;
+		}
+
+		public void UpdateVideoResIcons() {
+			if (vp == null) return;
+
+			vp.Icon_LQ.Visibility = System.Windows.Visibility.Collapsed;
+			vp.Icon_HD.Visibility = System.Windows.Visibility.Collapsed;
+			vp.Icon_FHD.Visibility = System.Windows.Visibility.Collapsed;
+			vp.Icon_QHD.Visibility = System.Windows.Visibility.Collapsed;
+			vp.Icon_UHD.Visibility = System.Windows.Visibility.Collapsed;
+
+			switch(vidRes) {
+				case VideoResolution.LQ:{
+					vp.Icon_LQ.Visibility = System.Windows.Visibility.Visible;
+					break;
+				}
+				case VideoResolution.HD: {
+					vp.Icon_HD.Visibility = System.Windows.Visibility.Visible;
+					break;
+				}
+				case VideoResolution.FHD: {
+					vp.Icon_FHD.Visibility = System.Windows.Visibility.Visible;
+					break;
+				}
+				case VideoResolution.QHD: {
+					vp.Icon_QHD.Visibility = System.Windows.Visibility.Visible;
+					break;
+				}
+				case VideoResolution.UHD: {
+					vp.Icon_UHD.Visibility = System.Windows.Visibility.Visible;
+					break;
+				}
+				default: break;
+			}
+		}
 
 
 	}

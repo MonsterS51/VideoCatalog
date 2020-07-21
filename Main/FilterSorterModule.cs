@@ -74,10 +74,10 @@ namespace VideoCatalog.Main {
 
 
 			tempStr = tempStr.Trim();   // строка поиска без тегов
-			Console.WriteLine("tempStr " + tempStr);
-			Console.WriteLine("incTag " + string.Join(",", incTag));
-			Console.WriteLine("optTag " + string.Join(",", optTag)); 
-			Console.WriteLine("excTag " + string.Join(",", excTag));
+			//Console.WriteLine("tempStr " + tempStr);
+			//Console.WriteLine("incTag " + string.Join(",", incTag));
+			//Console.WriteLine("optTag " + string.Join(",", optTag)); 
+			//Console.WriteLine("excTag " + string.Join(",", excTag));
 
 			//+ фильтрация по имени или его части с отбросом мещающих знаков
 			List<AbstractEntry> resultList;
@@ -113,7 +113,7 @@ namespace VideoCatalog.Main {
 			if (incTag.Count > 0 | excTag.Count > 0 | optTag.Count > 0) {
 				foreach (var filtEnt in resultList.ToArray()) {
 					var entTagArr = filtEnt.TagList;
-					Console.WriteLine(filtEnt.Name + " " + string.Join(",", entTagArr));
+					//Console.WriteLine(filtEnt.Name + " " + string.Join(",", entTagArr));
 
 					if (optTag.Count > 0) {
 						// не проходит по частичным тегам

@@ -67,10 +67,10 @@
 	</UserControl.Resources>
 
 	<Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-		<TabControl x:Name="tabsPanel" BorderThickness="0" Style="{StaticResource TabControlStyle}" Margin="0,0,0.491,-0.418" Grid.RowSpan="2">
+		<TabControl x:Name="tabsPanel" BorderThickness="0" Style="{StaticResource TabControlStyle}" Margin="0,-1,0,0" Grid.RowSpan="2">
 
 			<!-- Вкладка Info -->
-			<TabItem Padding="0.5" Style="{StaticResource tabItemCustomStl}">
+			<TabItem Padding="0" Margin="0" Style="{StaticResource tabItemCustomStl}">
 				<TabItem.Header>
 					<StackPanel Orientation="Horizontal" >
 						<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0.5" TextTrimming ="CharacterEllipsis">Info</TextBlock>
@@ -104,8 +104,11 @@
 								<GroupBox.Header>
 									<Label FontSize="9" Padding="0">Attributes</Label>
 								</GroupBox.Header>
-								<DataGrid x:Name="atrGrid_RO" ItemsSource="{Binding Path=atrMap}" HeadersVisibility="Column" IsReadOnly="True" Margin="-2,0,-2,-2"
-									  AutoGenerateColumns="False" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" >
+								<DataGrid x:Name="atrGrid_RO" ItemsSource="{Binding Path=atrMap}" HeadersVisibility="Column" IsReadOnly="True" Margin="-2,0,-2,-2" BorderThickness="1,1,1,0"
+										  VerticalGridLinesBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
+										  HorizontalGridLinesBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
+										  BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
+									  AutoGenerateColumns="False" >
 									<DataGrid.Columns>
 										<DataGridTextColumn Header="Name" Binding="{Binding AtrName}" Width="100" />
 										<DataGridTextColumn Header="Data" Binding="{Binding AtrData}" Width="*">
@@ -129,7 +132,7 @@
 			</TabItem>
 
 			<!-- Вкладка Edit -->
-			<TabItem Padding="0.5" Style="{StaticResource tabItemCustomStl}">
+			<TabItem Padding="0" Margin="0" Style="{StaticResource tabItemCustomStl}">
 				<TabItem.Header>
 					<StackPanel Orientation="Horizontal" >
 						<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0.5" 
@@ -184,8 +187,11 @@
 								<GroupBox.Header>
 									<Label FontSize="9" Padding="0">Attributes</Label>
 								</GroupBox.Header>
-								<DataGrid x:Name="atrGrid" ItemsSource="{Binding Path=atrMap}" HeadersVisibility="Column" Margin="-2,0,-2,-2"
-									  AutoGenerateColumns="False" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" >
+								<DataGrid x:Name="atrGrid" ItemsSource="{Binding Path=atrMap}" HeadersVisibility="Column" Margin="-2,0,-2,-2" BorderThickness="1,1,1,0"
+										  VerticalGridLinesBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
+										  HorizontalGridLinesBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
+										  BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
+									  AutoGenerateColumns="False"  >
 									<DataGrid.Columns>
 										<DataGridTextColumn Header="Name" Binding="{Binding AtrName}" Width="100" />
 										<DataGridTextColumn Header="Data" Binding="{Binding AtrData}" Width="*">

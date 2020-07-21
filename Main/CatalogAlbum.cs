@@ -73,14 +73,6 @@ namespace VideoCatalog.Main {
 			}
 		}
 
-		//public int GetDuration() {
-		//	duration = 1;
-		//	if (FirstEntry != null) {
-		//		duration = FirstEntry.duration;
-		//	}
-		//	return duration;
-		//}
-
 		///<summary> Обновление состава альбома. </summary>
 		public void UpdateAlbumFiles() {
 			LoadDir();
@@ -103,30 +95,40 @@ namespace VideoCatalog.Main {
 				return;
 			}
 
+			//List<Task> tasksList = new List<Task>();
 
 
-			List<Task> tasksList = new List<Task>();
+			//foreach (var file in vidList) {
+			//	var newTask = Task.Factory.StartNew(() => {
+			//		// не формируем, если такое было
+			//		lock (locker) if (EntryList.Any(ent => ent.EntAbsPath == file.FullName)) return;
+
+			//		CatalogEntry newEnt = new CatalogEntry(file, this);
+
+			//		lock (locker) EntryList.Add(newEnt);
+
+			//	}, TaskCreationOptions.AttachedToParent);
+			//	tasksList.Add(newTask);
+			//}
+
+			//Task.WaitAll(tasksList.ToArray());
+			//EntryList = EntryList.OrderBy(x => x.Name, new AlphanumComparatorFast()).ToList();
 
 
-			foreach (var file in vidList) {
-				var newTask = Task.Factory.StartNew(() => {
-					// не формируем, если такое было
-					lock (locker) if (EntryList.Any(ent => ent.EntAbsPath == file.FullName)) return;
+			//var newTask = Task.Factory.StartNew(() => {
+				Parallel.ForEach(vidList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
+					file => {
+						// не формируем, если такое было
+						lock (locker) if (EntryList.Any(ent2 => ent2.EntAbsPath == file.FullName)) return;
+						CatalogEntry newEnt = new CatalogEntry(file, this);
+						lock (locker) EntryList.Add(newEnt);
+					}
+				);
 
-					CatalogEntry newEnt = new CatalogEntry(file, this);
-
-					lock (locker) EntryList.Add(newEnt);
-					
-				}, TaskCreationOptions.AttachedToParent);
-				tasksList.Add(newTask);
-			}
-
-			Task.WaitAll(tasksList.ToArray());
-
-			// сортируем, т.к. потоки закончились в разнобой
-			EntryList = EntryList.OrderBy(x => x.Name, new AlphanumComparatorFast()).ToList();
-
-			//atrMap.Add(new AtrEnt("Year", "" + GetDateModify().Year));
+				// сортируем, т.к. потоки закончились в разнобой
+				EntryList = EntryList.OrderBy(x => x.Name, new AlphanumComparatorFast()).ToList();
+			//});
+			//Task.WaitAll(newTask);
 		}
 
 		//---
@@ -146,22 +148,11 @@ namespace VideoCatalog.Main {
 		/// <summary> Формирование обложек эпизодов альбома в отдельном потоке в паралельном режиме. </summary>
 		public void LoadEntCoversThreaded(bool forceUpdate = false) {
 			void thread() {
-				Console.WriteLine("Load Ent Start");
-
 				Parallel.ForEach(EntryList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
 				  ent => { ent.LoadCover(forceUpdate); }
 				  );
 
 				// таски здесь почему то запускаются с лютой задержкой в ~20 сек
-				//List<Task> tasksList = new List<Task>();
-				//foreach (var ent in EntryList) {
-				//	var newTask = Task.Factory.StartNew(() => { ent.LoadCover(forceUpdate); }, TaskCreationOptions.AttachedToParent);
-				//	tasksList.Add(newTask);
-				//	Console.WriteLine("Add task " + newTask.Id);
-				//}
-				//Task.WaitAll(tasksList.ToArray());
-
-				Console.WriteLine("Load Ent Done");
 			}
 			updThread = new Thread(thread);
 			updThread.Start();
@@ -189,9 +180,9 @@ namespace VideoCatalog.Main {
 				vp = new ViewPlate();
 				vp.DataContext = this;
 
-				vp.onClick = () => App.MainWindow.OpenSidePanel(this);
-				vp.onDoubleClick = () => App.MainWindow.OpenAlbumTab(this);
-				vp.onWheelClick = () => App.MainWindow.OpenAlbumTab(this, false);
+				vp.onClick = () => App.MainWin.OpenSidePanel(this);
+				vp.onDoubleClick = () => App.MainWin.OpenAlbumTab(this);
+				vp.onWheelClick = () => App.MainWin.OpenAlbumTab(this, false);
 			}
 
 			vp.path = FirstEntry.EntAbsPath;
@@ -199,6 +190,7 @@ namespace VideoCatalog.Main {
 
 			TopRightText = ""+EntryList.Count;
 			UpdateIconBrokenState();
+			UpdateVideoResIcons();
 			return vp;
 		}
 
@@ -265,6 +257,28 @@ namespace VideoCatalog.Main {
 			}
 
 			UpdateIconBrokenState();
+		}
+
+		public void UpdateVideoResIcons() {
+			if (vp == null) return;
+
+			vp.Icon_LQ.Visibility = Visibility.Collapsed;
+			vp.Icon_HD.Visibility = Visibility.Collapsed;
+			vp.Icon_FHD.Visibility = Visibility.Collapsed;
+			vp.Icon_QHD.Visibility = Visibility.Collapsed;
+			vp.Icon_UHD.Visibility = Visibility.Collapsed;
+
+			List<CatalogEntry.VideoResolution> resList = new List<CatalogEntry.VideoResolution>();
+
+			foreach (var ent in EntryList) {
+				resList.Add(ent.vidRes);
+			}
+
+			if (resList.Contains(CatalogEntry.VideoResolution.LQ)) vp.Icon_LQ.Visibility = Visibility.Visible; 
+			if (resList.Contains(CatalogEntry.VideoResolution.HD)) vp.Icon_HD.Visibility = Visibility.Visible;
+			if (resList.Contains(CatalogEntry.VideoResolution.FHD)) vp.Icon_FHD.Visibility = Visibility.Visible;
+			if (resList.Contains(CatalogEntry.VideoResolution.QHD)) vp.Icon_QHD.Visibility = Visibility.Visible;
+			if (resList.Contains(CatalogEntry.VideoResolution.UHD)) vp.Icon_UHD.Visibility = Visibility.Visible;
 		}
 
 

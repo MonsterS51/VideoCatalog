@@ -9,7 +9,7 @@
 	<UserControl.Resources>
 	</UserControl.Resources>
 
-	<StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+	<StackPanel Orientation="Horizontal" VerticalAlignment="Top" SnapsToDevicePixels="True" UseLayoutRounding="True">
 		<Button x:Name="newBtn" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>

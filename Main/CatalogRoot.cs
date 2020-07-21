@@ -33,9 +33,9 @@ namespace VideoCatalog.Main {
 			CatPath = path;
 			Console.WriteLine($"Load Root <{CatDir}>");
 
-			App.MainWindow.OpenMainTab();
-			App.MainWindow.MainPanel.SetUiStateLoading();
-			App.MainWindow.MainPanel.pBar.IsIndeterminate = false;
+			App.MainWin.OpenMainTab();
+			App.MainWin.MainPanel.SetUiStateLoading();
+			App.MainWin.MainPanel.pBar.IsIndeterminate = false;
 
 			worker = new BackgroundWorker();
 			worker.DoWork += new DoWorkEventHandler(Worker_CreateAlbums);
@@ -47,46 +47,58 @@ namespace VideoCatalog.Main {
 		private int dirsCount = 1;
 
 		void Worker_CreateAlbums(object sender, DoWorkEventArgs e) {
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
 			procDone = 0;
 
 			CreateAlbum(CatDir, false);    // рут альбом для файлов в корне
 
-			List<Task> tasksList = new List<Task>();
-
 			var dirs = CatDir.GetDirectories();
 			dirsCount = dirs.Count() + 1;
 
-			foreach (var subDir in dirs) {
-				var newTask = Task.Factory.StartNew( () => { CreateAlbum(subDir, true); });
-				tasksList.Add(newTask);
-			}
+			Parallel.ForEach(dirs, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
+				dir => { CreateAlbum(dir, true); }
+			);
 
-			Task.WaitAll(tasksList.ToArray());
+			//procDone = 0;
+			//Parallel.ForEach(AlbumsList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
+			//	alb => {
+			//		Parallel.ForEach(alb.EntryList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
+			//			ent => { ent.GetMetaData(); }
+			//		);
 
-			Console.WriteLine("Search files done!");
+			//		Interlocked.Increment(ref procDone);
+			//		if (App.MainWindow?.MainPanel != null) {
+			//			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.pBar.Value = (procDone / (float)AlbumsList.Count) * 100));
+			//			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"({procDone} / {AlbumsList.Count})  {alb.AlbRelPath}"));
+			//		}
+			//	}
+			//);
 
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = "Search files done!"));
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = "Search files done!"));
 
+			Console.WriteLine($"Search files done for {sw.ElapsedMilliseconds}");
+			sw.Stop();
 		}
 
 		void Worker_CreateAlbumsDone(object sender, RunWorkerCompletedEventArgs e) {
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = "Done!"));
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = "Done!"));
 			RunLoadAlbumesCoversThread();
 			UpdateTagsList();
 			UpdateAttributesList();
 			ChkAlbAndEntState();
-			App.MainWindow.MainPanel.UpdatePanelContent();
-			App.MainWindow.MainPanel.loadingPanel.Visibility = Visibility.Hidden;
-			App.MainWindow.MainPanel.SetUiStateOpened();
+			App.MainWin.MainPanel.UpdatePanelContent();
+			App.MainWin.MainPanel.loadingPanel.Visibility = Visibility.Hidden;
+			App.MainWin.MainPanel.SetUiStateOpened();
 		}
 
 
 		public void LoadDeserial() {
 			Console.WriteLine($"Load Root <{CatDir}>");
 
-			App.MainWindow.OpenMainTab();
-			App.MainWindow.MainPanel.SetUiStateLoading();
-			App.MainWindow.MainPanel.pBar.IsIndeterminate = true;
+			App.MainWin.OpenMainTab();
+			App.MainWin.MainPanel.SetUiStateLoading();
+			App.MainWin.MainPanel.pBar.IsIndeterminate = true;
 
 			worker = new BackgroundWorker();
 			worker.DoWork += new DoWorkEventHandler(DataRestore);
@@ -97,23 +109,41 @@ namespace VideoCatalog.Main {
 		private int restCount = 0;
 		///<summary> Восстановленние элементов каталога. </summary>
 		public void DataRestore(object sender, DoWorkEventArgs e) {
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = "Restore data"));
-			List<Task> tasksList = new List<Task>();
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = "Restore data"));
+
+
+			//! ! протестировать
 			foreach (var alb in AlbumsList) {
 				alb.UpdatePaths();
 				alb.UpdateEntCatAlb();
-				foreach (var ent in alb.EntryList) {
-					var newTask = Task.Factory.StartNew(() => {
+				Parallel.ForEach(alb.EntryList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
+					ent => {
 						ent.UpdatePaths();
 						ent.GetMetaData();
 						Interlocked.Increment(ref restCount);
-						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"Restore data ({restCount})"));
-					}, TaskCreationOptions.AttachedToParent);
-					tasksList.Add(newTask);
-				}
+						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = $"Restore data ({restCount})"));
+					}
+				);
 			}
-			Task.WaitAll(tasksList.ToArray());
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"Restored {restCount} entry. Generate plates."));
+
+
+			//List<Task> tasksList = new List<Task>();
+			//foreach (var alb in AlbumsList) {
+			//	alb.UpdatePaths();
+			//	alb.UpdateEntCatAlb();
+			//	foreach (var ent in alb.EntryList) {
+			//		var newTask = Task.Factory.StartNew(() => {
+			//			ent.UpdatePaths();
+			//			ent.GetMetaData();
+			//			Interlocked.Increment(ref restCount);
+			//			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"Restore data ({restCount})"));
+			//		}, TaskCreationOptions.LongRunning);
+			//		tasksList.Add(newTask);
+			//	}
+			//}
+			//Task.WaitAll(tasksList.ToArray());
+
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = $"Restored {restCount} entry. Generate plates."));
 
 		}
 
@@ -126,14 +156,16 @@ namespace VideoCatalog.Main {
 					CatalogAlbum oldAlbume = AlbumsList.First(alb => alb.AlbAbsPath == path.FullName);
 					oldAlbume.UpdateAlbumFiles();
 					Interlocked.Increment(ref procDone);
-					Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
-					Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"({procDone} / {dirsCount})  {path}"));
+					if (App.MainWin?.MainPanel != null) {
+						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
+						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = $"({procDone} / {dirsCount})  {path}"));
+					}
 					return;
 				}
 			}
 
 			// создаем новый
-			Console.WriteLine($"New album <{path}>");
+			//Console.WriteLine($"New album <{path}>");
 			CatalogAlbum newAlbume = new CatalogAlbum(path, withSubDir);
 			newAlbume.UpdateAlbumFiles();
 			if (newAlbume.EntryList.Count > 0) {
@@ -142,10 +174,10 @@ namespace VideoCatalog.Main {
 				}
 			}
 
-			lock (locker) {
-				Interlocked.Increment(ref procDone);
-				Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
-				Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"({procDone} / {dirsCount})  {path}" ));
+			Interlocked.Increment(ref procDone);
+			if (App.MainWin?.MainPanel != null) {
+				Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
+				Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = $"({procDone} / {dirsCount})  {path}"));
 			}
 		}
 

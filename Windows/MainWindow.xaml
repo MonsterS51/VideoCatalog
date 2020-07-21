@@ -30,52 +30,94 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="TabItem" >
-						<Grid Name="Panel">
+						<Grid Name="Panel" Height="23" Margin="0,0,-1,0">
 							<Border Name="Border" BorderThickness="1,1,1,0" BorderBrush="Black"></Border>
 							<ContentPresenter x:Name="ContentSite"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center"
                                         ContentSource="Header"
-                                        Margin="5,2"/>
+                                        Margin="5,0" />
 						</Grid>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsSelected" Value="True">
 								<Setter TargetName="Panel" Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
-								<Setter TargetName="Panel" Property="Margin" Value="0,0,-1,-3" />
+								<!--<Setter TargetName="Panel" Property="Margin" Value="0,0,-1,0" />-->
+								<Setter TargetName="Panel" Property="Height" Value="23" />
 							</Trigger>
 							<Trigger Property="IsSelected" Value="False">
 								<Setter TargetName="Panel" Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" />
-								<Setter TargetName="Panel" Property="Margin" Value="0,0,-1,-2" />
+								<!--<Setter TargetName="Panel" Property="Margin" Value="0,0,-1,0" />-->
+								<Setter TargetName="Panel" Property="Height" Value="21" />
 							</Trigger>
 						</ControlTemplate.Triggers>
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
 		</Style>
+		
+		<!-- Самописная версия панели табов с работающими отступами на различных темах винды. -->
+		<Style x:Key="MyCustomStyle" TargetType="{x:Type TabControl}">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type TabControl}">
+						<Grid KeyboardNavigation.TabNavigation="Local">
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto" />
+								<RowDefinition Height="*" />
+							</Grid.RowDefinitions>
+
+							<TabPanel x:Name="HeaderPanel"
+                              Grid.Row="0"
+                              Panel.ZIndex="1"
+                              Margin="0,0,0,-1"
+                              IsItemsHost="True"
+                              KeyboardNavigation.TabIndex="1"
+                              Background="Transparent"/>
+
+							<Border x:Name="Border"
+                            Grid.Row="1"
+                            BorderThickness="1"
+                            KeyboardNavigation.TabNavigation="Local"
+                            KeyboardNavigation.DirectionalNavigation="Contained"
+                            KeyboardNavigation.TabIndex="2"
+							BorderBrush="Black">
+								<ContentPresenter x:Name="PART_SelectedContentHost" Margin="0" ContentSource="SelectedContent" />
+							</Border>
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			
+		</Style>
 	</Window.Resources>
-	
-	<Grid>
-		<DockPanel Margin="-2" LastChildFill="True" SnapsToDevicePixels="True" UseLayoutRounding="True" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" >
-			<!--<ListBox x:Name="albumsListBox" DockPanel.Dock="Left" Width="300" ></ListBox>-->
 
+	<Grid Margin="0" SnapsToDevicePixels="True" UseLayoutRounding="True">
 
-			<TabControl x:Name="tabsPanel" Padding="0,-1,0,0" Margin="0" BorderThickness="0" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}">
-				
-				<!--<TabItem Padding="0.5" Style="{StaticResource tabItemCustomStl}">
+		<TabControl x:Name="tabsPanel" BorderThickness="0" BorderBrush="Black" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Style="{StaticResource MyCustomStyle}">
+
+			<!--<TabControl.ContentTemplate>
+				<DataTemplate>
+					<ContentPresenter Name="111" Margin="0"/>
+				</DataTemplate>
+			</TabControl.ContentTemplate>-->
+
+			<!--Перетираем отступы, т.к. у глючной винды в разных темах они работают по разному-->
+
+			
+			<!--<TabItem Padding="0"  Style="{StaticResource tabItemCustomStl}">
 					<TabItem.Header>
 						<StackPanel Orientation="Horizontal" >
-							<TextBlock MaxWidth="150" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0.5" TextTrimming ="CharacterEllipsis">Main</TextBlock>
+							<TextBlock MaxWidth="150" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0.5" TextTrimming ="CharacterEllipsis">Test</TextBlock>
 						</StackPanel>
 					</TabItem.Header >
 					<TabItem.Content>
-						<local2:AlbumPanel />
+						<Button></Button>
 					</TabItem.Content>
 				</TabItem>-->
 
-			</TabControl>
+		</TabControl>
+		
 
-
-		</DockPanel>
 
 		<StackPanel x:Name="startToolbar" Width="200" Height="120">
 			<Button x:Name="newBtn" VerticalAlignment="Center" Click="OpenFolder" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">

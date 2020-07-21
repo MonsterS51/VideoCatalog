@@ -8,8 +8,13 @@ using System.Windows.Media;
 
 namespace VideoCatalog.Util
 {
-[ContentProperty("Text")]
-public class OutlinedTextBlock : FrameworkElement {
+    [ContentProperty("Text")]
+
+    /// <summary>
+    /// This presents as control inherited from the Shape control for displaying an outline font.
+    /// https://www.codeproject.com/Articles/1106695/WPF-Text-Outline-Font (Clifford Nelson, 2016)
+    /// </summary>
+    public class OutlinedTextBlock : FrameworkElement {
     private void UpdatePen() {
         _Pen = new Pen(Stroke, StrokeThickness) {
             DashCap = PenLineCap.Round,
@@ -224,18 +229,18 @@ public class OutlinedTextBlock : FrameworkElement {
         outlinedTextBlock.InvalidateVisual();
     }
 
-    private void EnsureFormattedText() {
+	private void EnsureFormattedText() {
         if (_FormattedText != null) {
             return;
         }
 
         _FormattedText = new FormattedText(
           Text ?? "",
-          CultureInfo.CurrentUICulture,
+		  CultureInfo.CurrentUICulture,
           FlowDirection,
           new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
           FontSize,
-          Brushes.Black);
+          Brushes.Black, VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
         UpdateFormattedText();
     }

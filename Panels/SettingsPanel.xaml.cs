@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 using VideoCatalog.Windows;
 
 namespace VideoCatalog.Panels {
@@ -13,6 +14,12 @@ namespace VideoCatalog.Panels {
 		public SettingsPanel() {
 			InitializeComponent();
 			LoadSettings();
+		}
+
+
+		private void LinkOnRequestNavigate(object sender, RequestNavigateEventArgs e) {
+			System.Diagnostics.Process.Start(e.Uri.ToString());
+			e.Handled = true;
 		}
 
 		///<summary> Подгрузка настроек в форму. </summary>
