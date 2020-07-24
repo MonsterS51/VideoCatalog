@@ -35,6 +35,8 @@ namespace VideoCatalog.Panels {
 			PreviewTime.Value = Properties.Settings.Default.PreviewTime;
 
 			CoverMaxSize.Value = Properties.Settings.Default.CoverMaxSize;
+
+			AspectRatio.Value = Properties.Settings.Default.CoverAspectRatio;
 		}
 
 		///<summary> Принятие изменений в настройках. </summary>
@@ -57,6 +59,8 @@ namespace VideoCatalog.Panels {
 			Properties.Settings.Default.PreviewTime = (int) PreviewTime.Value;
 
 			Properties.Settings.Default.CoverMaxSize = (int) CoverMaxSize.Value;
+
+			Properties.Settings.Default.CoverAspectRatio = (decimal) AspectRatio.Value;
 
 			//---
 

@@ -8,7 +8,7 @@
              d:DesignHeight="35" d:DesignWidth="800">
 	<UserControl.Resources>
 	</UserControl.Resources>
-    <Grid>
+	<Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
 		<DockPanel x:Name="filterPanel" IsEnabled="True">
 			<Grid>
 				<Grid.RowDefinitions>

@@ -62,7 +62,7 @@
 									<TextBlock Grid.Row="1" Margin="0,-2,0,5" FontSize="9" Grid.Column="1" Foreground="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}" >
 										Libs can be downloaded from <Hyperlink NavigateUri="https://ffmpeg.zeranoe.com/builds/" RequestNavigate="LinkOnRequestNavigate">this site</Hyperlink> (shared version). Unpack and select /bin folder.
 									</TextBlock>
-									</Grid>
+								</Grid>
 
 								<!-- число шагов предпросмотра -->
 								<DockPanel>
@@ -79,6 +79,16 @@
 									<Label Content="Time (sec): " Width="100"/>
 									<xctk:IntegerUpDown x:Name="PreviewTime"
 										Increment="1" Value="2" Minimum="1" Width="100" HorizontalAlignment="Left"
+										Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+										Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+										BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+								</DockPanel>
+
+								<!-- время предпросмотра каждого шага -->
+								<DockPanel>
+									<Label Content="Aspect: " Width="100"/>
+									<xctk:DecimalUpDown x:Name="AspectRatio" 
+										Increment=".1" Value="1.77" Minimum="0" Maximum="5" Width="100" HorizontalAlignment="Left"
 										Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
 										Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
 										BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />

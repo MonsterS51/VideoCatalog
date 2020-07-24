@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using VideoCatalog.Main;
 using VideoCatalog.Util;
@@ -24,6 +25,8 @@ namespace VideoCatalog.Panels {
 		private IEnumerable<AbstractEntry> srcList = new List<AbstractEntry>();   // отфильтрованные альбомы
 
 		private bool isRoot = false;
+
+		public bool ListMode = false;
 
 		/// <summary>
 		/// Панель представления набора элементов каталога.
@@ -50,6 +53,10 @@ namespace VideoCatalog.Panels {
 			baseList = BaseList;
 			Btn_SidePanelSwitch(null, null);
 			LoadSettings();
+
+			// цепляем тут, иначе портит настройки, т.к. срабатывает после LoadSettings
+			sliderGridCol.ValueChanged += Slider_ValueChanged;
+			sliderListHeight.ValueChanged += SliderList_ValueChanged;
 		}
 
 		//---B
@@ -58,7 +65,10 @@ namespace VideoCatalog.Panels {
 		///<summary> Обработка изменения скролла с панелями альбомов. </summary>
 		private void Scroll_ValueChanged(object sender, EventArgs e) {
 			// находим первую видимую плашку альбома
-			AbstractEntry ent = srcList?.FirstOrDefault(alb => IsUserVisible(alb.vp, scrollViewer));
+			AbstractEntry ent = null;
+			if (ListMode) ent = srcList?.FirstOrDefault(alb => IsUserVisible(alb.lp, scrollViewer));
+			else ent = srcList?.FirstOrDefault(alb => IsUserVisible(alb.vp, scrollViewer));
+
 			if (ent != null) {
 				scrollHelperLbl.Text = ent.sortHelper;
 
@@ -97,11 +107,19 @@ namespace VideoCatalog.Panels {
 					if (item is UniformGrid) {
 						var grid = item as UniformGrid;
 						grid.Columns = (int)e.NewValue;
-						SaveSettings();
+						SaveSettings();				
 					}
 				}
 			}
+		}
 
+		private int oneLineHeight = 20;
+		/// <summary> Изменение слайдера размера плашек. </summary>
+		private void SliderList_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+			foreach (var ent in srcList) {
+				ent.ListHeight = (int) (oneLineHeight * e.NewValue) + 4;
+			}
+			SaveSettings();
 		}
 		#endregion
 
@@ -182,19 +200,31 @@ namespace VideoCatalog.Panels {
 
 			// заполняем в соотвествии с группами
 			foreach (var dirEnt in readyMap) {
-				// разделитель с названием подпапки
-				if (isSeparable) entPlates.Children.Add(CreateSeparator(dirEnt.Key));
-
-				//! + сюда можно запилить кнопку сворачивания / разворачивания групп
-
 				UniformGrid newGrid = new UniformGrid();
 				newGrid.VerticalAlignment = VerticalAlignment.Top;
-				newGrid.Columns = (int) sliderGridCol.Value;
-				foreach (var entry in dirEnt.Value) {
-					entry.CreatePlate();
-					if (entry.vp.Parent != null) MainWindow.RemoveChild(entry.vp.Parent, entry.vp);
-					newGrid.Children.Add(entry.vp);
+				newGrid.Margin = new Thickness(0, 2, 0, 15);
+				// разделитель с названием подпапки
+				if (isSeparable) entPlates.Children.Add(CreateSeparator(dirEnt.Key, newGrid));
+
+				if (ListMode) {
+					newGrid.Columns = 1;
+					foreach (var entry in dirEnt.Value) {
+						entry.CreateListPlate();
+						entry.ListHeight = (int)(oneLineHeight * sliderListHeight.Value) + 4;
+						if (entry.lp.Parent != null) MainWindow.RemoveChild(entry.lp.Parent, entry.lp);
+						newGrid.Children.Add(entry.lp);
+					}
+				} else {
+					newGrid.Columns = (int)sliderGridCol.Value;
+					foreach (var entry in dirEnt.Value) {
+						entry.CreatePlate();
+						if (entry.vp.Parent != null) MainWindow.RemoveChild(entry.vp.Parent, entry.vp);
+						newGrid.Children.Add(entry.vp);
+					}
 				}
+
+
+
 				entPlates.Children.Add(newGrid);
 			}
 
@@ -206,16 +236,56 @@ namespace VideoCatalog.Panels {
 		}
 
 		///<summary> Создать панель-сепаратор с названием. </summary>
-		private StackPanel CreateSeparator(string header) {
+		private StackPanel CreateSeparator(string header, UIElement postElem) {
 			StackPanel newSeparatorPanel = new StackPanel();
 			newSeparatorPanel.Orientation = Orientation.Horizontal;
-			newSeparatorPanel.Margin = new Thickness(5, 15, 5, 5);
+			newSeparatorPanel.Margin = new Thickness(5, 2, 5, 2);
 
+			// кнопка сворачивания разворачивания групп
+			if (postElem != null) {
+				Button newSepBtn = new Button();
+				var img = new Image {
+					Source = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/minus.png", UriKind.RelativeOrAbsolute)),
+					VerticalAlignment = VerticalAlignment.Center
+				};
+				RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+				newSepBtn.Content = img;
+				newSepBtn.Height = 16;
+				newSepBtn.Width = 16;
+				newSepBtn.Style = (Style)Application.Current.FindResource(ToolBar.ButtonStyleKey);
+				newSepBtn.BorderThickness = new Thickness(0);
+				newSepBtn.Padding = new Thickness(0);
+				newSepBtn.Margin = new Thickness(2, 0, 5, 0);
+				newSepBtn.VerticalAlignment = VerticalAlignment.Center;
+				newSepBtn.Click += (o, reh) => {
+					if (postElem.Visibility == Visibility.Visible) { 
+						postElem.Visibility = Visibility.Collapsed;
+						img = new Image {
+							Source = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/plus.png", UriKind.RelativeOrAbsolute)),
+							VerticalAlignment = VerticalAlignment.Center
+						};
+						RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+						newSepBtn.Content = img;
+					} else { 
+						postElem.Visibility = Visibility.Visible;
+						img = new Image {
+							Source = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/minus.png", UriKind.RelativeOrAbsolute)),
+							VerticalAlignment = VerticalAlignment.Center
+						};
+						RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+						newSepBtn.Content = img;
+					}
+				};
+				newSeparatorPanel.Children.Add(newSepBtn);
+			}
+
+			// заголовок сепаратора
 			TextBlock subHeader = new TextBlock();
 			subHeader.FontSize = 16;
 			subHeader.Foreground = SystemColors.WindowTextBrush;
 			subHeader.Text = header + "  ";
 
+			// линия
 			Border line = new Border();
 			line.Width = 4000;
 			line.Height = 1;
@@ -313,16 +383,49 @@ namespace VideoCatalog.Panels {
 
 		///<summary> Загрузка настроек панели и ее элементов. </summary>
 		private void LoadSettings() {
-			// восстанавливаем настройку сетки плиток
-			if (isRoot) sliderGridCol.Value = Properties.Settings.Default.GridSizeAlbum;
-			else sliderGridCol.Value = Properties.Settings.Default.GridSizeEnt;
-			if (sliderGridCol.Value <= 0) sliderGridCol.Value = 4;
+			// восстанавливаем настройку размеров плиток
+			if (isRoot) {
+				sliderGridCol.Value = Properties.Settings.Default.GridSizeAlbum;
+				sliderListHeight.Value = Properties.Settings.Default.ListSizeAlbum;
+				ListMode = Properties.Settings.Default.ListModeAlbum;
+			} else { 
+				sliderGridCol.Value = Properties.Settings.Default.GridSizeEnt;
+				sliderListHeight.Value = Properties.Settings.Default.ListSizeEnt;
+				ListMode = Properties.Settings.Default.ListModeEnt;
+			}
+			UpdateUiMode();
 		}
 
 		///<summary> Сохранение настроек панели и ее элементов. </summary>
 		private void SaveSettings() {
-			if (isRoot) Properties.Settings.Default.GridSizeAlbum = (int) sliderGridCol.Value;
-			else Properties.Settings.Default.GridSizeEnt = (int)sliderGridCol.Value;
+			if (isRoot) {
+				Properties.Settings.Default.GridSizeAlbum = (int)sliderGridCol.Value;
+				Properties.Settings.Default.ListSizeAlbum = (int)sliderListHeight.Value;
+				Properties.Settings.Default.ListModeAlbum = ListMode;
+			} else { 
+				Properties.Settings.Default.GridSizeEnt = (int)sliderGridCol.Value;
+				Properties.Settings.Default.ListSizeEnt = (int)sliderListHeight.Value;
+				Properties.Settings.Default.ListModeEnt = ListMode;
+			}
+		}
+
+		///<summary> Смена режима отображения плиток. </summary>
+		private void ListModeChange(object sender, EventArgs e) {
+			ListMode = !ListMode;
+			UpdateUiMode();
+			UpdatePanelContent();
+			SaveSettings();
+		}
+
+		///<summary> Скрываем регуляторы для других режимов. </summary>
+		private void UpdateUiMode() {
+			if (ListMode) {
+				sliderGridCol.Visibility = Visibility.Collapsed;
+				sliderListHeight.Visibility = Visibility.Visible;
+			} else {
+				sliderGridCol.Visibility = Visibility.Visible;
+				sliderListHeight.Visibility = Visibility.Collapsed;
+			}
 		}
 
 	}

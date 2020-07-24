@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VideoCatalog.Windows;
 
 namespace VideoCatalog.Panels {
 	/// <summary>
@@ -20,6 +21,24 @@ namespace VideoCatalog.Panels {
 	public partial class TagPlate : UserControl {
 		public TagPlate() {
 			InitializeComponent();
+			MouseDown += OnClick;
 		}
+
+		/// <summary> Обработка нажатий мышью по тэгу. </summary>
+		private void OnClick(object sender, MouseButtonEventArgs e) {
+			if (App.MainWin?.MainPanel == null) return;
+			if (e.ChangedButton == MouseButton.Left) {
+				if (e.ClickCount == 1) App.MainWin.MainPanel.filterPanel.AddTextToSearch("+"+TagLabel.Text);
+			}
+			if (e.ChangedButton == MouseButton.Middle) {
+				if (e.ClickCount == 1) App.MainWin.MainPanel.filterPanel.AddTextToSearch("*" + TagLabel.Text);
+			}
+			if (e.ChangedButton == MouseButton.Right) {
+				if (e.ClickCount == 1) App.MainWin.MainPanel.filterPanel.AddTextToSearch("-" + TagLabel.Text);
+			}
+
+			e.Handled = true;
+		}
+
 	}
 }

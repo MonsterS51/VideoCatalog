@@ -14,58 +14,57 @@
 			<MenuItem Header="Update Cover" Click="MenuItem_UpdateCoverArt"/>
 		</ContextMenu>
 	</UserControl.Resources>
-	<Border x:Name="border" BorderBrush="#FF1E1E1E" BorderThickness="3" CornerRadius="2" Margin="0.5,0.5,0.5,0.5">
-		<Grid x:Name="MainGrid" Margin="0,0,0,0" UseLayoutRounding="True" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}">
-			<main:AspectRatioLayoutDecorator AspectRatio="1.77" Margin="0,0,0,0" UseLayoutRounding="True">
-				<Grid Margin="0,0,0,0" UseLayoutRounding="True">
-					<!-- Иконка -->
-					<Image x:Name="BG" Source="/Assets/video_bg.png" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
-						   Stretch="Fill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Center" Height="128" Width="128" />
+	<Border x:Name="border" BorderBrush="Black" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="2" CornerRadius="2" 
+		Margin="0.5,0.5,0.5,0.5" UseLayoutRounding="True" SnapsToDevicePixels="True">
+		<main:AspectRatioLayoutDecorator x:Name="PreviewDecorator" AspectRatio="1.77" Margin="0" UseLayoutRounding="True" SnapsToDevicePixels="True">
+			<Grid Margin="0">
+				<!-- Иконка -->
+				<Image x:Name="BG" Source="/Assets/video_bg.png" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
+						Stretch="Fill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Center" Height="128" Width="128" />
 
-					<!-- Место для контрола предпросмотра -->
-					<Grid x:Name="previewGrid" Background="Black" Visibility="Hidden"/>
+				<!-- Место для контрола предпросмотра -->
+				<Grid x:Name="previewGrid" Background="Black" Visibility="Hidden"/>
 
-					<!-- Обложка -->
-					<Image x:Name="CoverArt" Source="{Binding Path=CoverImage}" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
-						   Margin="0,0,0,0" Stretch="UniformToFill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch">
+				<!-- Обложка -->
+				<Image x:Name="CoverArt" Source="{Binding Path=CoverImage}" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
+						Margin="0" Stretch="UniformToFill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch">
 
-					</Image>
-					
-					<!-- Надпись в правом верхнем углу -->
-					<TextBlock x:Name="lblTopRight" Text="{Binding Path=TopRightText}"
-							   Margin="0,0,0,0" Padding="1,1,1,1" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="White" Background="#B2000000"/>
-		
-					<!-- Надпись внизу -->
-					<TextBlock x:Name="Header" Text="{Binding Path=Name}" 
-							   Margin="0,0,0,0" Padding="1,1,1,1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" 
-							   Foreground="White" Background="#B2000000" TextWrapping="Wrap" />
+				</Image>
 
-					<StackPanel x:Name="panelTopLeft" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
-						<!-- Иконка сломанного состояния -->
-						<Image x:Name="brokenIcon" Source="/Assets/Icons/cross.png" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
-						   Stretch="Fill" StretchDirection="Both" HorizontalAlignment="Left" VerticalAlignment="Top" Height="18" Width="18"/>
+				<!-- Надпись в правом верхнем углу -->
+				<TextBlock x:Name="lblTopRight" Text="{Binding Path=TopRightText}"
+							Margin="0" Padding="1" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="White" Background="#B2000000"/>
 
-						<Border x:Name="Icon_LQ" Background="#FFD0BCA9" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0.5" Width="28" Height="18">
-							<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" FontWeight="Bold" FontSize="10">LQ</TextBlock>
-						</Border>
-						<Border x:Name="Icon_HD" Background="#FFE1FFCA" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0.5" Width="28" Height="18">
-							<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" FontWeight="Bold"  FontSize="10">HD</TextBlock>
-						</Border>
-						<Border x:Name="Icon_FHD" Background="#FFB9FF83" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0.5" Width="28" Height="18">
-							<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" FontWeight="Bold"  FontSize="10">FHD</TextBlock>
-						</Border>
-						<Border x:Name="Icon_QHD" Background="#FFFFFCCC" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0.5" Width="28" Height="18">
-							<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" FontWeight="Bold"  FontSize="10">QHD</TextBlock>
-						</Border>
-						<Border x:Name="Icon_UHD" Background="#FFF3C5FF" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0.5" Width="28" Height="18">
-							<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" FontWeight="Bold"  FontSize="10">UHD</TextBlock>
-						</Border>
-					</StackPanel>
+				<!-- Надпись внизу -->
+				<TextBlock x:Name="Header" Text="{Binding Path=Name}" 
+							Margin="0" Padding="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" 
+							Foreground="White" Background="#B2000000" TextWrapping="Wrap" />
+
+				<StackPanel x:Name="panelTopLeft" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
+					<!-- Иконка сломанного состояния -->
+					<Image x:Name="brokenIcon" Source="/Assets/Icons/cross.png" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
+						Stretch="Fill" StretchDirection="Both" HorizontalAlignment="Left" VerticalAlignment="Top" Height="18" Width="18"/>
+
+					<Border x:Name="Icon_LQ" Background="#FFD0BCA9" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0.5" Width="28" Height="18">
+						<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" FontWeight="Bold" FontSize="10">LQ</TextBlock>
+					</Border>
+					<Border x:Name="Icon_HD" Background="#FFE1FFCA" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0.5" Width="28" Height="18">
+						<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" FontWeight="Bold"  FontSize="10">HD</TextBlock>
+					</Border>
+					<Border x:Name="Icon_FHD" Background="#FFB9FF83" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0.5" Width="28" Height="18">
+						<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" FontWeight="Bold"  FontSize="10">FHD</TextBlock>
+					</Border>
+					<Border x:Name="Icon_QHD" Background="#FFFFFCCC" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0.5" Width="28" Height="18">
+						<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" FontWeight="Bold"  FontSize="10">QHD</TextBlock>
+					</Border>
+					<Border x:Name="Icon_UHD" Background="#FFF3C5FF" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0.5" Width="28" Height="18">
+						<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" FontWeight="Bold"  FontSize="10">UHD</TextBlock>
+					</Border>
+				</StackPanel>
 
 
-				</Grid>
-			</main:AspectRatioLayoutDecorator>
-		</Grid>
+			</Grid>
+		</main:AspectRatioLayoutDecorator>
 	</Border>
 
 </UserControl>

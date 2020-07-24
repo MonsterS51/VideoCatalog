@@ -118,5 +118,65 @@ namespace VideoCatalog.Properties {
                 this["CoverMaxSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("6")]
+        public int ListSizeAlbum {
+            get {
+                return ((int)(this["ListSizeAlbum"]));
+            }
+            set {
+                this["ListSizeAlbum"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("6")]
+        public int ListSizeEnt {
+            get {
+                return ((int)(this["ListSizeEnt"]));
+            }
+            set {
+                this["ListSizeEnt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ListModeAlbum {
+            get {
+                return ((bool)(this["ListModeAlbum"]));
+            }
+            set {
+                this["ListModeAlbum"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ListModeEnt {
+            get {
+                return ((bool)(this["ListModeEnt"]));
+            }
+            set {
+                this["ListModeEnt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.77")]
+        public decimal CoverAspectRatio {
+            get {
+                return ((decimal)(this["CoverAspectRatio"]));
+            }
+            set {
+                this["CoverAspectRatio"] = value;
+            }
+        }
     }
 }

@@ -179,7 +179,6 @@ namespace VideoCatalog.Windows {
 
 		/// <summary> Открытие вкладки альбома. </summary>
 		public void OpenAlbumTab(CatalogAlbum album, bool focus = true) {
-			Console.WriteLine("Open tab " + album);
 			string tabName = "" + album.Name;
 
 			// проверяем существование вкладки
@@ -287,7 +286,6 @@ namespace VideoCatalog.Windows {
 
 			//? // микрозадержка в комплекте с ForceLinkDestroy() дает мгновенную очистку BitmapImage из неуправляемой памяти при закрытии основного альбома.
 			Task.Delay(100).ContinueWith((task) => {
-				Console.WriteLine("Delayed close of " + targetTab);
 				Dispatcher.BeginInvoke((Action)(() => {
 				// убираем с панели вкладок
 				tabsPanel.Items.Remove(targetTab);
@@ -306,7 +304,6 @@ namespace VideoCatalog.Windows {
 
 		///<summary> При манипуляциях с вкладками решаем, показывать ли дефолтное меню. </summary>
 		private void UpdateStartToolbarState() {
-			Console.WriteLine(""+ tabMap.Count);
 			if (tabMap.Count == 0) startToolbar.Visibility = Visibility.Visible;
 			else startToolbar.Visibility = Visibility.Collapsed;
 		}
@@ -328,6 +325,17 @@ namespace VideoCatalog.Windows {
 				// обработка кнопки удаления альбома из каталога
 				asp.removeEntBtn.Click += (o, i) => {
 					CatEng.CatRoot.AlbumsList.Remove(openerEntry as CatalogAlbum);
+					albPanel.SetSidePanel(null);
+					albPanel.UpdatePanelContent();
+				};
+			}
+
+			if (openerEntry is CatalogEntry) {
+				var ent = openerEntry as CatalogEntry;
+
+				// обработка кнопки удаления элемента из альбома
+				asp.removeEntBtn.Click += (o, i) => {
+					ent.catAlb.EntryList.Remove(ent);
 					albPanel.SetSidePanel(null);
 					albPanel.UpdatePanelContent();
 				};

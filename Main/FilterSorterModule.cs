@@ -112,7 +112,7 @@ namespace VideoCatalog.Main {
 			//+ фильтруем по тегам
 			if (incTag.Count > 0 | excTag.Count > 0 | optTag.Count > 0) {
 				foreach (var filtEnt in resultList.ToArray()) {
-					var entTagArr = filtEnt.TagList;
+					var entTagArr = filtEnt.GetTagList();
 					//Console.WriteLine(filtEnt.Name + " " + string.Join(",", entTagArr));
 
 					if (optTag.Count > 0) {

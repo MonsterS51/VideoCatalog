@@ -26,28 +26,35 @@ namespace VideoCatalog.Main {
 
 		private string _tagStr = "";
 
+		///<summary> Объект тэгов для сериализации и UI. </summary>
 		public string TagStr { get { return _tagStr; } set { _tagStr = value; OnPropertyChanged("TagStr"); } }
 
-		[YAXDontSerialize]
-		public string[] TagList {
-			get {
-				if (string.IsNullOrWhiteSpace(_tagStr)) return new string[0];
-				return _tagStr.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(tag => tag.Trim().ToLower()).ToArray();
-			}
+		///<summary> Получить список тэгов. </summary>
+		public virtual string[] GetTagList() {
+			if (string.IsNullOrWhiteSpace(_tagStr)) return new string[0];
+			return _tagStr.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(tag => tag.Trim().ToLower()).ToArray();
+		}
+
+		///<summary> Добавление тэга. </summary>
+		public void AddTag(string tag) {
+			if (_tagStr.Length == 0) _tagStr = _tagStr + tag;
+			else _tagStr = _tagStr + "; " + tag;
+			OnPropertyChanged("TagStr");
 		}
 
 		//---
 
-		///<summary> Хранилище атрибутов элемента каталога. При отсутствии - возвращает строку "<null>". </summary>
-		public ObservableCollection<AtrEnt> atrMap { get; set; } = new ObservableCollection<AtrEnt>();
+		///<summary> Хранилище атрибутов элемента каталога. </summary>
+		public ObservableCollection<AtrEnt> AtrMap { get; set; } = new ObservableCollection<AtrEnt>();
 
-		///<summary> Получить значение атрибута. </summary>
+		///<summary> Получить значение атрибута. При отсутствии - возвращает строку "<null>". </summary>
 		public string GetAttribute(string atrName) {
-			var atrData = atrMap.FirstOrDefault(atrEnt => atrEnt.AtrName == atrName)?.AtrData;
+			var atrData = AtrMap.FirstOrDefault(atrEnt => atrEnt.AtrName == atrName)?.AtrData;
 			if (atrData != null) return atrData;
 			return "<null>";
 		}
 
+		///<summary> Объект данных атрибута. </summary>
 		public class AtrEnt{
 			public AtrEnt() { }
 			public AtrEnt(string AtrName, string AtrData) {
@@ -95,16 +102,31 @@ namespace VideoCatalog.Main {
 		//---
 
 		public ViewPlate vp;
+		public ListPlate lp;
+
 		/// <summary> Создание плэйта эпизода. </summary>
 		public virtual ViewPlate CreatePlate() {
 			if (vp == null) vp = new ViewPlate();
 			return vp;
 		}
 
+		public virtual ListPlate CreateListPlate() {
+			if (lp == null) lp = new ListPlate();
+			return lp;
+		}
+
+		private int _h = 25;
+		[YAXDontSerialize]
+		public int ListHeight { get { return _h; } set { _h = value; OnPropertyChanged("ListHeight"); } }
+
 		protected void UpdateIconBrokenState() {
 			if (vp != null) {
 				if (isBroken) vp.brokenIcon.Visibility = System.Windows.Visibility.Visible;
 				else vp.brokenIcon.Visibility = System.Windows.Visibility.Collapsed;
+			}
+			if (lp != null) {
+				if (isBroken) lp.brokenIcon.Visibility = System.Windows.Visibility.Visible;
+				else lp.brokenIcon.Visibility = System.Windows.Visibility.Collapsed;
 			}
 		}
 

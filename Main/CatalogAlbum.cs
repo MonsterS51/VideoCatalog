@@ -189,10 +189,34 @@ namespace VideoCatalog.Main {
 			vp.duration = FirstEntry.duration;
 
 			TopRightText = ""+EntryList.Count;
+
 			UpdateIconBrokenState();
 			UpdateVideoResIcons();
 			return vp;
 		}
+
+		/// <summary> Создание плэйта альбома. </summary>
+		public override ListPlate CreateListPlate() {
+			if (lp == null) {
+				lp = new ListPlate();
+				lp.DataContext = this;
+
+				lp.onClick = () => App.MainWin.OpenSidePanel(this);
+				lp.onDoubleClick = () => App.MainWin.OpenAlbumTab(this);
+				lp.onWheelClick = () => App.MainWin.OpenAlbumTab(this, false);
+			}
+
+			lp.path = FirstEntry.EntAbsPath;
+			lp.duration = FirstEntry.duration;
+
+			TopRightText = "(" + EntryList.Count + " ep.)";
+
+			UpdateIconBrokenState();
+			UpdateVideoResIcons();
+			return lp;
+		}
+
+		//---
 
 		///<summary> Возвращает самую раннюю(позднюю) дату создания файла из всех входящих элементов. </summary>
 		public override DateTime GetDateCreate(bool byLatest = false) {
@@ -259,26 +283,37 @@ namespace VideoCatalog.Main {
 			UpdateIconBrokenState();
 		}
 
+		///<summary> Обновление отображения плашек качества. </summary>
 		public void UpdateVideoResIcons() {
-			if (vp == null) return;
-
-			vp.Icon_LQ.Visibility = Visibility.Collapsed;
-			vp.Icon_HD.Visibility = Visibility.Collapsed;
-			vp.Icon_FHD.Visibility = Visibility.Collapsed;
-			vp.Icon_QHD.Visibility = Visibility.Collapsed;
-			vp.Icon_UHD.Visibility = Visibility.Collapsed;
-
 			List<CatalogEntry.VideoResolution> resList = new List<CatalogEntry.VideoResolution>();
 
 			foreach (var ent in EntryList) {
-				resList.Add(ent.vidRes);
+				if (!resList.Contains(ent.vidRes)) {
+					resList.Add(ent.vidRes);
+				}
 			}
 
-			if (resList.Contains(CatalogEntry.VideoResolution.LQ)) vp.Icon_LQ.Visibility = Visibility.Visible; 
-			if (resList.Contains(CatalogEntry.VideoResolution.HD)) vp.Icon_HD.Visibility = Visibility.Visible;
-			if (resList.Contains(CatalogEntry.VideoResolution.FHD)) vp.Icon_FHD.Visibility = Visibility.Visible;
-			if (resList.Contains(CatalogEntry.VideoResolution.QHD)) vp.Icon_QHD.Visibility = Visibility.Visible;
-			if (resList.Contains(CatalogEntry.VideoResolution.UHD)) vp.Icon_UHD.Visibility = Visibility.Visible;
+			if (vp != null) {
+				vp.UpdateVideoResIcons(
+					resList.Contains(CatalogEntry.VideoResolution.LQ),
+					resList.Contains(CatalogEntry.VideoResolution.HD),
+					resList.Contains(CatalogEntry.VideoResolution.FHD),
+					resList.Contains(CatalogEntry.VideoResolution.QHD),
+					resList.Contains(CatalogEntry.VideoResolution.UHD)
+				);
+			}
+
+			if (lp != null) {
+				lp.UpdateVideoResIcons(
+					resList.Contains(CatalogEntry.VideoResolution.LQ),
+					resList.Contains(CatalogEntry.VideoResolution.HD),
+					resList.Contains(CatalogEntry.VideoResolution.FHD),
+					resList.Contains(CatalogEntry.VideoResolution.QHD),
+					resList.Contains(CatalogEntry.VideoResolution.UHD)
+				);
+			}
+
+
 		}
 
 

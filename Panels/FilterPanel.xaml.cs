@@ -26,13 +26,21 @@ namespace VideoCatalog.Panels {
 			sortModeComBox.SelectedIndex = 0;
 		}
 
+		private bool canRaiseFilterChangedEvent = true;	// блокировка дерганья обновления по каждому изменению
+
 		private void FilterChangedAct(object sender, RoutedEventArgs e) {
-			RaiseFilterChangedEvent();
+			if (canRaiseFilterChangedEvent) RaiseFilterChangedEvent();
 		}
 
 		///<summary> Очистка строки поиска. </summary>
 		private void FilterBoxClr(object sender, EventArgs e) {
 			filterBox.Text = "";
+		}
+
+		///<summary> Добавление текста к строке поиска (с обработкой пробелов). </summary>
+		public void AddTextToSearch(string appendText) {
+			if (filterBox.Text.Length == 0 || filterBox.Text.Last() == ' ') filterBox.Text = filterBox.Text + appendText;
+			else filterBox.Text = filterBox.Text + " " + appendText;
 		}
 
 		///<summary> Отобразить меню добавления в строку поиска существующих тэгов. </summary>
@@ -43,9 +51,7 @@ namespace VideoCatalog.Panels {
 				if (!filterBox.Text.Contains(tagName + " ")) {	// убираем уже имеющиеся в строке
 					var mItem = new MenuItem();
 					mItem.Header = tagName;
-					mItem.Click += (s, ea) => {
-						filterBox.Text = filterBox.Text + " +" + tagName;
-					};
+					mItem.Click += (s, ea) => {	AddTextToSearch("+" + tagName);	};
 					mItem.FontSize = 10;
 					cm.Items.Add(mItem);
 				}
@@ -60,6 +66,8 @@ namespace VideoCatalog.Panels {
 
 		///<summary> Заполняем комбобокс режимов сортировки. </summary>
 		public void FillSortCombo() {
+			canRaiseFilterChangedEvent = false;
+
 			int tempSelInd = sortModeComBox.SelectedIndex;
 			sortModeComBox.Items.Clear();
 
@@ -74,7 +82,9 @@ namespace VideoCatalog.Panels {
 				sortModeComBox.Items.Add(tb);
 			}
 
+
 			sortModeComBox.SelectedIndex = tempSelInd;
+			canRaiseFilterChangedEvent = true;
 		}
 
 		//---

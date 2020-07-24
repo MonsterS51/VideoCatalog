@@ -122,6 +122,8 @@ namespace VideoCatalog.Main {
 
 		private static Action EmptyDelegate = delegate () { };
 
+		//---
+
 		/// <summary> Создание плэйта эпизода. </summary>
 		public override ViewPlate CreatePlate() {
 			if (vp == null) vp = new ViewPlate();
@@ -130,6 +132,8 @@ namespace VideoCatalog.Main {
 			vp.DataContext = this;
 			vp.duration = duration;
 			vp.onDoubleClick = () => System.Diagnostics.Process.Start(EntAbsPath);
+			vp.onClick = () => App.MainWin.OpenSidePanel(this);
+
 			TimeSpan ts = new TimeSpan(0, 0, duration);
 
 			int hours = (int)ts.TotalHours;
@@ -144,6 +148,32 @@ namespace VideoCatalog.Main {
 			return vp; 
 		}
 
+		/// <summary> Создание плэйта эпизода. </summary>
+		public override ListPlate CreateListPlate() {
+			if (lp == null) lp = new ListPlate();
+
+			lp.path = EntAbsPath;
+			lp.DataContext = this;
+			lp.duration = duration;
+			lp.onDoubleClick = () => System.Diagnostics.Process.Start(EntAbsPath);
+			lp.onClick = () => App.MainWin.OpenSidePanel(this);
+
+			TimeSpan ts = new TimeSpan(0, 0, duration);
+
+			int hours = (int)ts.TotalHours;
+			int minutes = ts.Minutes;
+
+			if (hours == 0 & minutes == 0) TopRightText = $"{width}x{height}	({ts.Seconds} sec)";
+			else TopRightText = $"{width}x{height}	({hours}:{minutes})";
+
+			UpdateIconBrokenState();
+			UpdateVideoResIcons();
+
+			return lp;
+		}
+
+
+		//---
 		public void GetMetaData() {
 			if (!EntAbsFile.Exists) return;
 
@@ -205,6 +235,7 @@ namespace VideoCatalog.Main {
 			UpdateIconBrokenState();
 		}
 
+		///<summary> Оценка качества видео. </summary>
 		public void ChkVideoResolution() {
 			int.TryParse(height, out int h);
 			if (h < 700) { vidRes = VideoResolution.LQ; return; }
@@ -214,37 +245,27 @@ namespace VideoCatalog.Main {
 			vidRes = VideoResolution.UHD;
 		}
 
+		///<summary> Обновление отображения плашек качества. </summary>
 		public void UpdateVideoResIcons() {
-			if (vp == null) return;
 
-			vp.Icon_LQ.Visibility = System.Windows.Visibility.Collapsed;
-			vp.Icon_HD.Visibility = System.Windows.Visibility.Collapsed;
-			vp.Icon_FHD.Visibility = System.Windows.Visibility.Collapsed;
-			vp.Icon_QHD.Visibility = System.Windows.Visibility.Collapsed;
-			vp.Icon_UHD.Visibility = System.Windows.Visibility.Collapsed;
+			if (vp != null) {
+				vp.UpdateVideoResIcons(
+					vidRes == (CatalogEntry.VideoResolution.LQ),
+					vidRes == (CatalogEntry.VideoResolution.HD),
+					vidRes == (CatalogEntry.VideoResolution.FHD),
+					vidRes == (CatalogEntry.VideoResolution.QHD),
+					vidRes == (CatalogEntry.VideoResolution.UHD)
+				);
+			}
 
-			switch(vidRes) {
-				case VideoResolution.LQ:{
-					vp.Icon_LQ.Visibility = System.Windows.Visibility.Visible;
-					break;
-				}
-				case VideoResolution.HD: {
-					vp.Icon_HD.Visibility = System.Windows.Visibility.Visible;
-					break;
-				}
-				case VideoResolution.FHD: {
-					vp.Icon_FHD.Visibility = System.Windows.Visibility.Visible;
-					break;
-				}
-				case VideoResolution.QHD: {
-					vp.Icon_QHD.Visibility = System.Windows.Visibility.Visible;
-					break;
-				}
-				case VideoResolution.UHD: {
-					vp.Icon_UHD.Visibility = System.Windows.Visibility.Visible;
-					break;
-				}
-				default: break;
+			if (lp != null) {
+				lp.UpdateVideoResIcons(
+					vidRes == (CatalogEntry.VideoResolution.LQ),
+					vidRes == (CatalogEntry.VideoResolution.HD),
+					vidRes == (CatalogEntry.VideoResolution.FHD),
+					vidRes == (CatalogEntry.VideoResolution.QHD),
+					vidRes == (CatalogEntry.VideoResolution.UHD)
+				);
 			}
 		}
 

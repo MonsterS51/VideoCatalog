@@ -140,6 +140,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Panels\ListPlate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Panels\SettingsPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -187,6 +191,9 @@
     <Compile Include="Main\CatalogEntry.cs" />
     <Compile Include="Main\CatalogRoot.cs" />
     <Compile Include="Main\FilterSorterModule.cs" />
+    <Compile Include="Panels\ListPlate.xaml.cs">
+      <DependentUpon>ListPlate.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Util\AlphanumComparatorFast.cs" />
     <Compile Include="Util\OutlinedTextBlock.cs" />
     <Compile Include="Panels\SettingsPanel.xaml.cs">
@@ -320,6 +327,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Icons\tag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\list.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\minus.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

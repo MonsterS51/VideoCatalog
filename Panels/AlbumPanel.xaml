@@ -8,6 +8,8 @@
 			 mc:Ignorable="d" 
 			 d:DesignHeight="450" d:DesignWidth="800">
 	<UserControl.Resources>
+		<Image x:Key="ImgShow" Source="/Assets/Icons/layers.png" />
+		<Image x:Key="ImgCollapse" Source="/Assets/Icons/image.png"/>
 	</UserControl.Resources>
 	<Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0">
 		<Border BorderBrush="Black" BorderThickness="0" Margin="0" Padding="0">
@@ -23,9 +25,19 @@
 					<StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right" >
 						<TextBlock x:Name="lblCountTotal" Text="Total: " DockPanel.Dock="Right" HorizontalAlignment="Right" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"/>
 						<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+						<Button HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="ListModeChange" >
+							<Image Height="10" Style="{StaticResource imgTbBtn}" Margin="-2" Source="/Assets/Icons/list.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+						</Button>
 						<Slider x:Name="sliderGridCol" Value="4" DockPanel.Dock="Right" Width="100"  
 										Minimum="1" Maximum="15" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True"
-										HorizontalAlignment="Right" ValueChanged="Slider_ValueChanged">
+										HorizontalAlignment="Right">
+							<Slider.LayoutTransform>
+								<ScaleTransform ScaleY="0.6"/>
+							</Slider.LayoutTransform>
+						</Slider>
+						<Slider x:Name="sliderListHeight" Value="6" DockPanel.Dock="Right" Width="100"  
+										Minimum="1" Maximum="6" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True"
+										HorizontalAlignment="Right">
 							<Slider.LayoutTransform>
 								<ScaleTransform ScaleY="0.6"/>
 							</Slider.LayoutTransform>

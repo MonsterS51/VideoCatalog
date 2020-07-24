@@ -26,5 +26,20 @@
     <Setting Name="CoverMaxSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="ListSizeAlbum" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">6</Value>
+    </Setting>
+    <Setting Name="ListSizeEnt" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">6</Value>
+    </Setting>
+    <Setting Name="ListModeAlbum" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ListModeEnt" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="CoverAspectRatio" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">1.77</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

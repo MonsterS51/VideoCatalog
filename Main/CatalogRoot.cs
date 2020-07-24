@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 using VideoCatalog.Windows;
 using YAXLib;
 
@@ -225,23 +226,37 @@ namespace VideoCatalog.Main {
 		//---
 
 		public static List<string> tagsList = new List<string>();
+		private static Dictionary<string, SolidColorBrush> tagsColors = new Dictionary<string, SolidColorBrush>();
 
 		///<summary> Обновление списка всех тегов, использованных в альбомах. </summary>
 		public void UpdateTagsList() {
 			tagsList.Clear();
 			foreach (var alb in AlbumsList) {
 				// тэги самого альбома
-				foreach (var tag in alb.TagList) {
+				foreach (var tag in alb.GetTagList()) {
 					if (!tagsList.Contains(tag)) tagsList.Add(tag);
 				}
 
 				// тэги элементов альбома
 				foreach (var ent in alb.EntryList) {
-					foreach (var tag in ent.TagList) {
+					foreach (var tag in ent.GetTagList()) {
 						if (!tagsList.Contains(tag)) tagsList.Add(tag);
 					}
 				}
 			}
+		}
+
+		private static Random rnd = new Random();
+
+		///<summary> Получить цвет для тэга. </summary>
+		public static SolidColorBrush GetTagColor(string tag) {
+			if (tagsColors.ContainsKey(tag)) return tagsColors[tag];
+
+			Color bgCol = Color.FromRgb((byte)rnd.Next(1, 255), (byte)rnd.Next(1, 255), (byte)rnd.Next(1, 233));
+			Console.WriteLine(""+ bgCol);
+			var scb = new SolidColorBrush(bgCol);
+			tagsColors.Add(tag, scb);
+			return scb;
 		}
 
 		//---
@@ -253,13 +268,13 @@ namespace VideoCatalog.Main {
 			atrList.Clear();
 			foreach (var alb in AlbumsList) {
 				// атрибуты самого альбома
-				foreach (var atrEnt in alb.atrMap) {
+				foreach (var atrEnt in alb.AtrMap) {
 					if (!atrList.Contains(atrEnt.AtrName)) atrList.Add(atrEnt.AtrName);
 				}
 
 				// атрибуты элементов альбома
 				foreach (var ent in alb.EntryList) {
-					foreach (var atrEnt in ent.atrMap) {
+					foreach (var atrEnt in ent.AtrMap) {
 						if (!atrList.Contains(atrEnt.AtrName)) atrList.Add(atrEnt.AtrName);
 					}
 				}

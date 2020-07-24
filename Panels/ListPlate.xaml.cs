@@ -10,17 +10,20 @@ using VideoCatalog.Windows;
 
 namespace VideoCatalog.Panels {
 	/// <summary>
-	/// Interaction logic for ViewPlate.xaml
+	/// Interaction logic for ListPlate.xaml
 	/// </summary>
-	public partial class ViewPlate : UserControl {
-		public ViewPlate() {
+	public partial class ListPlate : UserControl {
+		public ListPlate() {
 			InitializeComponent();
 			MouseDown += OnClick;
 			tempColor = border.BorderBrush.Clone();
 
-			PreviewDecorator.AspectRatio = (float) Properties.Settings.Default.CoverAspectRatio;
+			LeftPreviewDecorator.AspectRatio = (float) Properties.Settings.Default.CoverAspectRatio;
 
 			TurnOffPreviewMode();
+
+			LeftPreviewDecorator.MouseEnter += OnMousePreviewEnter;
+			LeftPreviewDecorator.MouseLeave += OnMousePreviewLeave;
 		}
 
 		private Brush tempColor;
@@ -35,18 +38,20 @@ namespace VideoCatalog.Panels {
 		private PreviewFrameWPF pfWPF = null;
 		private PreviewFrameFFME pfFFME = null;
 
-		///<summary> Навели мышь на плитку - обводим, запускаем предпросмотр. </summary>
+		///<summary> Навели мышь на плитку - обводим. </summary>
 		protected override void OnMouseEnter(MouseEventArgs e) {
 			base.OnMouseEnter(e);
-
 			border.BorderBrush = SystemColors.MenuHighlightBrush;
+		}
 
+		/// <summary> Запуск предпросмотра по наведению на ковер. </summary>
+		private void OnMousePreviewEnter(object sender, MouseEventArgs e) {
 			// если предпросмотр отключен
 			if (!Properties.Settings.Default.PreviewEnabled) return;
 
 			Task.Delay(500).ContinueWith((task) => {
 				Dispatcher.BeginInvoke((Action)(() => {
-					if (IsMouseOver) {
+					if (LeftPreviewDecorator.IsMouseOver) {
 						// определяем метод отрисовки предпросмотра и формируем нужную панель
 						switch (Properties.Settings.Default.PreviewMode) {
 							case "WPF": {
@@ -77,18 +82,16 @@ namespace VideoCatalog.Panels {
 					}
 				}));
 			});
-
-
-
-			
 		}
 
-		///<summary> Убрали мышь с плитки - снимаем обводку, прячем и останавливаем предпросмотр. </summary>
+		///<summary> Убрали мышь с плитки - снимаем обводку. </summary>
 		protected override void OnMouseLeave(MouseEventArgs e) {
 			base.OnMouseLeave(e);
-
 			border.BorderBrush = tempColor;
+		}
 
+		/// <summary> Прячем и останавливаем предпросмотр. </summary>
+		private void OnMousePreviewLeave(object sender, MouseEventArgs e) {
 			TurnOffPreviewMode();
 
 			pfWPF?.StopPreview();
@@ -97,7 +100,6 @@ namespace VideoCatalog.Panels {
 			previewGrid.Children.Clear();
 			pfWPF = null;
 			pfFFME = null;
-
 		}
 
 		private int fadeTime = 300;
@@ -105,8 +107,6 @@ namespace VideoCatalog.Panels {
 		///<summary> Переход в режим превью. </summary>
 		public void TurnOnPreviewMode() {
 			previewGrid.Visibility = Visibility.Visible;
-			lblTopRight.Visibility = Visibility.Hidden;
-			panelTopLeft.Visibility = Visibility.Hidden;
 
 			// плавное скрытие кавера
 			var alphaIn = new DoubleAnimation(CoverArt.Opacity, 0, new Duration(TimeSpan.FromMilliseconds(fadeTime)));
@@ -115,14 +115,11 @@ namespace VideoCatalog.Panels {
 
 		///<summary> Переход в обычный режим. </summary>
 		public void TurnOffPreviewMode() {
-			lblTopRight.Visibility = Visibility.Visible;
-			panelTopLeft.Visibility = Visibility.Visible;
-
 			// плавное проявление кавера
 			var alphaOut = new DoubleAnimation(CoverArt.Opacity, 1, new Duration(TimeSpan.FromMilliseconds(fadeTime)));
 			CoverArt.BeginAnimation(Image.OpacityProperty, alphaOut);
 
-			alphaOut.Completed += (s, e) =>	{ previewGrid.Visibility = Visibility.Hidden; };
+			alphaOut.Completed += (s, e) => { previewGrid.Visibility = Visibility.Hidden; };
 		}
 
 		//---
@@ -153,13 +150,13 @@ namespace VideoCatalog.Panels {
 					string path = dc.GetFirstEntPath();
 					if (!string.IsNullOrWhiteSpace(path)) {
 						CatalogEngine.OpenExplorer(path);
-					}			
+					}
 				} else
 				// эпизод альбома
 				if (DataContext is CatalogEntry) {
 					var dc = DataContext as CatalogEntry;
 					dc.EntAbsFile.Refresh();
-					if (dc.EntAbsFile.Exists) CatalogEngine.OpenExplorer(dc.EntAbsFile.FullName);					
+					if (dc.EntAbsFile.Exists) CatalogEngine.OpenExplorer(dc.EntAbsFile.FullName);
 				}
 			}
 		}
@@ -209,6 +206,24 @@ namespace VideoCatalog.Panels {
 			if (fhd) Icon_FHD.Visibility = Visibility.Visible;
 			if (qhd) Icon_QHD.Visibility = Visibility.Visible;
 			if (uhd) Icon_UHD.Visibility = Visibility.Visible;
+		}
+
+		///<summary> Обновление панели с тегами при изменении их в элементе каталога. </summary>
+		private void TagSrcChanged(object sender, DependencyPropertyChangedEventArgs e) {
+			TagPanel.Children.Clear();
+
+			var tagArray = (DataContext as AbstractEntry).GetTagList();
+			Array.Sort(tagArray);
+
+			foreach (var tag in tagArray) {
+				var newTag = new TagPlate();
+				newTag.Height = 20;
+				newTag.TagLabel.Text = tag;
+				newTag.TagLabel.Fill = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+				newTag.TagBrd.Background = CatalogRoot.GetTagColor(tag);
+				TagPanel.Children.Add(newTag);
+			}
+
 		}
 
 	}
