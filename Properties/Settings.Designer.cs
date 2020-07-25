@@ -178,5 +178,29 @@ namespace VideoCatalog.Properties {
                 this["CoverAspectRatio"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Google;https://www.google.com/search?q=%s")]
+        public string SearchStrings {
+            get {
+                return ((string)(this["SearchStrings"]));
+            }
+            set {
+                this["SearchStrings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string RecentFolders {
+            get {
+                return ((string)(this["RecentFolders"]));
+            }
+            set {
+                this["RecentFolders"] = value;
+            }
+        }
     }
 }

@@ -37,14 +37,16 @@ namespace VideoCatalog.Panels {
 			CoverMaxSize.Value = Properties.Settings.Default.CoverMaxSize;
 
 			AspectRatio.Value = Properties.Settings.Default.CoverAspectRatio;
+
+			searchStrTB.Text = Properties.Settings.Default.SearchStrings;
 		}
 
 		///<summary> Принятие изменений в настройках. </summary>
 		private void Accept_Click(object sender, RoutedEventArgs e) {
 
-			// preview
-			//---
 
+			//---
+			// preview
 			Properties.Settings.Default.PreviewEnabled = (bool) PreviewEnabler.IsChecked;
 
 			Properties.Settings.Default.PreviewMode = CB_previewMode.SelectedValue as string;
@@ -61,6 +63,10 @@ namespace VideoCatalog.Panels {
 			Properties.Settings.Default.CoverMaxSize = (int) CoverMaxSize.Value;
 
 			Properties.Settings.Default.CoverAspectRatio = (decimal) AspectRatio.Value;
+
+			//---
+
+			Properties.Settings.Default.SearchStrings = searchStrTB.Text;
 
 			//---
 

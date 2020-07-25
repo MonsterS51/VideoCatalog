@@ -24,6 +24,11 @@ namespace VideoCatalog.Main {
 
 		//---
 
+		///<summary> Элемент каталога скрыт и не обрабатывается. </summary>
+		public bool IsExcepted { get; set; } = false;
+
+		//---
+
 		private string _tagStr = "";
 
 		///<summary> Объект тэгов для сериализации и UI. </summary>
@@ -129,6 +134,10 @@ namespace VideoCatalog.Main {
 				else lp.brokenIcon.Visibility = System.Windows.Visibility.Collapsed;
 			}
 		}
+
+		//---
+		///<summary> Открыть место хранения файла элемента. </summary>
+		public virtual void OpenInExplorer() {}
 
 		//---
 		

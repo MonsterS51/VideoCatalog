@@ -24,6 +24,11 @@ namespace VideoCatalog.Windows {
 
 		public MainWindow() {
 			InitializeComponent();
+			UpdateStartToolbarState();
+			clrRecentBtn.Click += (d, y) => {
+				Properties.Settings.Default.RecentFolders = "";
+				UpdateStartToolbarState();
+			};
 		}
 
 
@@ -37,22 +42,20 @@ namespace VideoCatalog.Windows {
 				if (!string.IsNullOrEmpty(prevPath)) dialog.InitialDirectory = prevPath;   // открываем с последней открытой папки
 				dialog.IsFolderPicker = true;
 				if (dialog.ShowDialog() == CommonFileDialogResult.Ok && !string.IsNullOrWhiteSpace(dialog.FileName)) {
-					CloseCatalog(null, null);
 					prevPath = dialog.FileName;
-					CatEng = new CatalogEngine();
-					CatEng.LoadCatalogRoot(dialog.FileName);
+					OpenFolder(new DirectoryInfo(dialog.FileName));
 				}
 			}
 		}
 
-		///<summary> Открытие папки через путь (обычно используется при открытии из проводника). Имеет проверку на наличие файла каталога и диалог его открытия. </summary>
+		///<summary> Открытие папки через путь. Имеет проверку на наличие файла каталога и диалог его открытия. </summary>
 		public void OpenFolder(DirectoryInfo path) {
 			CloseCatalog(null, null);
 
 			var xmlList = path.EnumerateFiles().FirstOrDefault(f => f.Extension == catFileExt);
 
 			if (xmlList != null) {
-				var result = MessageBox.Show($"В папке найден файл каталога <{xmlList.Name}>. Открыть файл?" , "Открытие каталога", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+				var result = MessageBox.Show($"In folder found catalog file <{xmlList.Name}>. Open?" , "Open catalog", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
 				switch (result) {
 					case MessageBoxResult.Yes:
 						CatEng = new CatalogEngine();
@@ -70,6 +73,7 @@ namespace VideoCatalog.Windows {
 				CatEng.LoadCatalogRoot(path.FullName);
 			}
 
+			SaveRecent(path.FullName);
 		}
 
 		/// <summary> Сохранение каталога в файл. </summary>
@@ -97,6 +101,8 @@ namespace VideoCatalog.Windows {
 				CatEng = new CatalogEngine();
 				CatEng.LoadCatalogXML(ofd.FileName);
 			}
+
+			SaveRecent(new FileInfo(ofd.FileName).Directory.FullName);
 		}
 
 		/// <summary> Закрытие каталога и очистка ресурсов. </summary>
@@ -298,7 +304,7 @@ namespace VideoCatalog.Windows {
 					UpdateStartToolbarState();
 
 				GC_Forcer();
-			}));
+				}));
 			});
 		}
 
@@ -306,44 +312,75 @@ namespace VideoCatalog.Windows {
 		private void UpdateStartToolbarState() {
 			if (tabMap.Count == 0) startToolbar.Visibility = Visibility.Visible;
 			else startToolbar.Visibility = Visibility.Collapsed;
+
+			// набираем недавние папки
+			recentSlot.Children.Clear();
+			foreach (var path in Properties.Settings.Default.RecentFolders.Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries)) {
+				DirectoryInfo dir = null;
+				try {
+					dir = new DirectoryInfo(path);
+				} catch (Exception ex) {
+					Console.WriteLine("UpdateStartToolbarState(): " + ex);
+				}
+
+				if (dir != null && dir.Exists) {
+					Button dirBtn = new Button();
+					dirBtn.Content = "" + path;
+					dirBtn.Style = (Style)Application.Current.FindResource(ToolBar.ButtonStyleKey);
+					dirBtn.HorizontalAlignment = HorizontalAlignment.Left;
+					dirBtn.Click += (e, g) => { OpenFolder(dir); };
+					dirBtn.MouseRightButtonDown += (e, g) => {
+						Properties.Settings.Default.RecentFolders = Properties.Settings.Default.RecentFolders.Replace(path + ";", "");
+						UpdateStartToolbarState();
+					};
+					recentSlot.Children.Add(dirBtn);
+				} else {
+					// чистим мертвые пути
+					Properties.Settings.Default.RecentFolders = Properties.Settings.Default.RecentFolders.Replace(path + ";", "");
+				}
+			}
+
+			if (recentSlot.Children.Count <= 0) recentPanel.Visibility = Visibility.Collapsed;
+			else recentPanel.Visibility = Visibility.Visible;
 		}
+
+		///<summary> Сохранение пути в недавно открытые. </summary>
+		private void SaveRecent(string folder) {
+			// если был, убираем, чтобы сместить к началу
+			if (Properties.Settings.Default.RecentFolders.Contains(folder + ";")) 
+				Properties.Settings.Default.RecentFolders = Properties.Settings.Default.RecentFolders.Replace(folder + ";", "");
+			// добавляем
+			Properties.Settings.Default.RecentFolders = folder + ";" + Properties.Settings.Default.RecentFolders;
+
+			var splitFolders = Properties.Settings.Default.RecentFolders.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+			if (splitFolders.Length > 10) {
+				Properties.Settings.Default.RecentFolders = string.Join(";", splitFolders.Take(10));
+			}
+		}
+
 
 		#endregion
 
 		//---G
-
+		#region SidePanel
 
 		///<summary> Открытие боковой панели для заданного элемента каталога. </summary>
 		public void OpenSidePanel(AbstractEntry openerEntry) {
-			var selTab = tabMap.Values.First(tab => tab.IsSelected);
-			AlbumPanel albPanel = selTab.Content as AlbumPanel;
-
+			var albPanel = GetCurrentAlbumePanel();
 			AlbumSidePanel asp = new AlbumSidePanel();
 			asp.DataContext = openerEntry;
-
-			if (openerEntry is CatalogAlbum) {
-				// обработка кнопки удаления альбома из каталога
-				asp.removeEntBtn.Click += (o, i) => {
-					CatEng.CatRoot.AlbumsList.Remove(openerEntry as CatalogAlbum);
-					albPanel.SetSidePanel(null);
-					albPanel.UpdatePanelContent();
-				};
-			}
-
-			if (openerEntry is CatalogEntry) {
-				var ent = openerEntry as CatalogEntry;
-
-				// обработка кнопки удаления элемента из альбома
-				asp.removeEntBtn.Click += (o, i) => {
-					ent.catAlb.EntryList.Remove(ent);
-					albPanel.SetSidePanel(null);
-					albPanel.UpdatePanelContent();
-				};
-			}
-
+			asp.UpdateExceptLbl();
 			albPanel.SetSidePanel(asp);
 		}
 
+		///<summary> Очистка боковой панели. </summary>
+		public void ClearSidePanel() {
+			var albPanel = GetCurrentAlbumePanel();
+			albPanel.SetSidePanel(null);
+		}
+
+
+		#endregion
 		//---R
 
 		public void btnEnterName_Click(object sender, RoutedEventArgs e) {
@@ -354,6 +391,24 @@ namespace VideoCatalog.Windows {
 
 
 		//---
+
+		///<summary> Получение текущей открытой альбомной панели </summary>
+		public AlbumPanel GetCurrentAlbumePanel() {
+			var selTab = tabMap.Values.First(tab => tab.IsSelected);
+			return selTab.Content as AlbumPanel;
+		}
+
+		///<summary> Удаление элемента каталога или альбома. </summary>
+		public void RemoveEntry(AbstractEntry ent) {
+			if (ent is CatalogAlbum) {
+				CatEng.CatRoot.AlbumsList.Remove(ent as CatalogAlbum);
+			} else {
+				(ent as CatalogEntry).catAlb.EntryList.Remove(ent as CatalogEntry);
+			}
+
+			var albPanel = GetCurrentAlbumePanel();
+			albPanel.UpdatePanelContent();
+		}
 
 		///<summary> Удаление дочерних элементов с UIElement. </summary>
 		public static void RemoveChild(DependencyObject parent, UIElement child) {

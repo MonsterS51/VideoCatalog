@@ -223,6 +223,12 @@ namespace VideoCatalog.Main {
 			return DateModify;
 		}
 
+		///<summary> Открыть место хранения файла элемента. </summary>
+		public override void OpenInExplorer() {
+			EntAbsFile.Refresh();
+			if (EntAbsFile.Exists) CatalogEngine.OpenExplorer(EntAbsFile.FullName);
+		}
+
 		///<summary> Проверка состояния актуальности элемента каталога. </summary>
 		public void ChkEntState() {
 			isBroken = false;

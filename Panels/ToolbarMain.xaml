@@ -10,27 +10,30 @@
 	</UserControl.Resources>
 
 	<StackPanel Orientation="Horizontal" VerticalAlignment="Top" SnapsToDevicePixels="True" UseLayoutRounding="True">
-		<Button x:Name="newBtn" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+		<Button x:Name="openBtn" ToolTip="Open folder" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
-		<Button x:Name="loadBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+		<Button x:Name="loadBtn" ToolTip="Load catalog from file" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/file2.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
-		<Button x:Name="saveBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+		<Button x:Name="saveBtn" ToolTip="Save catalog to file" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/save.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
-		<Button x:Name="closeBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+		<Button x:Name="closeBtn" ToolTip="Close catalog" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/cross.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
 		<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-		<Button x:Name="updBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+		<Button x:Name="updBtn" ToolTip="Update catalog" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/reload.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
-		<Button x:Name="chkBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+		<Button x:Name="chkBtn" ToolTip="Check for errors" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/caution.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
+		<Button x:Name="utilBtn" ToolTip="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/utils.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+		</Button>
 		<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-		<Button x:Name="settingBtn" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+		<Button x:Name="settingBtn" ToolTip="Open settings" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/settings.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
 	</StackPanel>   

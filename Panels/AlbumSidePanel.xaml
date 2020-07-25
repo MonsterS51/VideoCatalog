@@ -78,20 +78,41 @@
 				</TabItem.Header>
 				<TabItem.Content>
 					<Border BorderThickness="1,0,1,1" BorderBrush="Black" Padding="2">
+						
 						<StackPanel Orientation="Vertical" >
-							<Grid>
-								<TextBlock TextWrapping="WrapWithOverflow" Text="{Binding Path=Name}" 
-									   FontSize="16" Margin="-2,-2,-2,2" Padding="4"  HorizontalAlignment="Stretch"
-									   Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
 
-								<Button x:Name="removeEntBtn" ToolTip="Remove entry" Height="25" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/remove.png"  Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+							<Grid Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Margin="-2,-2,-2,0">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*"/>
+									<ColumnDefinition Width="25"/>
+									<ColumnDefinition Width="25"/>
+									<ColumnDefinition Width="25"/>
+									<ColumnDefinition Width="25"/>
+								</Grid.ColumnDefinitions>
+								
+								<TextBlock TextWrapping="WrapWithOverflow" Text="{Binding Path=Name}" 
+									   FontSize="16"  Padding="4"  HorizontalAlignment="Stretch" />
+								<Button Grid.Column="1" x:Name="searchEntBtn" ToolTip="Search entry in internet" Click="ShowSearchPopUp" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/search.png"  Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+								</Button>
+								<Button Grid.Column="2" x:Name="exceptEntBtn" ToolTip="Except entry" Click="ExceptEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/hidden.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+								</Button>
+								<Button Grid.Column="3" x:Name="rootEntBtn" ToolTip="Open in File Explorer" Click="FolderEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+								</Button>
+								<Button Grid.Column="4" x:Name="removeEntBtn" ToolTip="Remove entry" Click="RemoveEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/remove.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
 								</Button>
 							</Grid>
 
-							<Border BorderBrush="Black" BorderThickness="1" Padding="0" Margin="-3,-3,-3,5" >
-								<Image x:Name="CoverArt" Source="{Binding Path=CoverImage}" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible" 
+							<Border BorderBrush="Black" BorderThickness="1" Padding="0" Margin="-3,0,-3,5" >
+								<Grid>
+									<Image x:Name="CoverArt" Source="{Binding Path=CoverImage}" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible" 
 									Margin="0" Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch" MinHeight="100" MaxHeight="600" />
+									<TextBlock x:Name="exceptedLbl" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextAlignment="Center" 
+											   Background="#B2000000" FontSize="25" Foreground="Red" Visibility="Collapsed">EXCEPTED</TextBlock>
+								</Grid>
 							</Border>
 
 

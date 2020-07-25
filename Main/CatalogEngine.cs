@@ -200,7 +200,9 @@ namespace VideoCatalog.Main {
 			Console.WriteLine($"Load type <{xml.Name.LocalName}>");
 			Type type = Type.GetType("VideoCatalog.Main." + xml.Name.LocalName);
 			if (type != null) {
-				YAXSerializer serializer = new YAXSerializer(type, YAXSerializationOptions.DontSerializeNullObjects);
+				//! ! отключены все исключения YAX - более опасный режим восстановления каталога (не будет ругаться на отсутствующие поля)
+				YAXSerializer serializer = new YAXSerializer(type, YAXExceptionHandlingPolicies.DoNotThrow, YAXExceptionTypes.Error, YAXSerializationOptions.DontSerializeNullObjects);
+
 				//BUG YAX при десериализации портит XML данные (как минимум для списков с кастомными объектами), поэтому перегоняем XElement в строку
 				return serializer.Deserialize(xml.ToString());
 			} else {

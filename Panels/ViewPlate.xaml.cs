@@ -147,27 +147,14 @@ namespace VideoCatalog.Panels {
 		/// <summary> Открытие в проводнике по привязанному DataContext. </summary>
 		private void MenuItem_OpenInExplorer(object sender, RoutedEventArgs e) {
 			if (DataContext != null) {
-				// альбом
-				if (DataContext is CatalogAlbum) {
-					var dc = DataContext as CatalogAlbum;
-					string path = dc.GetFirstEntPath();
-					if (!string.IsNullOrWhiteSpace(path)) {
-						CatalogEngine.OpenExplorer(path);
-					}			
-				} else
-				// эпизод альбома
-				if (DataContext is CatalogEntry) {
-					var dc = DataContext as CatalogEntry;
-					dc.EntAbsFile.Refresh();
-					if (dc.EntAbsFile.Exists) CatalogEngine.OpenExplorer(dc.EntAbsFile.FullName);					
-				}
+				(DataContext as AbstractEntry)?.OpenInExplorer();
 			}
 		}
 
 		/// <summary> Обновление обложек альбома/эпизода. </summary>
 		private void MenuItem_UpdateCoverArt(object sender, RoutedEventArgs e) {
 			if (DataContext != null) {
-				// албьбом
+				// альбом
 				if (DataContext is CatalogAlbum) {
 					var dc = DataContext as CatalogAlbum;
 					dc.UpdateAlbumArt();
@@ -183,7 +170,7 @@ namespace VideoCatalog.Panels {
 		/// <summary> Запуск поиска новых файлов. </summary>
 		private void MenuItem_UpdateFiles(object sender, RoutedEventArgs e) {
 			if (DataContext != null) {
-				// албьбом
+				// альбом
 				if (DataContext is CatalogAlbum) {
 					var dc = DataContext as CatalogAlbum;
 

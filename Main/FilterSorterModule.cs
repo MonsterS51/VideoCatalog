@@ -24,7 +24,8 @@ namespace VideoCatalog.Main {
 				List<string> allTags, 
 				SortMode sortMode = SortMode.NAME, 
 				bool ascend = true, 
-				bool broken = false, 
+				bool broken = false,
+				bool excepted = false,
 				string atrName = "") {
 
 			if (entList == null) return new List<AbstractEntry>();
@@ -95,7 +96,6 @@ namespace VideoCatalog.Main {
 					if (!nameContain) continue;
 
 					resultList.Add(ent);
-
 				}
 			} else {
 				resultList = new List<AbstractEntry>(entList);
@@ -108,6 +108,10 @@ namespace VideoCatalog.Main {
 				}
 			}
 
+			//+ обработка исключенных
+			foreach (var ent in resultList.ToArray()) {
+				if (ent.IsExcepted != excepted) resultList.Remove(ent);
+			}
 
 			//+ фильтруем по тегам
 			if (incTag.Count > 0 | excTag.Count > 0 | optTag.Count > 0) {

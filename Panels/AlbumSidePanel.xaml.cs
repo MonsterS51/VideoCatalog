@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VideoCatalog.Main;
 using VideoCatalog.Panels;
+using VideoCatalog.Windows;
 
 namespace VideoCatalog.Panels {
 	/// <summary>
@@ -22,7 +23,6 @@ namespace VideoCatalog.Panels {
 	public partial class AlbumSidePanel : UserControl {
 		public AlbumSidePanel() {
 			InitializeComponent();
-
 		}
 
 		///<summary> Обновление панели с тегами при изменении их в элементе каталога. </summary>
@@ -44,10 +44,8 @@ namespace VideoCatalog.Panels {
 
 		///<summary> Отобразить меню добавления существующих тэгов. </summary>
 		private void ShowTagPopUp(object sender, EventArgs e) {
-			var cm = new ContextMenu();
-
 			var entry = DataContext as AbstractEntry;
-
+			var cm = new ContextMenu();
 			foreach (var tagName in CatalogRoot.tagsList) {
 				if (!entry.GetTagList().Contains(tagName)) {  // убираем уже имеющиеся тэги
 					var mItem = new MenuItem();
@@ -69,10 +67,8 @@ namespace VideoCatalog.Panels {
 
 		///<summary> Отобразить меню добавления существующих атрибутов. </summary>
 		private void ShowAtrPopUp(object sender, EventArgs e) {
-			var cm = new ContextMenu();
-
 			var entry = DataContext as AbstractEntry;
-
+			var cm = new ContextMenu();
 			foreach (var atrName in CatalogRoot.atrList) {
 				if (!entry.AtrMap.Any(atrObj => atrObj.AtrName == atrName)) {  // убираем уже имеющиеся в строке
 					var mItem = new MenuItem();
@@ -99,5 +95,74 @@ namespace VideoCatalog.Panels {
 			entry.AtrMap.Clear();
 		}
 
+		///<summary> Отобразить меню поиска в интернете по паттерну. </summary>
+		private void ShowSearchPopUp(object sender, EventArgs e) {
+			if (Properties.Settings.Default.SearchStrings.Length <= 0) return;
+			var entry = DataContext as AbstractEntry;
+
+			// собираем карту название поисковика + паттерн поиска
+			var serchPat = new Dictionary<string, string>();
+			foreach (var oneLine in Properties.Settings.Default.SearchStrings.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)) {
+				var onePatt = oneLine.Split(';', ',');
+				if (onePatt.Length > 1 && !serchPat.ContainsKey(onePatt[0])) {
+					serchPat.Add(onePatt[0], onePatt[1]);
+				}
+			}
+
+			// собираем меню
+			var cm = new ContextMenu();
+			foreach (var pattEnt in serchPat) {
+				var mItem = new MenuItem();
+				mItem.Header = pattEnt.Key;
+				mItem.Click += (s, ea) => {
+					System.Diagnostics.Process.Start(pattEnt.Value.Replace("%s", entry.Name));
+				};
+				mItem.FontSize = 10;
+				cm.Items.Add(mItem);
+			}
+
+			if (cm.Items.Count > 0) {
+				cm.PlacementTarget = sender as Button;
+				cm.IsOpen = true;
+			}
+
+		}
+
+		///<summary> Нажатие на кнопку удаления записи. </summary>
+		private void RemoveEntBtnClick(object sender, EventArgs e) {
+			var entry = DataContext as AbstractEntry;
+			var result = MessageBox.Show($"Remove <{entry.Name}> from catalog?", "Remove", MessageBoxButton.YesNo, MessageBoxImage.Question);
+			if (result == MessageBoxResult.Yes) {
+				App.MainWin.RemoveEntry(entry);
+				App.MainWin.ClearSidePanel();
+			}
+		}
+
+		///<summary> Нажатие на кнопку исключения записи. </summary>
+		private void ExceptEntBtnClick(object sender, EventArgs e) {
+			var entry = DataContext as AbstractEntry;
+
+			if (entry.IsExcepted) {
+				entry.IsExcepted = false;
+			} else {
+				entry.IsExcepted = true;
+			}
+			UpdateExceptLbl();
+
+			App.MainWin.GetCurrentAlbumePanel().UpdatePanelContent();
+		}
+
+		///<summary> Открыть в проводнике. </summary>
+		private void FolderEntBtnClick(object sender, EventArgs e) {
+			var entry = DataContext as AbstractEntry;
+			entry.OpenInExplorer();
+		}
+
+		///<summary> Обновление отображения метки исключенности элемента. </summary>
+		public void UpdateExceptLbl() {
+			var entry = DataContext as AbstractEntry;
+			if (entry.IsExcepted) exceptedLbl.Visibility = Visibility.Visible;
+			else exceptedLbl.Visibility = Visibility.Collapsed;
+		}
 	}
 }

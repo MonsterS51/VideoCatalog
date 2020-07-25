@@ -232,6 +232,14 @@ namespace VideoCatalog.Main {
 			return EntryList.OrderBy(a => a.DateModify).FirstOrDefault().DateModify;
 		}
 
+		///<summary> Открыть место хранения файла элемента. </summary>
+		public override void OpenInExplorer() {
+			string path = GetFirstEntPath();
+			if (!string.IsNullOrWhiteSpace(path)) CatalogEngine.OpenExplorer(path);			
+		}
+
+		//---
+
 		///<summary> Получение пути к первой директории или папке альбома (например для перехода в проводнике). </summary>
 		public string GetFirstEntPath() {
 			AlbAbsDir.Refresh();

@@ -84,46 +84,63 @@
 										BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
 								</DockPanel>
 
-								<!-- время предпросмотра каждого шага -->
-								<DockPanel>
-									<Label Content="Aspect: " Width="100"/>
-									<xctk:DecimalUpDown x:Name="AspectRatio" 
-										Increment=".1" Value="1.77" Minimum="0" Maximum="5" Width="100" HorizontalAlignment="Left"
-										Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
-										Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
-										BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
-								</DockPanel>
 							</StackPanel>
 
 						</StackPanel>
 					</GroupBox>
 
+					<!-- контекстное меню ОС -->
 					<GroupBox Margin="1,1,1,5">
 						<GroupBox.Header>
 							<Label FontSize="9" Padding="0">Context menu</Label>
 						</GroupBox.Header>
 						<StackPanel Orientation="Horizontal">
-							<Button Content="Add" Width="100" Click="AddContextActionToReg"/>
-							<Button Content="Remove" Width="100" Click="RemoveContextActionFromReg"/>
+							<Button Content="Add" ToolTip="Add command to context menu of explorer." Width="100" Click="AddContextActionToReg"/>
+								<Button Content="Remove" ToolTip="Remove command from context menu of explorer." Width="100" Click="RemoveContextActionFromReg"/>
 						</StackPanel>
 					</GroupBox>
 
-						<GroupBox Margin="1,1,1,5">
-							<GroupBox.Header>
-								<Label FontSize="9" Padding="0">Cover</Label>
-							</GroupBox.Header>
-							<StackPanel Orientation="Horizontal">
-								<!-- время предпросмотра каждого шага -->
-								<DockPanel>
-									<Label Content="Max Size (px): " Width="100"/>
-									<xctk:IntegerUpDown x:Name="CoverMaxSize"
-							Increment="100" Value="0" Minimum="1" Width="100" HorizontalAlignment="Left"
-							Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
-							Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
-							BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
-								</DockPanel>
+					<GroupBox Margin="1,1,1,5">
+						<GroupBox.Header>
+							<Label FontSize="9" Padding="0">Cover</Label>
+						</GroupBox.Header>
+						<StackPanel Orientation="Vertical">
+							<!-- максимальная ширина получаемого изображения ковра при загрузке -->
+							<DockPanel>
+								<Label Content="Max Size (px): " Width="100"/>
+								<xctk:IntegerUpDown x:Name="CoverMaxSize"
+									Increment="100" Value="0" Minimum="1" Width="100" HorizontalAlignment="Left"
+									Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+									Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+									BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+							</DockPanel>
+							<!-- соотношение сторон рамки предпросмотра -->
+							<DockPanel>
+								<Label Content="Aspect: " Width="100"/>
+								<xctk:DecimalUpDown x:Name="AspectRatio" 
+									Increment=".1" Value="1.77" Minimum="0" Maximum="5" Width="100" HorizontalAlignment="Left"
+									Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+									Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+									BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+							</DockPanel>
 							</StackPanel>
-						</GroupBox>
+					</GroupBox>
+
+					<!-- поисковые запросы -->
+					<GroupBox Margin="1,1,1,5">
+						<GroupBox.Header>
+							<Label FontSize="9" Padding="0">Search</Label>
+						</GroupBox.Header>
+						<!-- паттерны поисковых запросов -->
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="100"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<Label Content="Search patterns: " Grid.Column="0"/>
+							<TextBox x:Name="searchStrTB" Grid.Column="1" TextWrapping="WrapWithOverflow" AcceptsReturn="True" AcceptsTab="True" HorizontalAlignment="Stretch"/>
+						</Grid>
+					</GroupBox>
 
 					</StackPanel>
 			</ScrollViewer>

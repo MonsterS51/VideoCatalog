@@ -29,30 +29,33 @@
 					</Grid.ColumnDefinitions>
 					<TextBox x:Name="filterBox" TextChanged="FilterChangedAct" DockPanel.Dock="Left" FontSize="9" Padding="0" HorizontalAlignment="Stretch" MinWidth="50" Grid.Column="0"/>
 					<StackPanel Orientation="Horizontal" Height="17" VerticalAlignment="Top" Grid.Column="1" >
-						<Button x:Name="clrFilterBtn" HorizontalAlignment="Left" VerticalAlignment="Center" Click="FilterBoxClr" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+						<Button x:Name="clrFilterBtn" ToolTip="Clear search line" HorizontalAlignment="Left" VerticalAlignment="Center" Click="FilterBoxClr" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 							<Image Height="15" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/cross.png"  Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
 						</Button>
-						<Button x:Name="addTagBtn" HorizontalAlignment="Left" VerticalAlignment="Center" Click="ShowTagPopUp" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+						<Button x:Name="addTagBtn" ToolTip="Add existing tag" HorizontalAlignment="Left" VerticalAlignment="Center" Click="ShowTagPopUp" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 							<Image Height="15" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/tag.png"  Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
 						</Button>
 					</StackPanel>
 				</Grid>
 
 				<StackPanel Orientation="Horizontal" Height="17" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1">
-					<ComboBox Name="sortModeComBox" Width="200" SelectedIndex="0" FontSize="10" SelectionChanged="FilterChangedAct" Padding="0">
+					<ComboBox Name="sortModeComBox" ToolTip="Sorting mode" Width="200" SelectedIndex="0" FontSize="10" SelectionChanged="FilterChangedAct" Padding="0">
 						<!--<TextBlock>Имя</TextBlock>
 						<TextBlock>Дата создания</TextBlock>
 						<TextBlock>Дата создания файла</TextBlock>
 						<TextBlock>Дата изменения файла</TextBlock>-->
 					</ComboBox>
 					<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-					<CheckBox x:Name="ascendChkBox" Content="Asc " IsChecked="true" Height="17" VerticalAlignment="Center"
+					<CheckBox x:Name="ascendChkBox" Content="Asc " ToolTip="Ascendant / descendant sort" IsChecked="true" Height="17" VerticalAlignment="Center"
 									  Unchecked="FilterChangedAct" Checked="FilterChangedAct"/>
 					<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-					<CheckBox x:Name="grpChkBox" Content="Group " IsChecked="False" Height="17" VerticalAlignment="Center"
+					<CheckBox x:Name="grpChkBox" Content="Group " ToolTip="Enable grouping" IsChecked="False" Height="17" VerticalAlignment="Center"
 									  Unchecked="FilterChangedAct" Checked="FilterChangedAct"/>
 					<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-					<CheckBox x:Name="brokenChkBox" Content="Broken " IsChecked="False" Height="17" VerticalAlignment="Center"
+					<CheckBox x:Name="brokenChkBox" Content="Broken " ToolTip="Show only broken entrys" IsChecked="False" Height="17" VerticalAlignment="Center"
+									  Unchecked="FilterChangedAct" Checked="FilterChangedAct"/>
+					<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+					<CheckBox x:Name="exceptedChkBox" Content="Excepted " ToolTip="Show excepted entrys" IsChecked="False" Height="17" VerticalAlignment="Center"
 									  Unchecked="FilterChangedAct" Checked="FilterChangedAct"/>
 				</StackPanel>
 			</Grid>

@@ -39,12 +39,13 @@ namespace VideoCatalog.Panels {
 
 			if (isRoot) {
 				toolbarMainPanel.Visibility = Visibility.Visible;
-				toolbarMainPanel.newBtn.Click += App.MainWin.OpenFolder;
+				toolbarMainPanel.openBtn.Click += App.MainWin.OpenFolder;
 				toolbarMainPanel.loadBtn.Click += App.MainWin.LoadCatalog;
 				toolbarMainPanel.saveBtn.Click += App.MainWin.SaveCatalog;
 				toolbarMainPanel.closeBtn.Click += App.MainWin.CloseCatalog;
 				toolbarMainPanel.updBtn.Click += App.MainWin.UpdateCatalog;
 				toolbarMainPanel.chkBtn.Click += App.MainWin.CatEng.CatRoot.ChkAlbAndEntState;
+				toolbarMainPanel.utilBtn.Click += ShowUtilPopUp;
 				toolbarMainPanel.settingBtn.Click += App.MainWin.OpenSettingTab;
 			} else {
 				toolbarMainPanel.Visibility = Visibility.Collapsed;
@@ -57,6 +58,51 @@ namespace VideoCatalog.Panels {
 			// цепляем тут, иначе портит настройки, т.к. срабатывает после LoadSettings
 			sliderGridCol.ValueChanged += Slider_ValueChanged;
 			sliderListHeight.ValueChanged += SliderList_ValueChanged;
+		}
+
+		//---Y
+
+		///<summary> Отобразить утилитарное меню. </summary>
+		private void ShowUtilPopUp(object sender, EventArgs e) {
+			var cm = new ContextMenu();
+
+			var mRepReg = new MenuItem();
+			mRepReg.Header = @"Replace in Names";
+			cm.Items.Add(mRepReg);
+
+			var mRepRegAll = new MenuItem();
+			mRepRegAll.Header = "All";
+			mRepRegAll.Click += (s, ea) => { DoRegexReplaceInNames(true, true); };
+
+			var mRepRegAlb = new MenuItem();
+			mRepRegAlb.Header = "Albums";
+			mRepRegAlb.Click += (s, ea) => { DoRegexReplaceInNames(true, false); };
+
+			var mRepRegEnt = new MenuItem();
+			mRepRegEnt.Header = "Entrys";
+			mRepRegEnt.Click += (s, ea) => { DoRegexReplaceInNames(false, true); };
+
+			mRepReg.Items.Add(mRepRegAll);
+			mRepReg.Items.Add(mRepRegAlb);
+			mRepReg.Items.Add(mRepRegEnt);
+
+			cm.PlacementTarget = sender as Button;
+			cm.IsOpen = true;
+		}
+
+		///<summary> Замена подстрок в названиях элементов по Regex паттерну. </summary>
+		private void DoRegexReplaceInNames(bool inAlb, bool inEnt) {
+			ReplaceStrDialog rsd = new ReplaceStrDialog("\\[.*?\\]");
+			if (rsd.ShowDialog() == true) {
+				rsd.Result(out string src, out string tar);
+				foreach (var alb in App.MainWin.CatEng.CatRoot.AlbumsList) {
+					if (inAlb) alb.Name = System.Text.RegularExpressions.Regex.Replace(alb.Name, src, tar).Trim();
+					if (inEnt)
+						foreach (var ent in alb.EntryList) {
+							ent.Name = System.Text.RegularExpressions.Regex.Replace(ent.Name, src, tar).Trim();
+						}
+				}
+			}
 		}
 
 		//---B
@@ -175,13 +221,14 @@ namespace VideoCatalog.Panels {
 			bool grpEnabled = filterPanel.grpChkBox.IsChecked ?? false;
 			bool ascend = filterPanel.ascendChkBox.IsChecked ?? false;
 			bool broken = filterPanel.brokenChkBox.IsChecked ?? false;
+			bool excepted = filterPanel.exceptedChkBox.IsChecked ?? false;
 
 			if (!grpEnabled) {
 				grpMode = GroupModes.FOLDER;
 			}
 
 
-			srcList = FilterSorterModule.FilterAndSort(baseList, filterPanel.filterBox.Text, CatalogRoot.tagsList, sortMode, ascend, broken, atrName);
+			srcList = FilterSorterModule.FilterAndSort(baseList, filterPanel.filterBox.Text, CatalogRoot.tagsList, sortMode, ascend, broken, excepted, atrName);
 			FillPlates(grpMode, ascend, atrName);
 			
 			Console.WriteLine($"FilterChanged {sw.ElapsedMilliseconds}ms");
@@ -315,10 +362,15 @@ namespace VideoCatalog.Panels {
 		//---
 		#region UI States
 		public void SetUiStateClosed() {
+			toolbarMainPanel.openBtn.IsEnabled = true;
 			toolbarMainPanel.loadBtn.IsEnabled = true;
 			toolbarMainPanel.saveBtn.IsEnabled = false;
-			toolbarMainPanel.updBtn.IsEnabled = false;
 			toolbarMainPanel.closeBtn.IsEnabled = false;
+			toolbarMainPanel.updBtn.IsEnabled = false;
+			toolbarMainPanel.chkBtn.IsEnabled = false;
+			toolbarMainPanel.utilBtn.IsEnabled = false;
+			toolbarMainPanel.settingBtn.IsEnabled = true;
+
 			filterPanel.IsEnabled = false;
 			scrollHelperLbl.Visibility = Visibility.Hidden;
 			filterPanel.filterBox.Text = "";
@@ -331,20 +383,30 @@ namespace VideoCatalog.Panels {
 			loadingPanel.Visibility = Visibility.Visible;
 			pBar.Value = 0;
 
+			toolbarMainPanel.openBtn.IsEnabled = false;
 			toolbarMainPanel.loadBtn.IsEnabled = false;
 			toolbarMainPanel.saveBtn.IsEnabled = false;
-			toolbarMainPanel.updBtn.IsEnabled = false;
 			toolbarMainPanel.closeBtn.IsEnabled = true;
+			toolbarMainPanel.updBtn.IsEnabled = false;
+			toolbarMainPanel.chkBtn.IsEnabled = false;
+			toolbarMainPanel.utilBtn.IsEnabled = false;
+			toolbarMainPanel.settingBtn.IsEnabled = false;
+
 			filterPanel.IsEnabled = false;
 			scrollHelperLbl.Visibility = Visibility.Hidden;
 			filterPanel.filterBox.Text = "";
 		}
 
 		public void SetUiStateOpened() {
+			toolbarMainPanel.openBtn.IsEnabled = true;
 			toolbarMainPanel.loadBtn.IsEnabled = true;
 			toolbarMainPanel.saveBtn.IsEnabled = true;
-			toolbarMainPanel.updBtn.IsEnabled = true;
 			toolbarMainPanel.closeBtn.IsEnabled = true;
+			toolbarMainPanel.updBtn.IsEnabled = true;
+			toolbarMainPanel.chkBtn.IsEnabled = true;
+			toolbarMainPanel.utilBtn.IsEnabled = true;
+			toolbarMainPanel.settingBtn.IsEnabled = true;
+
 			filterPanel.IsEnabled = true;
 			scrollHelperLbl.Visibility = Visibility.Hidden;
 		}

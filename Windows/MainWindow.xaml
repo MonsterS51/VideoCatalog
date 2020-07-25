@@ -119,25 +119,43 @@
 		
 
 
-		<StackPanel x:Name="startToolbar" Width="200" Height="120">
-			<Button x:Name="newBtn" VerticalAlignment="Center" Click="OpenFolder" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-				<StackPanel Orientation="Horizontal">
-					<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
-					<Label FontSize="16">Open Folder</Label>
+		<StackPanel x:Name="startToolbar" HorizontalAlignment="Center" VerticalAlignment="Center">
+			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center">
+				<StackPanel>
+					<Button x:Name="newBtn" VerticalAlignment="Center" Click="OpenFolder" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+						<StackPanel Orientation="Horizontal">
+							<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+							<Label FontSize="16">Open Folder</Label>
+						</StackPanel>
+					</Button>
+					<Button x:Name="loadBtn" VerticalAlignment="Center" Click="LoadCatalog" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+						<StackPanel Orientation="Horizontal">
+							<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/file2.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+							<Label FontSize="16">Open Catalog File</Label>
+						</StackPanel>
+					</Button>
+					<Button x:Name="configBtn" VerticalAlignment="Center" Click="OpenSettingTab" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+						<StackPanel Orientation="Horizontal">
+							<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/settings.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+							<Label FontSize="16">Settings</Label>
+						</StackPanel>
+					</Button>
 				</StackPanel>
-			</Button>
-			<Button x:Name="loadBtn" VerticalAlignment="Center" Click="LoadCatalog" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-				<StackPanel Orientation="Horizontal">
-					<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/file2.png" RenderOptions.BitmapScalingMode="HighQuality"/>
-					<Label FontSize="16">Open Catalog File</Label>
+			</Border>
+
+
+			
+			<Border x:Name="recentPanel" BorderBrush="Black" BorderThickness="1" Margin="0,15,0,0">
+				<StackPanel>
+					<Grid Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" >
+						<Label FontSize="14">Recent:</Label>
+						<Button x:Name="clrRecentBtn" ToolTip="Clear recent" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+							<Image Height="15" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/cross.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+						</Button>
+					</Grid>
+					<StackPanel x:Name="recentSlot"/>
 				</StackPanel>
-			</Button>
-			<Button x:Name="configBtn" VerticalAlignment="Center" Click="OpenSettingTab" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-				<StackPanel Orientation="Horizontal">
-					<Image Height="30" Style="{StaticResource imgToolBarBtn}" Source="/Assets/Icons/settings.png" RenderOptions.BitmapScalingMode="HighQuality"/>
-					<Label FontSize="16">Settings</Label>
-				</StackPanel>
-			</Button>
+			</Border>
 		</StackPanel>
 	</Grid>
 	
