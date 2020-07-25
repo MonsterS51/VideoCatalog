@@ -3,10 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:p="clr-namespace:VideoCatalog.Properties"
         mc:Ignorable="d"
 		WindowStyle="SingleBorderWindow"
         Title="Video Catalog" 
-		Height="900" Width="1600">
+		MinWidth="800"
+		MinHeight="600"
+		Height="{Binding Source={x:Static p:Settings.Default}, Path=WinH, Mode=TwoWay}"
+        Width="{Binding Source={x:Static p:Settings.Default}, Path=WinW, Mode=TwoWay}"
+        Left="{Binding Source={x:Static p:Settings.Default}, Path=WinX, Mode=TwoWay}"
+        Top="{Binding Source={x:Static p:Settings.Default}, Path=WinY, Mode=TwoWay}"
+		WindowState="{Binding Source={x:Static p:Settings.Default}, Path=WinState, Mode=TwoWay}"
+		>
 	<Window.Resources>
 		<Style x:Key="btnIconStl" TargetType="Button">
 			<Setter Property="Margin" Value="0" />
@@ -94,16 +102,6 @@
 	<Grid Margin="0" SnapsToDevicePixels="True" UseLayoutRounding="True">
 
 		<TabControl x:Name="tabsPanel" BorderThickness="0" BorderBrush="Black" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Style="{StaticResource MyCustomStyle}">
-
-			<!--<TabControl.ContentTemplate>
-				<DataTemplate>
-					<ContentPresenter Name="111" Margin="0"/>
-				</DataTemplate>
-			</TabControl.ContentTemplate>-->
-
-			<!--Перетираем отступы, т.к. у глючной винды в разных темах они работают по разному-->
-
-			
 			<!--<TabItem Padding="0"  Style="{StaticResource tabItemCustomStl}">
 					<TabItem.Header>
 						<StackPanel Orientation="Horizontal" >

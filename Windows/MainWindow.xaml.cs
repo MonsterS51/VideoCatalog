@@ -1,6 +1,7 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace VideoCatalog.Windows {
 				Properties.Settings.Default.RecentFolders = "";
 				UpdateStartToolbarState();
 			};
+			
 		}
 
 
@@ -164,11 +166,11 @@ namespace VideoCatalog.Windows {
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
 			GC.Collect();
-			GC.WaitForPendingFinalizers();
 			//HACK - дергаем очистку еще раз через время, чтобы начал убираться наверняка
 			Task.Delay(30000).ContinueWith(_ => {
 				GC.Collect();
 				GC.WaitForPendingFinalizers();
+				GC.Collect();
 			});
 		}
 
@@ -196,6 +198,7 @@ namespace VideoCatalog.Windows {
 			// формируем альбомную панель
 			AlbumPanel albPanel = new AlbumPanel(album.EntryList);
 			albPanel.UpdatePanelContent();
+			albPanel.DataContext = album;
 			var targetTab = new ClosableTab(tabName, albPanel, CloseTab);
 
 			AddTab(targetTab, tabName, focus);
@@ -213,6 +216,7 @@ namespace VideoCatalog.Windows {
 			}
 
 			MainPanel = new AlbumPanel(CatEng.CatRoot.AlbumsList, true);
+			MainPanel.DataContext = CatEng.CatRoot;
 			var targetTab = new ClosableTab(tabName, MainPanel, CloseTab);
 
 			AddTab(targetTab, tabName);
@@ -235,6 +239,8 @@ namespace VideoCatalog.Windows {
 
 		///<summary> Закрытие заданной вкладки. </summary>
 		public void CloseTab(TabItem targetTab) {
+
+
 			string tabName = tabMap.FirstOrDefault(ent => ent.Value == targetTab).Key;
 
 			// закрываем каталог при закрытии главной панели
@@ -247,8 +253,10 @@ namespace VideoCatalog.Windows {
 			if (targetTab.Content is AlbumPanel) {
 				AlbumPanel albPanel = targetTab.Content as AlbumPanel;
 				albPanel.ClearPanel();
-				var album = CatEng.CatRoot.AlbumsList.Where(alb => alb.Name == tabName).FirstOrDefault();
-				album?.StopThread();
+				if (albPanel.DataContext is CatalogAlbum) {
+					var album = albPanel.DataContext as CatalogAlbum;
+					album?.StopThread();
+				}
 			}
 
 			RemoveTab(targetTab);
@@ -263,13 +271,15 @@ namespace VideoCatalog.Windows {
 				if (targetTab.Content is AlbumPanel) {
 					AlbumPanel albPanel = targetTab.Content as AlbumPanel;
 					albPanel.ClearPanel();
-					var album = CatEng?.CatRoot?.AlbumsList.Where(alb => alb.Name == tabName).FirstOrDefault();
-					album?.StopThread();
+
+					if (albPanel.DataContext is CatalogAlbum) {
+						var album = albPanel.DataContext as CatalogAlbum;
+						album?.StopThread();
+					}
 				}
 
 				RemoveTab(targetTab);
 			}
-
 		}
 
 		//---
@@ -289,23 +299,31 @@ namespace VideoCatalog.Windows {
 		///<summary> Удаление и разрегистрация существующей вкладки. </summary>
 		private void RemoveTab(TabItem targetTab) {
 			if (targetTab == null) return;
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
 
-			//? // микрозадержка в комплекте с ForceLinkDestroy() дает мгновенную очистку BitmapImage из неуправляемой памяти при закрытии основного альбома.
-			Task.Delay(100).ContinueWith((task) => {
-				Dispatcher.BeginInvoke((Action)(() => {
-				// убираем с панели вкладок
-				tabsPanel.Items.Remove(targetTab);
+			//HACK принудительно переходим к предыдущему табу, иначе удаление начинает жрать время при переходе к тяжелым вкладкам
+			Console.WriteLine("SelectedIndex " + tabsPanel.SelectedIndex);
+			if (targetTab.IsSelected & tabsPanel.SelectedIndex > 0) tabsPanel.SelectedIndex = tabsPanel.SelectedIndex - 1;
 
-					// убираем из карты вкладок
-					if (tabMap.ContainsValue(targetTab)) {
-						tabMap.Remove(tabMap.First(ent => ent.Value == targetTab).Key);
-					}
+			// убираем с панели вкладок
+			tabsPanel.Items.Remove(targetTab);
 
-					UpdateStartToolbarState();
+			Console.WriteLine("tabsPanel " + sw.ElapsedMilliseconds);
 
-				GC_Forcer();
-				}));
-			});
+
+			// убираем из карты вкладок
+			if (tabMap.ContainsValue(targetTab)) tabMap.Remove(tabMap.First(ent => ent.Value == targetTab).Key);
+
+			Console.WriteLine("tabMap " + sw.ElapsedMilliseconds);
+
+
+			if (tabMap.Count == 0) UpdateStartToolbarState();
+
+			//GC_Forcer();
+
+			Console.WriteLine("Done " + sw.ElapsedMilliseconds);
+			sw.Stop();
 		}
 
 		///<summary> При манипуляциях с вкладками решаем, показывать ли дефолтное меню. </summary>
@@ -382,15 +400,6 @@ namespace VideoCatalog.Windows {
 
 		#endregion
 		//---R
-
-		public void btnEnterName_Click(object sender, RoutedEventArgs e) {
-			InputDialog inputDialog = new InputDialog("Please enter your name:", "John Doe");
-			//if (inputDialog.ShowDialog() == true)
-			//lblName.Text = inputDialog.Answer;
-		}
-
-
-		//---
 
 		///<summary> Получение текущей открытой альбомной панели </summary>
 		public AlbumPanel GetCurrentAlbumePanel() {

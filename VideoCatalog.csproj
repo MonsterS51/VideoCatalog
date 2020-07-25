@@ -44,7 +44,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>true</Prefer32Bit>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -76,9 +78,6 @@
     </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Xaml.Behaviors.Wpf.1.1.19\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
     <Reference Include="NReco.VideoConverter, Version=1.1.4.0, Culture=neutral, PublicKeyToken=395ccb334978a0cd, processorArchitecture=MSIL">
       <HintPath>packages\NReco.VideoConverter.1.1.4\lib\net40\NReco.VideoConverter.dll</HintPath>
@@ -349,4 +348,30 @@
     <Resource Include="Assets\Icons\utils.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>RMDIR "$(TargetDir)de/" /S /Q
+RMDIR "$(TargetDir)cs-CZ/" /S /Q
+RMDIR "$(TargetDir)hu/" /S /Q
+RMDIR "$(TargetDir)pt-BR/" /S /Q 
+RMDIR "$(TargetDir)ro/" /S /Q 
+RMDIR "$(TargetDir)sv/" /S /Q 
+RMDIR "$(TargetDir)es/" /S /Q 
+RMDIR "$(TargetDir)fr/" /S /Q
+RMDIR "$(TargetDir)it/" /S /Q
+RMDIR "$(TargetDir)ja/" /S /Q
+RMDIR "$(TargetDir)ko/" /S /Q
+RMDIR "$(TargetDir)ru/" /S /Q
+RMDIR "$(TargetDir)zh-Hans/" /S /Q
+RMDIR "$(TargetDir)zh-Hant/" /S /Q
+del "$(TargetDir)Xceed.Wpf.AvalonDock.Themes.Aero.dll" /S /Q
+del "$(TargetDir)Xceed.Wpf.AvalonDock.Themes.Metro.dll" /S /Q
+del "$(TargetDir)Xceed.Wpf.AvalonDock.Themes.VS2010.dll" /S /Q
+del "$(TargetDir)*.pdb" /S /Q
+del "$(TargetDir)*.xml" /S /Q
+del "$(TargetDir)ffmpeg.exe" /S /Q
+
+; Move all assemblies and related files to lib folder
+ROBOCOPY "$(TargetDir) " "$(TargetDir)lib\ " /XF *.exe *.config *.manifest /XD lib logs data /E /IS /MOVE
+if %25errorlevel%25 leq 4 exit 0 else exit %25errorlevel%25</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -26,6 +26,7 @@ namespace VideoCatalog.Main {
 		public static int maxThreads = 8;
 
 		public CatalogEngine() {
+			if (App.FoundFFMpegLibs) ffProbe.ToolPath = Properties.Settings.Default.FFMpegBinPath;
 			//emptyCover = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/cross.png", UriKind.RelativeOrAbsolute));
 		}
 
@@ -121,6 +122,7 @@ namespace VideoCatalog.Main {
 			using (MemoryStream memory = new MemoryStream()) {
 				try {
 					FFMpegConverter ffMpeg = new FFMpegConverter();
+					if (App.FoundFFMpegLibs) ffMpeg.FFMpegToolPath = Properties.Settings.Default.FFMpegBinPath;
 
 					var imgWidth = Properties.Settings.Default.CoverMaxSize;
 					if (vidWidth < imgWidth) imgWidth = vidWidth;	// формируем кавер размером с видео для экономии

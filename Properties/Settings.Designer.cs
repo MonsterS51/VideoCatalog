@@ -202,5 +202,65 @@ namespace VideoCatalog.Properties {
                 this["RecentFolders"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int WinX {
+            get {
+                return ((int)(this["WinX"]));
+            }
+            set {
+                this["WinX"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int WinY {
+            get {
+                return ((int)(this["WinY"]));
+            }
+            set {
+                this["WinY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1600")]
+        public int WinW {
+            get {
+                return ((int)(this["WinW"]));
+            }
+            set {
+                this["WinW"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("900")]
+        public int WinH {
+            get {
+                return ((int)(this["WinH"]));
+            }
+            set {
+                this["WinH"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
+        public string WinState {
+            get {
+                return ((string)(this["WinState"]));
+            }
+            set {
+                this["WinState"] = value;
+            }
+        }
     }
 }
