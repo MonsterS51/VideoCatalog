@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -21,20 +22,9 @@ namespace VideoCatalog.Main {
 
 		//---
 		[YAXDontSerialize]
-		public FileInfo EntAbsFile { get; set; }
-
-		[YAXDontSerialize]
-		public string EntAbsPath { 
-			get { return EntAbsFile.FullName; } 
-			set { 
-				EntAbsFile = new FileInfo(value);
-				string result = value.Substring(CatalogRoot.CatDir.FullName.Length);
-				_entRelPath = result.Substring(catAlb.AlbRelPath.Length);
-			} 
-		}
-
-		public string EntRelPath { get { return _entRelPath; } set { _entRelPath = value; } }
-		private string _entRelPath;
+		public FileInfo EntAbsFile { 
+			get { return new FileInfo(CatalogRoot.CatDir.FullName + catAlb.RelPath + RelPath); } 
+			set { RelPath = value.FullName.Substring(CatalogRoot.CatDir.FullName.Length).Substring(catAlb.RelPath.Length); } }
 
 		//---
 		public CatalogAlbum catAlb = null;
@@ -64,14 +54,10 @@ namespace VideoCatalog.Main {
 		
 		public CatalogEntry(FileInfo file, CatalogAlbum CatAlb) {
 			catAlb = CatAlb;
-			EntAbsPath = file.FullName;
-			UpdatePaths();
+			EntAbsFile = file;
 			Name = file.Name;
 			SearchCoverArt();
 			GetMetaData();
-		}
-		public void UpdatePaths() {
-			EntAbsFile = new FileInfo(CatalogRoot.CatDir.FullName + catAlb.AlbRelPath + _entRelPath);
 		}
 
 		///<summary> Поиск файла обложки для эпизода. </summary>
@@ -112,12 +98,13 @@ namespace VideoCatalog.Main {
 					float vidPos = 0;
 					if (duration > 1) vidPos = (float)(duration / 2);       // если меньше секунды, кадр из середины выдернуть не может и выбрасывает
 
-					bmi = CatalogEngine.LoadBitMapFromVideo(EntAbsPath, int.Parse(width), vidPos);
+					bmi = CatalogEngine.LoadBitMapFromVideo(EntAbsFile.FullName, int.Parse(width), vidPos);
 				}
 				CoverImage = bmi;
 			}
 
-			vp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);	// принудительная перерисовка обложки после загрузки
+			vp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);   // принудительная перерисовка обложки после загрузки
+			lp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);   // принудительная перерисовка обложки после загрузки
 		}
 
 		private static Action EmptyDelegate = delegate () { };
@@ -128,10 +115,8 @@ namespace VideoCatalog.Main {
 		public override ViewPlate CreatePlate() {
 			if (vp == null) vp = new ViewPlate();
 
-			vp.path = EntAbsPath;
 			vp.DataContext = this;
-			vp.duration = duration;
-			vp.onDoubleClick = () => System.Diagnostics.Process.Start(EntAbsPath);
+			vp.onDoubleClick = () => System.Diagnostics.Process.Start(EntAbsFile.FullName);
 			vp.onClick = () => App.MainWin.OpenSidePanel(this);
 
 			TimeSpan ts = new TimeSpan(0, 0, duration);
@@ -152,10 +137,8 @@ namespace VideoCatalog.Main {
 		public override ListPlate CreateListPlate() {
 			if (lp == null) lp = new ListPlate();
 
-			lp.path = EntAbsPath;
 			lp.DataContext = this;
-			lp.duration = duration;
-			lp.onDoubleClick = () => System.Diagnostics.Process.Start(EntAbsPath);
+			lp.onDoubleClick = () => System.Diagnostics.Process.Start(EntAbsFile.FullName);
 			lp.onClick = () => App.MainWin.OpenSidePanel(this);
 
 			TimeSpan ts = new TimeSpan(0, 0, duration);
@@ -165,6 +148,10 @@ namespace VideoCatalog.Main {
 
 			if (hours == 0 & minutes == 0) TopRightText = $"{width}x{height}	({ts.Seconds} sec)";
 			else TopRightText = $"{width}x{height}	({hours}:{minutes})";
+
+			UpdateAtrText();
+			if (string.IsNullOrWhiteSpace(AtrText)) lp.lblAtr.Visibility = Visibility.Collapsed;
+			else lp.lblAtr.Visibility = Visibility.Visible;
 
 			UpdateIconBrokenState();
 			UpdateVideoResIcons();
@@ -177,14 +164,14 @@ namespace VideoCatalog.Main {
 		public void GetMetaData() {
 			if (!EntAbsFile.Exists) return;
 
-			duration = CatalogEngine.GetDuration(EntAbsPath);
+			duration = CatalogEngine.GetDuration(EntAbsFile.FullName);
 			DateCreate = EntAbsFile.CreationTime;
 			DateModify = EntAbsFile.LastWriteTime;
 
 			//+ загрузка данных через ShellFile
 			//? для древних и не стандартных видеофайлов лучше поставить кодеки (иначе не сможет читать из них данные) !
 			try {
-				var file = ShellFile.FromFilePath(EntAbsPath);
+				var file = ShellFile.FromFilePath(EntAbsFile.FullName);
 				if (file != null) {
 					file.Properties.System.Video.FrameWidth.TryFormatForDisplay(PropertyDescriptionFormatOptions.None, out width);
 					file.Properties.System.Video.FrameHeight.TryFormatForDisplay(PropertyDescriptionFormatOptions.None, out height);
@@ -200,7 +187,7 @@ namespace VideoCatalog.Main {
 			if (string.IsNullOrWhiteSpace(width) || width.Any(x => char.IsLetter(x)) || string.IsNullOrWhiteSpace(height) || height.Any(x => char.IsLetter(x))) {
 				//Console.WriteLine("" + _entRelPath);
 				try {
-					var dataSrc = CatalogEngine.ffProbe.GetMediaInfo(EntAbsPath).Streams.First();
+					var dataSrc = CatalogEngine.ffProbe.GetMediaInfo(EntAbsFile.FullName).Streams.First();
 					width = "" + dataSrc.Width;
 					height = "" + dataSrc.Height;
 				} catch (Exception ex) {
@@ -275,6 +262,9 @@ namespace VideoCatalog.Main {
 			}
 		}
 
+		public override string ToString() {
+			return Name;
+		}
 
 	}
 }

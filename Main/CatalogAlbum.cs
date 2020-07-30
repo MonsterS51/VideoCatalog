@@ -25,29 +25,21 @@ namespace VideoCatalog.Main {
 		//---
 
 		[YAXDontSerialize]
-		private DirectoryInfo AlbAbsDir { get; set; }
+		public DirectoryInfo AlbAbsDir { 
+			get {
+				return new DirectoryInfo(CatalogRoot.CatDir.FullName + RelPath);
+			} 
+			set {
+				RelPath = value.FullName.Substring(CatalogRoot.CatDir.FullName.Length);
+			} }
 
-		// при задании полного пути, обновляем относительный путь
-		[YAXDontSerialize]
-		public string AlbAbsPath { get { return AlbAbsDir.FullName; } 
-			set { AlbAbsDir = new DirectoryInfo(value);
-				_albRelPath = value.Substring(CatalogRoot.CatDir.FullName.Length); } 
-		}
-
-		// при восстановление относительного, воссоздаем и абсолютный путь
-		public string AlbRelPath { get { return _albRelPath; } set { _albRelPath = value;  } }	
-
-		private string _albRelPath = "";
 
 		//---
-
 		public List<CatalogEntry> EntryList { get; set; } = new List<CatalogEntry>();
-
 
 		public bool WithSubDir { get; set; } = false;
 
-		[YAXDontSerialize]
-		public CatalogEntry FirstEntry { get { return EntryList?.FirstOrDefault(); } }
+		public override CatalogEntry BaseEntry { get { return EntryList?.FirstOrDefault(); } }
 
 		private object locker = new object();
 
@@ -56,14 +48,10 @@ namespace VideoCatalog.Main {
 		public CatalogAlbum() {}
 
 		public CatalogAlbum(DirectoryInfo dir, bool withSubDir) {
-			AlbAbsPath = dir.FullName;
-			UpdatePaths();
+			AlbAbsDir = dir;
+			//UpdatePaths();
 			WithSubDir = withSubDir;
 			Name = dir.Name;
-		}
-
-		public void UpdatePaths() {
-			AlbAbsDir = new DirectoryInfo(CatalogRoot.CatDir.FullName + _albRelPath);
 		}
 
 		///<summary> Обновление ссылок элементов альбома на содержащий их альбом. </summary>
@@ -73,13 +61,8 @@ namespace VideoCatalog.Main {
 			}
 		}
 
-		///<summary> Обновление состава альбома. </summary>
-		public void UpdateAlbumFiles() {
-			LoadDir();
-		}
-
 		///<summary> Формирование элементов альбома по путям. </summary>
-		private void LoadDir() {
+		public void LoadDir() {
 			AlbAbsDir.Refresh();
 			if (!AlbAbsDir.Exists) return;
 			List<FileInfo> vidList = null;
@@ -95,40 +78,17 @@ namespace VideoCatalog.Main {
 				return;
 			}
 
-			//List<Task> tasksList = new List<Task>();
+			Parallel.ForEach(vidList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
+				file => {
+					// не формируем, если такое было
+					lock (locker) if (EntryList.Any(ent2 => ent2.EntAbsFile.FullName == file.FullName)) return;
+					CatalogEntry newEnt = new CatalogEntry(file, this);
+					lock (locker) EntryList.Add(newEnt);
+				}
+			);
 
-
-			//foreach (var file in vidList) {
-			//	var newTask = Task.Factory.StartNew(() => {
-			//		// не формируем, если такое было
-			//		lock (locker) if (EntryList.Any(ent => ent.EntAbsPath == file.FullName)) return;
-
-			//		CatalogEntry newEnt = new CatalogEntry(file, this);
-
-			//		lock (locker) EntryList.Add(newEnt);
-
-			//	}, TaskCreationOptions.AttachedToParent);
-			//	tasksList.Add(newTask);
-			//}
-
-			//Task.WaitAll(tasksList.ToArray());
-			//EntryList = EntryList.OrderBy(x => x.Name, new AlphanumComparatorFast()).ToList();
-
-
-			//var newTask = Task.Factory.StartNew(() => {
-				Parallel.ForEach(vidList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
-					file => {
-						// не формируем, если такое было
-						lock (locker) if (EntryList.Any(ent2 => ent2.EntAbsPath == file.FullName)) return;
-						CatalogEntry newEnt = new CatalogEntry(file, this);
-						lock (locker) EntryList.Add(newEnt);
-					}
-				);
-
-				// сортируем, т.к. потоки закончились в разнобой
-				EntryList = EntryList.OrderBy(x => x.Name, new AlphanumComparatorFast()).ToList();
-			//});
-			//Task.WaitAll(newTask);
+			// сортируем, т.к. потоки закончились в разнобой
+			EntryList = EntryList.OrderBy(x => x.Name, new AlphanumComparatorFast()).ToList();
 		}
 
 		//---
@@ -137,8 +97,8 @@ namespace VideoCatalog.Main {
 
 		/// <summary> Формирование обложки альбома на основе первого эпизода. </summary>
 		public void LoadAlbumCover() {
-			FirstEntry?.LoadCover();
-			CoverImage = FirstEntry?.CoverImage;
+			BaseEntry?.LoadCover();
+			CoverImage = BaseEntry?.CoverImage;
 			vp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);   // принудительная перерисовка обложки после загрузки
 		}
 
@@ -185,9 +145,6 @@ namespace VideoCatalog.Main {
 				vp.onWheelClick = () => App.MainWin.OpenAlbumTab(this, false);
 			}
 
-			vp.path = FirstEntry.EntAbsPath;
-			vp.duration = FirstEntry.duration;
-
 			TopRightText = ""+EntryList.Count;
 
 			UpdateIconBrokenState();
@@ -206,10 +163,11 @@ namespace VideoCatalog.Main {
 				lp.onWheelClick = () => App.MainWin.OpenAlbumTab(this, false);
 			}
 
-			lp.path = FirstEntry.EntAbsPath;
-			lp.duration = FirstEntry.duration;
+			TopRightText = $"({EntryList.Count} ep.)";
 
-			TopRightText = "(" + EntryList.Count + " ep.)";
+			UpdateAtrText();
+			if (string.IsNullOrWhiteSpace(AtrText)) lp.lblAtr.Visibility = Visibility.Collapsed;
+			else lp.lblAtr.Visibility = Visibility.Visible;
 
 			UpdateIconBrokenState();
 			UpdateVideoResIcons();

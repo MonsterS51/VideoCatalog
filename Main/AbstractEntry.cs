@@ -18,9 +18,13 @@ namespace VideoCatalog.Main {
 		public string Name { get { return _name; } set { _name = value; OnPropertyChanged("Name"); } }
 		private string _descr;
 		public string Descr { get { return _descr; } set { _descr = value; OnPropertyChanged("Descr"); } }
+		private string _relPath;
+		public string RelPath { get { return _relPath; } set { _relPath = value; OnPropertyChanged("RelPath"); } }
 
-		[YAXDontSerializeIfNull]
-		public DateTime ProdTime { get; set; } = new DateTime(1800, 01, 01);
+		//---
+
+		[YAXDontSerialize]
+		public virtual CatalogEntry BaseEntry { get { return this as CatalogEntry; } }
 
 		//---
 
@@ -80,10 +84,26 @@ namespace VideoCatalog.Main {
 
 		//---
 
-		[YAXDontSerialize]
 		private string _topRightText;
+		private string _atrText;
+
 		[YAXDontSerialize]
 		public string TopRightText { get { return _topRightText; } set { _topRightText = value; OnPropertyChanged("TopRightText"); } }
+		[YAXDontSerialize]
+		public string AtrText { get { return _atrText; } set { _atrText = value; OnPropertyChanged("AtrText"); } }
+
+		///<summary> Обновление строки с атрибутами. </summary>
+		public void UpdateAtrText() {
+			AtrText = "";
+			foreach (var atrName in Properties.Settings.Default.AtrToShowList.Split(';',',')) {
+				var atr = GetAttribute(atrName);
+				if (atr != "<null>") {
+					if (string.IsNullOrWhiteSpace(AtrText)) AtrText = $"{atrName}: {atr}";
+					else AtrText = AtrText + $"   {atrName}: {atr}";
+				}
+			}
+			AtrText.Trim();
+		}
 
 		//---
 

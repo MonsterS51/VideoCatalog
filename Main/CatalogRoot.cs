@@ -61,24 +61,9 @@ namespace VideoCatalog.Main {
 				dir => { CreateAlbum(dir, true); }
 			);
 
-			//procDone = 0;
-			//Parallel.ForEach(AlbumsList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
-			//	alb => {
-			//		Parallel.ForEach(alb.EntryList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
-			//			ent => { ent.GetMetaData(); }
-			//		);
-
-			//		Interlocked.Increment(ref procDone);
-			//		if (App.MainWindow?.MainPanel != null) {
-			//			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.pBar.Value = (procDone / (float)AlbumsList.Count) * 100));
-			//			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"({procDone} / {AlbumsList.Count})  {alb.AlbRelPath}"));
-			//		}
-			//	}
-			//);
-
 			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = "Search files done!"));
 
-			Console.WriteLine($"Search files done for {sw.ElapsedMilliseconds}");
+			Console.WriteLine($"Search files done for {sw.ElapsedMilliseconds} ms");
 			sw.Stop();
 		}
 
@@ -91,6 +76,7 @@ namespace VideoCatalog.Main {
 			App.MainWin.MainPanel.UpdatePanelContent();
 			App.MainWin.MainPanel.loadingPanel.Visibility = Visibility.Hidden;
 			App.MainWin.MainPanel.SetUiStateOpened();
+			Console.WriteLine("Update albumes and entrys DONE !");
 		}
 
 
@@ -107,55 +93,44 @@ namespace VideoCatalog.Main {
 			worker.RunWorkerAsync();
 		}
 
-		private int restCount = 0;
 		///<summary> Восстановленние элементов каталога. </summary>
 		public void DataRestore(object sender, DoWorkEventArgs e) {
+			int restCount = 0;
+			int restAlbCount = 0;
+
+			var dirs = CatDir.GetDirectories();
+			dirsCount = dirs.Count();
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
 			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = "Restore data"));
 
-
-			//! ! протестировать
 			foreach (var alb in AlbumsList) {
-				alb.UpdatePaths();
 				alb.UpdateEntCatAlb();
 				Parallel.ForEach(alb.EntryList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
 					ent => {
-						ent.UpdatePaths();
 						ent.GetMetaData();
 						Interlocked.Increment(ref restCount);
-						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = $"Restore data ({restCount})"));
+						Application.Current.Dispatcher.BeginInvoke((Action)(() => 
+						App.MainWin.MainPanel.infoText.Text = $"Restore data =>   Alb: {restAlbCount}/{dirsCount}   Ent: {restCount}" ));
 					}
 				);
+				restAlbCount++;
 			}
 
-
-			//List<Task> tasksList = new List<Task>();
-			//foreach (var alb in AlbumsList) {
-			//	alb.UpdatePaths();
-			//	alb.UpdateEntCatAlb();
-			//	foreach (var ent in alb.EntryList) {
-			//		var newTask = Task.Factory.StartNew(() => {
-			//			ent.UpdatePaths();
-			//			ent.GetMetaData();
-			//			Interlocked.Increment(ref restCount);
-			//			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWindow.MainPanel.infoText.Text = $"Restore data ({restCount})"));
-			//		}, TaskCreationOptions.LongRunning);
-			//		tasksList.Add(newTask);
-			//	}
-			//}
-			//Task.WaitAll(tasksList.ToArray());
-
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = $"Restored {restCount} entry. Generate plates."));
-
+			Console.WriteLine($"Restore data done for {sw.ElapsedMilliseconds} ms");
+			sw.Stop();
 		}
 
 		///<summary> Попытка создать альбом или обновить его состав. </summary>
 		private void CreateAlbum(DirectoryInfo path, bool withSubDir) {
 			// проверка наличия альбома по этому пути
 			lock (locker) {
-				if (AlbumsList.Any(alb => alb.AlbAbsPath == path.FullName)) {
+				if (AlbumsList.Any(alb => alb.AlbAbsDir.FullName == path.FullName)) {
 					// обновляем старый
-					CatalogAlbum oldAlbume = AlbumsList.First(alb => alb.AlbAbsPath == path.FullName);
-					oldAlbume.UpdateAlbumFiles();
+					CatalogAlbum oldAlbume = AlbumsList.First(alb => alb.AlbAbsDir.FullName == path.FullName);
+					oldAlbume.LoadDir();
 					Interlocked.Increment(ref procDone);
 					if (App.MainWin?.MainPanel != null) {
 						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
@@ -168,7 +143,7 @@ namespace VideoCatalog.Main {
 			// создаем новый
 			//Console.WriteLine($"New album <{path}>");
 			CatalogAlbum newAlbume = new CatalogAlbum(path, withSubDir);
-			newAlbume.UpdateAlbumFiles();
+			newAlbume.LoadDir();
 			if (newAlbume.EntryList.Count > 0) {
 				lock (locker) {
 					AlbumsList.Add(newAlbume);
@@ -244,6 +219,7 @@ namespace VideoCatalog.Main {
 					}
 				}
 			}
+			tagsList.Sort();
 		}
 
 		private static Random rnd = new Random();
@@ -253,7 +229,6 @@ namespace VideoCatalog.Main {
 			if (tagsColors.ContainsKey(tag)) return tagsColors[tag];
 
 			Color bgCol = Color.FromRgb((byte)rnd.Next(1, 255), (byte)rnd.Next(1, 255), (byte)rnd.Next(1, 233));
-			Console.WriteLine(""+ bgCol);
 			var scb = new SolidColorBrush(bgCol);
 			tagsColors.Add(tag, scb);
 			return scb;
@@ -266,6 +241,10 @@ namespace VideoCatalog.Main {
 		///<summary> Обновление списка всех тегов, использованных в альбомах. </summary>
 		public void UpdateAttributesList() {
 			atrList.Clear();
+
+			// сразу берем настроенные для отображения в списочном режиме
+			atrList.AddRange(Properties.Settings.Default.AtrToShowList.Split(';', ','));
+
 			foreach (var alb in AlbumsList) {
 				// атрибуты самого альбома
 				foreach (var atrEnt in alb.AtrMap) {
@@ -279,6 +258,7 @@ namespace VideoCatalog.Main {
 					}
 				}
 			}
+			atrList.Sort();
 		}
 
 

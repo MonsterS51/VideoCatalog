@@ -14,6 +14,7 @@
         Left="{Binding Source={x:Static p:Settings.Default}, Path=WinX, Mode=TwoWay}"
         Top="{Binding Source={x:Static p:Settings.Default}, Path=WinY, Mode=TwoWay}"
 		WindowState="{Binding Source={x:Static p:Settings.Default}, Path=WinState, Mode=TwoWay}"
+		Closing="OnClosing"
 		>
 	<Window.Resources>
 		<Style x:Key="btnIconStl" TargetType="Button">

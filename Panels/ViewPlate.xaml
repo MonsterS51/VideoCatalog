@@ -15,7 +15,7 @@
 		</ContextMenu>
 	</UserControl.Resources>
 	<Border x:Name="border" BorderBrush="Black" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="2" CornerRadius="2" 
-		Margin="0.5,0.5,0.5,0.5" UseLayoutRounding="True" SnapsToDevicePixels="True">
+		Margin="1" UseLayoutRounding="True" SnapsToDevicePixels="True">
 		<main:AspectRatioLayoutDecorator x:Name="PreviewDecorator" AspectRatio="1.77" Margin="0" UseLayoutRounding="True" SnapsToDevicePixels="True">
 			<Grid Margin="0">
 				<!-- Иконка -->

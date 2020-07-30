@@ -265,7 +265,7 @@ namespace VideoCatalog.Main {
 						var catEnt = ent as CatalogEntry;
 					
 						// отрезаем путь от папки альбома
-						string subPath = catEnt.EntAbsFile.Directory.FullName.Replace(catEnt.catAlb.AlbAbsPath, "").TrimStart('/', '\\');
+						string subPath = catEnt.EntAbsFile.Directory.FullName.Replace(catEnt.catAlb.AlbAbsDir.FullName, "").TrimStart('/', '\\');
 
 						if (!subListsMap.ContainsKey(subPath))subListsMap.Add(subPath, new List<AbstractEntry>());
 						subListsMap[subPath].Add(ent);

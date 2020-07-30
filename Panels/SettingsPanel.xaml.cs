@@ -33,12 +33,12 @@ namespace VideoCatalog.Panels {
 
 			PreviewSteps.Value = Properties.Settings.Default.PreviewSteps;
 			PreviewTime.Value = Properties.Settings.Default.PreviewTime;
-
 			CoverMaxSize.Value = Properties.Settings.Default.CoverMaxSize;
-
 			AspectRatio.Value = Properties.Settings.Default.CoverAspectRatio;
-
+			//---
 			searchStrTB.Text = Properties.Settings.Default.SearchStrings;
+			//---
+			atrListStrTB.Text = Properties.Settings.Default.AtrToShowList;
 		}
 
 		///<summary> Принятие изменений в настройках. </summary>
@@ -56,20 +56,15 @@ namespace VideoCatalog.Panels {
 				App.LoadFFMpegLibs();
 			}
 
-
 			Properties.Settings.Default.PreviewSteps = (int) PreviewSteps.Value;
 			Properties.Settings.Default.PreviewTime = (int) PreviewTime.Value;
-
 			Properties.Settings.Default.CoverMaxSize = (int) CoverMaxSize.Value;
-
 			Properties.Settings.Default.CoverAspectRatio = (decimal) AspectRatio.Value;
-
 			//---
-
 			Properties.Settings.Default.SearchStrings = searchStrTB.Text;
-
 			//---
-
+			Properties.Settings.Default.AtrToShowList = atrListStrTB.Text;
+			//---
 			Properties.Settings.Default.Save();
 		}
 

@@ -262,5 +262,29 @@ namespace VideoCatalog.Properties {
                 this["WinState"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SidePanelTab {
+            get {
+                return ((int)(this["SidePanelTab"]));
+            }
+            set {
+                this["SidePanelTab"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Year")]
+        public string AtrToShowList {
+            get {
+                return ((string)(this["AtrToShowList"]));
+            }
+            set {
+                this["AtrToShowList"] = value;
+            }
+        }
     }
 }

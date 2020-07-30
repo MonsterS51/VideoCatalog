@@ -67,7 +67,7 @@
 	</UserControl.Resources>
 
 	<Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" SnapsToDevicePixels="True" UseLayoutRounding="True">
-		<TabControl x:Name="tabsPanel" BorderThickness="0" Style="{StaticResource TabControlStyle}" Margin="0,-1,0,0" Grid.RowSpan="2">
+		<TabControl x:Name="tabsPanel" BorderThickness="0" Style="{StaticResource TabControlStyle}" Margin="0,-1,0,0" Grid.RowSpan="2" SelectionChanged="tabsPanel_SelectionChanged">
 
 			<!-- Вкладка Info -->
 			<TabItem Padding="0" Margin="0" Style="{StaticResource tabItemCustomStl}">
@@ -135,7 +135,7 @@
 										  VerticalGridLinesBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
 										  HorizontalGridLinesBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
 										  BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
-									  AutoGenerateColumns="False" >
+									  AutoGenerateColumns="False">
 									<DataGrid.Columns>
 										<DataGridTextColumn Header="Name" Binding="{Binding AtrName}" Width="100" />
 										<DataGridTextColumn Header="Data" Binding="{Binding AtrData}" Width="*">
@@ -169,7 +169,30 @@
 				<TabItem.Content>
 					<Border BorderThickness="1,0,1,1" BorderBrush="Black" Padding="2">
 						<StackPanel Orientation="Vertical" >
-							<TextBlock TextWrapping="WrapWithOverflow" Text="Entry Data:" FontSize="16" Margin="-2,-2,-2,2" Padding="4" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+							<Grid Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Margin="-2,-2,-2,0">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*"/>
+									<ColumnDefinition Width="25"/>
+									<ColumnDefinition Width="25"/>
+									<ColumnDefinition Width="25"/>
+									<ColumnDefinition Width="25"/>
+								</Grid.ColumnDefinitions>
+
+								<TextBlock Text="Entry Data:" TextWrapping="WrapWithOverflow" 
+									   FontSize="16"  Padding="4"  HorizontalAlignment="Stretch" />
+								<Button Grid.Column="1" x:Name="searchEntBtn2" ToolTip="Search entry in internet" Click="ShowSearchPopUp" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/search.png"  Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+								</Button>
+								<Button Grid.Column="2" x:Name="exceptEntBtn2" ToolTip="Except entry" Click="ExceptEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/hidden.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+								</Button>
+								<Button Grid.Column="3" x:Name="rootEntBtn2" ToolTip="Open in File Explorer" Click="FolderEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+								</Button>
+								<Button Grid.Column="4" x:Name="removeEntBtn2" ToolTip="Remove entry" Click="RemoveEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/remove.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+								</Button>
+							</Grid>
 
 							<GroupBox>
 								<GroupBox.Header>
@@ -208,7 +231,7 @@
 								<GroupBox.Header>
 									<Label FontSize="9" Padding="0">Directory</Label>
 								</GroupBox.Header>
-								<TextBox TextWrapping="WrapWithOverflow"  Text="{Binding Path=AlbRelPath}" Margin="-2,0,-2,-2"></TextBox>
+								<TextBox TextWrapping="WrapWithOverflow"  Text="{Binding Path=RelPath}" Margin="-2,0,-2,-2"></TextBox>
 							</GroupBox>
 							
 							<!-- Раздел атрибутов элемента коллекции -->

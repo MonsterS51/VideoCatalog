@@ -32,9 +32,6 @@ namespace VideoCatalog.Panels {
 		public Action onClick;
 		public Action onWheelClick;
 
-		public int duration = 100;
-		public string path;
-
 		private PreviewFrameWPF pfWPF = null;
 		private PreviewFrameFFME pfFFME = null;
 
@@ -49,6 +46,9 @@ namespace VideoCatalog.Panels {
 			// если предпросмотр отключен
 			if (!Properties.Settings.Default.PreviewEnabled) return;
 
+			var entry = DataContext as AbstractEntry;
+			if (entry == null | entry.BaseEntry == null || !entry.BaseEntry.EntAbsFile.Exists) return;
+
 			Task.Delay(500).ContinueWith((task) => {
 				Dispatcher.BeginInvoke((Action)(() => {
 					if (LeftPreviewDecorator.IsMouseOver) {
@@ -60,7 +60,7 @@ namespace VideoCatalog.Panels {
 									previewGrid.Children.Clear();
 									previewGrid.Children.Add(pfWPF);
 								}
-								pfWPF?.StartPreview(path, duration);
+								pfWPF?.StartPreview(entry.BaseEntry.EntAbsFile.FullName, entry.BaseEntry.duration);
 								break;
 							}
 							case "FFME": {
@@ -70,7 +70,7 @@ namespace VideoCatalog.Panels {
 									previewGrid.Children.Clear();
 									previewGrid.Children.Add(pfFFME);
 								}
-								pfFFME?.StartPreview(path, duration);
+								pfFFME?.StartPreview(entry.BaseEntry.EntAbsFile.FullName, entry.BaseEntry.duration);
 								break;
 							}
 							default: {
@@ -217,7 +217,6 @@ namespace VideoCatalog.Panels {
 
 			foreach (var tag in tagArray) {
 				var newTag = new TagPlate();
-				newTag.Height = 20;
 				newTag.TagLabel.Text = tag;
 				newTag.TagLabel.Fill = new SolidColorBrush(Color.FromRgb(255, 255, 255));
 				newTag.TagBrd.Background = CatalogRoot.GetTagColor(tag);

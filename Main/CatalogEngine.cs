@@ -54,11 +54,10 @@ namespace VideoCatalog.Main {
 					CatRoot = loadedCatRoot;
 					CatRoot.CatPath = new FileInfo(path).Directory.FullName;    // корень - папка с файлом
 					CatRoot.LoadDeserial();
-					Console.WriteLine("Restore albumes and entrys DONE !");
 				}
 			} else {
 				System.Windows.MessageBox.Show($"Can`t load <{path}>", "Error");
-				App.MainWin.CloseCatalog(null, null);
+				App.MainWin.CloseCatalog();
 			}
 
 		}

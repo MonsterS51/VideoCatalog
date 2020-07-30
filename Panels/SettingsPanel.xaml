@@ -6,147 +6,166 @@
 			 xmlns:local="clr-namespace:VideoCatalog.Panels"
 			 xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
 			 mc:Ignorable="d" 
-			 d:DesignHeight="450" d:DesignWidth="800">
+			 d:DesignHeight="750" d:DesignWidth="800">
 	<Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,0,0,0">
 		<Border BorderBrush="Black" BorderThickness="0">
 			<DockPanel LastChildFill="True"  SnapsToDevicePixels="True" UseLayoutRounding="True" Margin="0">
-			<Label Content="Settings" DockPanel.Dock="Top" FontSize="16" 
-					Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
+				<Label Content="Settings" DockPanel.Dock="Top" FontSize="16" 
+						Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
 
-			<!--Кнопки подтверждения и отмены-->
-			<UniformGrid Rows="1" Columns="2" VerticalAlignment="Bottom" DockPanel.Dock="Bottom">
-				<Button Content="Apply" Height="25" DockPanel.Dock="Bottom" Grid.Column="0" Grid.Row="0" Click="Accept_Click"/>
-				<Button Content="Cancel" Height="25" DockPanel.Dock="Bottom" Grid.Column="1" Grid.Row="0"/>
-			</UniformGrid>
+				<!--Кнопки подтверждения и отмены-->
+				<UniformGrid Rows="1" Columns="2" VerticalAlignment="Bottom" DockPanel.Dock="Bottom">
+					<Button Content="Apply" Height="25" DockPanel.Dock="Bottom" Grid.Column="0" Grid.Row="0" Click="Accept_Click"/>
+					<Button Content="Cancel" Height="25" DockPanel.Dock="Bottom" Grid.Column="1" Grid.Row="0"/>
+				</UniformGrid>
 
-			<ScrollViewer x:Name="scrollViewer" DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" Margin="2">
-				<StackPanel>
-					<GroupBox Margin="1,1,1,5">
-						<GroupBox.Header>
-							<Label FontSize="9" Padding="0">Preview</Label>
-						</GroupBox.Header>
-						<StackPanel Orientation="Vertical">
-							<!-- число шагов предпросмотра -->
-							<DockPanel>
-								<Label Content="Enabled: " Width="100"/>
-								<CheckBox x:Name="PreviewEnabler" IsChecked="True" VerticalAlignment="Center" Click="CheckBox_Click" />
-							</DockPanel>
-
-							<StackPanel x:Name="PreviewOpts">
-								<!-- режим предпросмотра -->
-								<DockPanel>
-									<Label Content="Mode:" Width="100"/>
-									<ComboBox Name="CB_previewMode" SelectedValuePath="Content" SelectionChanged="CB_previewMode_SelectionChanged" Width="100" HorizontalAlignment="Left">
-										<ComboBoxItem Content="WPF" IsSelected="True" />
-										<ComboBoxItem Content="FFME"/>
-									</ComboBox>
-								</DockPanel>
-
-								<!-- путь до библиотек FFMpeg -->
-								<Grid x:Name="ffmePathOpt">
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="100"/>
-										<ColumnDefinition Width="*"/>
-										<ColumnDefinition Width="25"/>
-									</Grid.ColumnDefinitions>
-									<Grid.RowDefinitions>
-											<RowDefinition/>
-											<RowDefinition/>
-									</Grid.RowDefinitions>
-									<Label Content="FFMpeg path: "  Grid.Column="0" Grid.Row="0"/>
-									<TextBox x:Name="ffmpegPath" Grid.Column="1" Height="Auto" Grid.Row="0"/>
-									<Button x:Name="btnSelectFFMpegPath" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" 
-											Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnSelectFFMpegPath_Click" Grid.Row="0">
-										<Image Height="20" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
-									</Button>
-									<TextBlock Grid.Row="1" Margin="0,-2,0,5" FontSize="9" Grid.Column="1" Foreground="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}" >
-										Libs can be downloaded from <Hyperlink NavigateUri="https://ffmpeg.zeranoe.com/builds/" RequestNavigate="LinkOnRequestNavigate">this site</Hyperlink> (shared version). Unpack and select /bin folder.
-									</TextBlock>
-								</Grid>
-
+				<ScrollViewer x:Name="scrollViewer" DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" Margin="2">
+					<StackPanel>
+						<GroupBox Margin="1,1,1,5">
+							<GroupBox.Header>
+								<Label FontSize="9" Padding="0">Preview</Label>
+							</GroupBox.Header>
+							<StackPanel Orientation="Vertical">
 								<!-- число шагов предпросмотра -->
 								<DockPanel>
-									<Label Content="Steps: " Width="100"/>
-									<xctk:IntegerUpDown x:Name="PreviewSteps"
-										Increment="1" Value="8" Minimum="2" Width="100" HorizontalAlignment="Left"
-										Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
-										Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
-										BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+									<Label Content="Enabled: " Width="100"/>
+									<CheckBox x:Name="PreviewEnabler" IsChecked="True" VerticalAlignment="Center" Click="CheckBox_Click" />
 								</DockPanel>
 
-								<!-- время предпросмотра каждого шага -->
-								<DockPanel>
-									<Label Content="Time (sec): " Width="100"/>
-									<xctk:IntegerUpDown x:Name="PreviewTime"
-										Increment="1" Value="2" Minimum="1" Width="100" HorizontalAlignment="Left"
-										Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
-										Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
-										BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
-								</DockPanel>
+								<StackPanel x:Name="PreviewOpts">
+									<!-- режим предпросмотра -->
+									<DockPanel>
+										<Label Content="Mode:" Width="100"/>
+										<ComboBox Name="CB_previewMode" SelectedValuePath="Content" SelectionChanged="CB_previewMode_SelectionChanged" Width="100" HorizontalAlignment="Left">
+											<ComboBoxItem Content="WPF" IsSelected="True" />
+											<ComboBoxItem Content="FFME"/>
+										</ComboBox>
+									</DockPanel>
+
+									<!-- путь до библиотек FFMpeg -->
+									<Grid x:Name="ffmePathOpt">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="100"/>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="25"/>
+										</Grid.ColumnDefinitions>
+										<Grid.RowDefinitions>
+											<RowDefinition/>
+											<RowDefinition/>
+										</Grid.RowDefinitions>
+										<Label Content="FFMpeg path: "  Grid.Column="0" Grid.Row="0"/>
+										<TextBox x:Name="ffmpegPath" Grid.Column="1" Height="Auto" Grid.Row="0"/>
+										<Button x:Name="btnSelectFFMpegPath" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" 
+												Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnSelectFFMpegPath_Click" Grid.Row="0">
+											<Image Height="20" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+										</Button>
+										<TextBlock Grid.Row="1" Margin="0,-2,0,5" FontSize="9" Grid.Column="1" Foreground="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}" >
+											Libs can be downloaded from <Hyperlink NavigateUri="https://ffmpeg.zeranoe.com/builds/" RequestNavigate="LinkOnRequestNavigate">this site</Hyperlink> (shared version). Unpack and select /bin folder.
+										</TextBlock>
+									</Grid>
+
+									<!-- число шагов предпросмотра -->
+									<DockPanel>
+										<Label Content="Steps: " Width="100"/>
+										<xctk:IntegerUpDown x:Name="PreviewSteps"
+											Increment="1" Value="8" Minimum="2" Width="100" HorizontalAlignment="Left"
+											Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+											Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+											BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+									</DockPanel>
+
+									<!-- время предпросмотра каждого шага -->
+									<DockPanel>
+										<Label Content="Time (sec): " Width="100"/>
+										<xctk:IntegerUpDown x:Name="PreviewTime"
+											Increment="1" Value="2" Minimum="1" Width="100" HorizontalAlignment="Left"
+											Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+											Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+											BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+									</DockPanel>
+
+								</StackPanel>
 
 							</StackPanel>
+						</GroupBox>
 
-						</StackPanel>
-					</GroupBox>
-
-					<!-- контекстное меню ОС -->
-					<GroupBox Margin="1,1,1,5">
-						<GroupBox.Header>
-							<Label FontSize="9" Padding="0">Context menu</Label>
-						</GroupBox.Header>
-						<StackPanel Orientation="Horizontal">
-							<Button Content="Add" ToolTip="Add command to context menu of explorer." Width="100" Click="AddContextActionToReg"/>
+						<!-- контекстное меню ОС -->
+						<GroupBox Margin="1,1,1,5">
+							<GroupBox.Header>
+								<Label FontSize="9" Padding="0">Context menu</Label>
+							</GroupBox.Header>
+							<StackPanel Orientation="Horizontal">
+								<Button Content="Add" ToolTip="Add command to context menu of explorer." Width="100" Click="AddContextActionToReg"/>
 								<Button Content="Remove" ToolTip="Remove command from context menu of explorer." Width="100" Click="RemoveContextActionFromReg"/>
-						</StackPanel>
-					</GroupBox>
-
-					<GroupBox Margin="1,1,1,5">
-						<GroupBox.Header>
-							<Label FontSize="9" Padding="0">Cover</Label>
-						</GroupBox.Header>
-						<StackPanel Orientation="Vertical">
-							<!-- максимальная ширина получаемого изображения ковра при загрузке -->
-							<DockPanel>
-								<Label Content="Max Size (px): " Width="100"/>
-								<xctk:IntegerUpDown x:Name="CoverMaxSize"
-									Increment="100" Value="0" Minimum="1" Width="100" HorizontalAlignment="Left"
-									Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
-									Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
-									BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
-							</DockPanel>
-							<!-- соотношение сторон рамки предпросмотра -->
-							<DockPanel>
-								<Label Content="Aspect: " Width="100"/>
-								<xctk:DecimalUpDown x:Name="AspectRatio" 
-									Increment=".1" Value="1.77" Minimum="0" Maximum="5" Width="100" HorizontalAlignment="Left"
-									Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
-									Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
-									BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
-							</DockPanel>
 							</StackPanel>
-					</GroupBox>
+						</GroupBox>
 
-					<!-- поисковые запросы -->
-					<GroupBox Margin="1,1,1,5">
-						<GroupBox.Header>
-							<Label FontSize="9" Padding="0">Search</Label>
-						</GroupBox.Header>
-						<!-- паттерны поисковых запросов -->
-						<Grid>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="100"/>
-								<ColumnDefinition Width="*"/>
-							</Grid.ColumnDefinitions>
-							<Label Content="Search patterns: " Grid.Column="0"/>
-							<TextBox x:Name="searchStrTB" Grid.Column="1" TextWrapping="WrapWithOverflow" AcceptsReturn="True" AcceptsTab="True" HorizontalAlignment="Stretch"/>
-						</Grid>
-					</GroupBox>
+						<GroupBox Margin="1,1,1,5">
+							<GroupBox.Header>
+								<Label FontSize="9" Padding="0">Cover</Label>
+							</GroupBox.Header>
+							<StackPanel Orientation="Vertical">
+								<!-- максимальная ширина получаемого изображения ковра при загрузке -->
+								<DockPanel>
+									<Label Content="Max Size (px): " Width="100"/>
+									<xctk:IntegerUpDown x:Name="CoverMaxSize"
+										Increment="100" Value="0" Minimum="1" Width="100" HorizontalAlignment="Left"
+										Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+										Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+										BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+								</DockPanel>
+								<!-- соотношение сторон рамки предпросмотра -->
+								<DockPanel>
+									<Label Content="Aspect: " Width="100"/>
+									<xctk:DecimalUpDown x:Name="AspectRatio" 
+										Increment=".1" Value="1.77" Minimum="0" Maximum="5" Width="100" HorizontalAlignment="Left"
+										Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+										Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+										BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+								</DockPanel>
+							</StackPanel>
+						</GroupBox>
 
+						<!-- поисковые запросы -->
+						<GroupBox Margin="1,1,1,5">
+							<GroupBox.Header>
+								<Label FontSize="9" Padding="0">Search</Label>
+							</GroupBox.Header>
+							<!-- паттерны поисковых запросов -->
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="100"/>
+									<ColumnDefinition Width="*"/>
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition/>
+									<RowDefinition/>
+								</Grid.RowDefinitions>
+								<Label Content="Search patterns: " Grid.Row="0" Grid.Column="0"/>
+								<TextBox x:Name="searchStrTB" Grid.Row="0" Grid.Column="1" TextWrapping="WrapWithOverflow" AcceptsReturn="True" AcceptsTab="True" HorizontalAlignment="Stretch"/>
+								<TextBlock Grid.Row="1" Margin="0,-2,0,5" FontSize="9" Grid.Column="1" Foreground="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}" >
+										Format: "Name;Pattern", each on new line, where %s - text for searching.
+								</TextBlock>
+							</Grid>
+						</GroupBox>
+
+						<!-- список атрибутов -->
+						<GroupBox Margin="1,1,1,5">
+							<GroupBox.Header>
+								<Label FontSize="9" Padding="0">List view</Label>
+							</GroupBox.Header>
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="100"/>
+									<ColumnDefinition Width="*"/>
+								</Grid.ColumnDefinitions>
+								<Label Content="Atributes: " Grid.Column="0" ToolTip="Atributes to show"/>
+								<TextBox x:Name="atrListStrTB" Grid.Column="1" TextWrapping="WrapWithOverflow" AcceptsReturn="True" AcceptsTab="True" HorizontalAlignment="Stretch"/>
+							</Grid>
+						</GroupBox>
 					</StackPanel>
-			</ScrollViewer>
-
-
-		</DockPanel>
+				</ScrollViewer>
+			</DockPanel>
 		</Border>
 	</Grid>
 </UserControl>

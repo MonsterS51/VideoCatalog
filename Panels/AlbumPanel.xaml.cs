@@ -42,9 +42,10 @@ namespace VideoCatalog.Panels {
 				toolbarMainPanel.openBtn.Click += App.MainWin.OpenFolder;
 				toolbarMainPanel.loadBtn.Click += App.MainWin.LoadCatalog;
 				toolbarMainPanel.saveBtn.Click += App.MainWin.SaveCatalog;
-				toolbarMainPanel.closeBtn.Click += App.MainWin.CloseCatalog;
+				toolbarMainPanel.closeBtn.Click += (_, __) => { App.MainWin.CloseCatalog(); };
 				toolbarMainPanel.updBtn.Click += App.MainWin.UpdateCatalog;
 				toolbarMainPanel.chkBtn.Click += App.MainWin.CatEng.CatRoot.ChkAlbAndEntState;
+				toolbarMainPanel.cleanBtn.Click += App.MainWin.CleanCatalog;
 				toolbarMainPanel.utilBtn.Click += ShowUtilPopUp;
 				toolbarMainPanel.settingBtn.Click += App.MainWin.OpenSettingTab;
 			} else {
@@ -67,7 +68,7 @@ namespace VideoCatalog.Panels {
 			var cm = new ContextMenu();
 
 			var mRepReg = new MenuItem();
-			mRepReg.Header = @"Replace in Names";
+			mRepReg.Header = @"Replace (Regex) in Names";
 			cm.Items.Add(mRepReg);
 
 			var mRepRegAll = new MenuItem();
@@ -368,6 +369,7 @@ namespace VideoCatalog.Panels {
 			toolbarMainPanel.closeBtn.IsEnabled = false;
 			toolbarMainPanel.updBtn.IsEnabled = false;
 			toolbarMainPanel.chkBtn.IsEnabled = false;
+			toolbarMainPanel.cleanBtn.IsEnabled = false;
 			toolbarMainPanel.utilBtn.IsEnabled = false;
 			toolbarMainPanel.settingBtn.IsEnabled = true;
 
@@ -389,6 +391,7 @@ namespace VideoCatalog.Panels {
 			toolbarMainPanel.closeBtn.IsEnabled = true;
 			toolbarMainPanel.updBtn.IsEnabled = false;
 			toolbarMainPanel.chkBtn.IsEnabled = false;
+			toolbarMainPanel.cleanBtn.IsEnabled = false;
 			toolbarMainPanel.utilBtn.IsEnabled = false;
 			toolbarMainPanel.settingBtn.IsEnabled = false;
 
@@ -404,6 +407,7 @@ namespace VideoCatalog.Panels {
 			toolbarMainPanel.closeBtn.IsEnabled = true;
 			toolbarMainPanel.updBtn.IsEnabled = true;
 			toolbarMainPanel.chkBtn.IsEnabled = true;
+			toolbarMainPanel.cleanBtn.IsEnabled = true;
 			toolbarMainPanel.utilBtn.IsEnabled = true;
 			toolbarMainPanel.settingBtn.IsEnabled = true;
 
@@ -442,6 +446,8 @@ namespace VideoCatalog.Panels {
 				spIsShown = true;
 			}
 		}
+
+		//---
 
 		///<summary> Загрузка настроек панели и ее элементов. </summary>
 		private void LoadSettings() {

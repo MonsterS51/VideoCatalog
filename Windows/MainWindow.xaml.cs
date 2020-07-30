@@ -1,13 +1,16 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Xml.Linq;
 using VideoCatalog.Main;
 using VideoCatalog.Panels;
 using VideoCatalog.Tabs;
@@ -52,16 +55,15 @@ namespace VideoCatalog.Windows {
 
 		///<summary> Открытие папки через путь. Имеет проверку на наличие файла каталога и диалог его открытия. </summary>
 		public void OpenFolder(DirectoryInfo path) {
-			CloseCatalog(null, null);
+			if (!CloseCatalog()) return;	// отменили закрытие
 
-			var xmlList = path.EnumerateFiles().FirstOrDefault(f => f.Extension == catFileExt);
-
-			if (xmlList != null) {
-				var result = MessageBox.Show($"In folder found catalog file <{xmlList.Name}>. Open?" , "Open catalog", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+			var vidCat = SearchForVidCatFile(path);
+			if (vidCat != null) {
+				var result = MessageBox.Show($"In folder found catalog file <{vidCat.Name}>. Open?" , "Open catalog", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
 				switch (result) {
 					case MessageBoxResult.Yes:
 						CatEng = new CatalogEngine();
-						CatEng.LoadCatalogXML(xmlList.FullName);
+						CatEng.LoadCatalogXML(vidCat.FullName);
 						break;
 					case MessageBoxResult.No:
 						CatEng = new CatalogEngine();
@@ -78,10 +80,20 @@ namespace VideoCatalog.Windows {
 			SaveRecent(path.FullName);
 		}
 
+		///<summary> Ищем файл каталога в директории (предпочтительно с тем же названием). </summary>
+		private FileInfo SearchForVidCatFile(DirectoryInfo path) {
+			var xmlList = path.EnumerateFiles().Where(f => f.Extension == catFileExt);
+			if (xmlList.Count() == 0) return null;
+			if (xmlList.Any(fi => fi.Name == path.Name)) {
+				return xmlList.First(fi => fi.Name == path.Name);
+			} else return xmlList.First();
+		}
+
 		/// <summary> Сохранение каталога в файл. </summary>
 		public void SaveCatalog(object sender, EventArgs e) {
 			var sfd = new Microsoft.Win32.SaveFileDialog();
 			sfd.InitialDirectory = CatalogRoot.CatDir.FullName;
+			sfd.FileName = CatalogRoot.CatDir.Name + catFileExt;
 			sfd.Filter = $"vcat files (*{catFileExt})|*{catFileExt}|All files (*.*)|*.*";
 			sfd.FilterIndex = 1;
 			sfd.RestoreDirectory = true;
@@ -102,13 +114,15 @@ namespace VideoCatalog.Windows {
 			if (ofd.ShowDialog() == true) {
 				CatEng = new CatalogEngine();
 				CatEng.LoadCatalogXML(ofd.FileName);
+				SaveRecent(new FileInfo(ofd.FileName).Directory.FullName);
 			}
 
-			SaveRecent(new FileInfo(ofd.FileName).Directory.FullName);
 		}
 
-		/// <summary> Закрытие каталога и очистка ресурсов. </summary>
-		public void CloseCatalog(object sender, EventArgs e) {
+		/// <summary> Закрытие каталога (с проверкой изменений) и очистка ресурсов. </summary>
+		public bool CloseCatalog() {
+			if (!CheckDiff()) return false;	// отменили закрытие несохраненного каталога
+
 			CatEng?.CatRoot?.StopLoadAlbumesCoversThread();
 
 			var albList = CatEng?.CatRoot?.AlbumsList;
@@ -124,11 +138,64 @@ namespace VideoCatalog.Windows {
 			}
 
 			GC_Forcer();
+			return true;
 		}
 
 		///<summary> Запуск обновления открытого каталога. </summary>
 		public void UpdateCatalog(object sender, EventArgs e) {
 			CatEng?.CatRoot?.LoadRootFolder(CatEng.CatRoot.CatPath);
+			GC_Forcer();
+		}
+
+		///<summary> Очистка альбома от мертвых элементов. </summary>
+		public void CleanCatalog(object sender, EventArgs e) {
+			List<AbstractEntry> removeList = new List<AbstractEntry>();
+
+			// находим мертвые элементы
+			foreach (var alb in CatEng.CatRoot.AlbumsList) {
+				alb.ChkAlbState();
+				if (alb.isBroken) {
+					foreach (var ent in alb.EntryList) {
+						if (ent.isBroken) removeList.Add(ent);
+					}
+				}
+			}
+
+			// спрашиваем и удаляем
+			if (removeList.Count > 0) {
+				var str = $"Found {removeList.Count} elements:\n" + string.Join(";\n", removeList);
+				if (str.Length > 600) str = str.Substring(0, 600) + "...";
+				var result = MessageBox.Show(str,
+					"Remove broken elements", MessageBoxButton.YesNo, MessageBoxImage.Question);
+				if (result == MessageBoxResult.Yes) {
+					foreach (var removeItem in removeList) {
+						RemoveEntry(removeItem);
+					}
+				}
+			}
+
+			// находим пустые альбомы
+			removeList.Clear();
+			foreach (var alb in CatEng.CatRoot.AlbumsList) {
+				alb.ChkAlbState();
+				if (alb.EntryList.Count <= 0) removeList.Add(alb); // удаляем пустые альбомы
+			}
+
+			// спрашиваем и удаляем
+			if (removeList.Count > 0) {
+				var str = $"Found {removeList.Count} empty albums:\n" + string.Join(";\n", removeList);
+				if (str.Length > 600) str = str.Substring(0, 600) + "...";
+				var result = MessageBox.Show(str,
+					"Remove empty albums", MessageBoxButton.YesNo, MessageBoxImage.Question);
+				if (result == MessageBoxResult.Yes) {
+					foreach (var removeItem in removeList) {
+						RemoveEntry(removeItem);
+					}
+				}
+			}
+
+			ClearSidePanel();
+			MainPanel.UpdatePanelContent();
 			GC_Forcer();
 		}
 
@@ -245,7 +312,7 @@ namespace VideoCatalog.Windows {
 
 			// закрываем каталог при закрытии главной панели
 			if (tabName == "Main") {
-				CloseCatalog(null,null);
+				CloseCatalog();
 				return;
 			}
 
@@ -299,31 +366,17 @@ namespace VideoCatalog.Windows {
 		///<summary> Удаление и разрегистрация существующей вкладки. </summary>
 		private void RemoveTab(TabItem targetTab) {
 			if (targetTab == null) return;
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
 
 			//HACK принудительно переходим к предыдущему табу, иначе удаление начинает жрать время при переходе к тяжелым вкладкам
-			Console.WriteLine("SelectedIndex " + tabsPanel.SelectedIndex);
 			if (targetTab.IsSelected & tabsPanel.SelectedIndex > 0) tabsPanel.SelectedIndex = tabsPanel.SelectedIndex - 1;
 
 			// убираем с панели вкладок
 			tabsPanel.Items.Remove(targetTab);
 
-			Console.WriteLine("tabsPanel " + sw.ElapsedMilliseconds);
-
-
 			// убираем из карты вкладок
 			if (tabMap.ContainsValue(targetTab)) tabMap.Remove(tabMap.First(ent => ent.Value == targetTab).Key);
-
-			Console.WriteLine("tabMap " + sw.ElapsedMilliseconds);
-
-
 			if (tabMap.Count == 0) UpdateStartToolbarState();
-
 			//GC_Forcer();
-
-			Console.WriteLine("Done " + sw.ElapsedMilliseconds);
-			sw.Stop();
 		}
 
 		///<summary> При манипуляциях с вкладками решаем, показывать ли дефолтное меню. </summary>
@@ -385,10 +438,19 @@ namespace VideoCatalog.Windows {
 		///<summary> Открытие боковой панели для заданного элемента каталога. </summary>
 		public void OpenSidePanel(AbstractEntry openerEntry) {
 			var albPanel = GetCurrentAlbumePanel();
+
+			// скипаем переоткрытие, иначе вылет если был фокус на датагриде
+			if (albPanel.sidePanelSlot.Children.Count > 0) {
+				var curASP = albPanel.sidePanelSlot.Children[0] as AlbumSidePanel;
+				if (curASP.DataContext == openerEntry) return;
+			}
+
 			AlbumSidePanel asp = new AlbumSidePanel();
 			asp.DataContext = openerEntry;
 			asp.UpdateExceptLbl();
 			albPanel.SetSidePanel(asp);
+
+			asp.tabsPanel.SelectedIndex = Properties.Settings.Default.SidePanelTab;
 		}
 
 		///<summary> Очистка боковой панели. </summary>
@@ -409,12 +471,16 @@ namespace VideoCatalog.Windows {
 
 		///<summary> Удаление элемента каталога или альбома. </summary>
 		public void RemoveEntry(AbstractEntry ent) {
+			Console.WriteLine($"Remove Entry {ent.Name}");
 			if (ent is CatalogAlbum) {
 				CatEng.CatRoot.AlbumsList.Remove(ent as CatalogAlbum);
 			} else {
 				(ent as CatalogEntry).catAlb.EntryList.Remove(ent as CatalogEntry);
 			}
+		}
 
+		///<summary> Обновление плиток текущей панели. </summary>
+		public void UpdateCurrentPanel() {
 			var albPanel = GetCurrentAlbumePanel();
 			albPanel.UpdatePanelContent();
 		}
@@ -452,6 +518,61 @@ namespace VideoCatalog.Windows {
 			}
 
 			// maybe more
+		}
+
+		///<summary> Действия по закрытию окна. </summary>
+		private void OnClosing(object sender, CancelEventArgs e) {
+			if (!CheckDiff()) e.Cancel = true;
+		}
+
+		///<summary> Сравнение текущего состояния каталога с каталогом в файле. Выводит диалог при наличии разницы. Возвращает false при отмене действий.</summary>
+		private bool CheckDiff() {
+			if (CatEng == null) return true;
+
+			int diffCount = 0;
+
+			// сравниваем текщее состояние с файлом каталога
+			var vidCat = SearchForVidCatFile(CatalogRoot.CatDir);
+			if (vidCat != null) {
+				var curRootXml = Normalize(CatalogEngine.Serialize_YAX(CatEng.CatRoot)).ToString();
+				var oldRootXML = Normalize(XDocument.Load(vidCat.FullName).Root).ToString();
+				bool isDiff = curRootXml != oldRootXML;
+				if (!isDiff) return true;   // нет отличий
+				diffCount = curRootXml.Length - oldRootXML.Length;
+			}
+
+			// спрашиваем про сохранение
+			MessageBoxResult result = MessageBox.Show($"Catalog was changed!\nSave to <{vidCat.Name}>?", $"Diff = {diffCount}", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+			if (result == MessageBoxResult.Yes) {
+				CatEng.SaveCatalogXML(vidCat.FullName);
+				return true;
+			}
+
+			// отменяем действия
+			if (result == MessageBoxResult.Cancel) {
+				return false;
+			}
+
+			return true;	// выбрали нет, успешно закрываемся
+		}
+
+		///<summary> Нормализация XElement. </summary>
+		private static XElement Normalize(XElement element) {
+			if (element.HasElements) {
+				return new XElement(
+					element.Name,
+					element.Attributes().Where(a => a.Name.Namespace == XNamespace.Xmlns)
+					.OrderBy(a => a.Name.ToString()),
+					element.Elements().OrderBy(a => a.Name.ToString())
+					.Select(e => Normalize(e)));
+			}
+
+			if (element.IsEmpty) {
+				return new XElement(element.Name, element.Attributes()
+					.OrderBy(a => a.Name.ToString()));
+			}
+			return new XElement(element.Name, element.Attributes()
+				.OrderBy(a => a.Name.ToString()), element.Value);
 		}
 
 

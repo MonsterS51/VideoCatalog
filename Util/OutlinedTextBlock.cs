@@ -201,7 +201,7 @@ namespace VideoCatalog.Util
         EnsureFormattedText();
 
         // update the formatted text with the final size
-        _FormattedText.MaxTextWidth = finalSize.Width;
+        _FormattedText.MaxTextWidth = finalSize.Width + 1;  // добавил +1, т.к. некоторые слова обрезаются
         _FormattedText.MaxTextHeight = Math.Max(0.0001d, finalSize.Height);
 
         // need to re-generate the geometry now that the dimensions have changed

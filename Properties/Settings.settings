@@ -62,5 +62,11 @@
     <Setting Name="WinState" Type="System.String" Scope="User">
       <Value Profile="(Default)">Normal</Value>
     </Setting>
+    <Setting Name="SidePanelTab" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="AtrToShowList" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Year</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

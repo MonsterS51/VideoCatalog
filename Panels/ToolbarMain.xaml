@@ -29,6 +29,9 @@
 		<Button x:Name="chkBtn" ToolTip="Check for errors" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/caution.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>
+		<Button x:Name="cleanBtn" ToolTip="Clean catalog from broken elements" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/remove-total.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+		</Button>
 		<Button x:Name="utilBtn" ToolTip="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 			<Image Height="30" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/utils.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 		</Button>

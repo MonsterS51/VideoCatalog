@@ -134,6 +134,7 @@ namespace VideoCatalog.Panels {
 			var result = MessageBox.Show($"Remove <{entry.Name}> from catalog?", "Remove", MessageBoxButton.YesNo, MessageBoxImage.Question);
 			if (result == MessageBoxResult.Yes) {
 				App.MainWin.RemoveEntry(entry);
+				App.MainWin.UpdateCurrentPanel();
 				App.MainWin.ClearSidePanel();
 			}
 		}
@@ -163,6 +164,10 @@ namespace VideoCatalog.Panels {
 			var entry = DataContext as AbstractEntry;
 			if (entry.IsExcepted) exceptedLbl.Visibility = Visibility.Visible;
 			else exceptedLbl.Visibility = Visibility.Collapsed;
+		}
+
+		private void tabsPanel_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+			Properties.Settings.Default.SidePanelTab = tabsPanel.SelectedIndex;
 		}
 	}
 }

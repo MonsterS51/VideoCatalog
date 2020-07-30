@@ -29,9 +29,6 @@ namespace VideoCatalog.Panels {
 		public Action onClick;
 		public Action onWheelClick;
 
-		public int duration = 100;
-		public string path;
-
 		private PreviewFrameWPF pfWPF = null;
 		private PreviewFrameFFME pfFFME = null;
 
@@ -39,10 +36,14 @@ namespace VideoCatalog.Panels {
 		protected override void OnMouseEnter(MouseEventArgs e) {
 			base.OnMouseEnter(e);
 
+
 			border.BorderBrush = SystemColors.MenuHighlightBrush;
 
 			// если предпросмотр отключен
 			if (!Properties.Settings.Default.PreviewEnabled) return;
+
+			var entry = DataContext as AbstractEntry;
+			if (entry == null | entry.BaseEntry == null || !entry.BaseEntry.EntAbsFile.Exists) return;
 
 			Task.Delay(500).ContinueWith((task) => {
 				Dispatcher.BeginInvoke((Action)(() => {
@@ -55,7 +56,7 @@ namespace VideoCatalog.Panels {
 									previewGrid.Children.Clear();
 									previewGrid.Children.Add(pfWPF);
 								}
-								pfWPF?.StartPreview(path, duration);
+								pfWPF?.StartPreview(entry.BaseEntry.EntAbsFile.FullName, entry.BaseEntry.duration);
 								break;
 							}
 							case "FFME": {
@@ -65,7 +66,7 @@ namespace VideoCatalog.Panels {
 									previewGrid.Children.Clear();
 									previewGrid.Children.Add(pfFFME);
 								}
-								pfFFME?.StartPreview(path, duration);
+								pfFFME?.StartPreview(entry.BaseEntry.EntAbsFile.FullName, entry.BaseEntry.duration);
 								break;
 							}
 							default: {

@@ -51,6 +51,7 @@
 						<local1:ToolbarMain x:Name="toolbarMainPanel" Padding="1" VerticalAlignment="Center"/>
 						<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
 						<local1:FilterPanel x:Name="filterPanel" OnFilterChanged="FilterChanged" Padding="2" VerticalAlignment="Center"/>
+						<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
 					</StackPanel>
 				</Border>
 
