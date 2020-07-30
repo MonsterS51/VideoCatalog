@@ -15,7 +15,7 @@
 		</ContextMenu>
 	</UserControl.Resources>
 	<Border x:Name="border" BorderBrush="Black" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="2" CornerRadius="2"
-		Margin="0.5,0.5,0.5,0.5" UseLayoutRounding="True" SnapsToDevicePixels="True" Height="{Binding Path=ListHeight}">
+		Margin="1" UseLayoutRounding="True" SnapsToDevicePixels="True" Height="{Binding Path=ListHeight}">
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto" />
@@ -24,21 +24,23 @@
 
 			<main:AspectRatioLayoutDecorator AspectRatio="1.77"  x:Name="LeftPreviewDecorator"
 				Margin="0" UseLayoutRounding="True" SnapsToDevicePixels="True">
-				
-				<Grid Margin="0">
-					<!-- Иконка -->
-					<Image x:Name="BG" Source="/Assets/video_bg.png" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
-					Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+				<Border BorderBrush="Black" BorderThickness="0,0,1,0">
+					<Grid Margin="0">
+						<!-- Иконка -->
+						<Image x:Name="BG" Source="/Assets/video_bg.png" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
+							Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
 
-					<!-- Место для контрола предпросмотра -->
-					<Grid x:Name="previewGrid" Background="Black" Visibility="Hidden"/>
+						<!-- Место для контрола предпросмотра -->
+						<Grid x:Name="previewGrid" Background="Black" Visibility="Hidden"/>
 
-					<!-- Обложка -->
-					<Image x:Name="CoverArt" Source="{Binding Path=CoverImage}" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
-					Margin="0" Stretch="UniformToFill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch" MinWidth="10" MinHeight="10">
+						<!-- Обложка -->
+						<Image x:Name="CoverArt" Source="{Binding Path=CoverImage}" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
+							Margin="0" Stretch="UniformToFill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch" MinWidth="10" MinHeight="10">
 
-					</Image>
-				</Grid>
+						</Image>
+					</Grid>
+				</Border>
+
 			</main:AspectRatioLayoutDecorator>
 
 			<Grid Margin="5,0,0,0" Grid.Column="1">
