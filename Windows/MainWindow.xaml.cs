@@ -2,10 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,7 +12,6 @@ using System.Xml.Linq;
 using VideoCatalog.Main;
 using VideoCatalog.Panels;
 using VideoCatalog.Tabs;
-using VideoCatalog.Windows;
 
 namespace VideoCatalog.Windows {
 	/// <summary>
@@ -33,7 +30,7 @@ namespace VideoCatalog.Windows {
 				Properties.Settings.Default.RecentFolders = "";
 				UpdateStartToolbarState();
 			};
-			
+
 		}
 
 
@@ -55,11 +52,11 @@ namespace VideoCatalog.Windows {
 
 		///<summary> Открытие папки через путь. Имеет проверку на наличие файла каталога и диалог его открытия. </summary>
 		public void OpenFolder(DirectoryInfo path) {
-			if (!CloseCatalog()) return;	// отменили закрытие
+			if (!CloseCatalog()) return;    // отменили закрытие
 
 			var vidCat = SearchForVidCatFile(path);
 			if (vidCat != null) {
-				var result = MessageBox.Show($"In folder found catalog file <{vidCat.Name}>. Open?" , "Open catalog", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+				var result = MessageBox.Show($"In folder found catalog file <{vidCat.Name}>. Open?", "Open catalog", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
 				switch (result) {
 					case MessageBoxResult.Yes:
 						CatEng = new CatalogEngine();
@@ -84,13 +81,22 @@ namespace VideoCatalog.Windows {
 		private FileInfo SearchForVidCatFile(DirectoryInfo path) {
 			var xmlList = path.EnumerateFiles().Where(f => f.Extension == catFileExt);
 			if (xmlList.Count() == 0) return null;
-			if (xmlList.Any(fi => fi.Name == path.Name)) {
-				return xmlList.First(fi => fi.Name == path.Name);
-			} else return xmlList.First();
+
+			var exactFile = xmlList.FirstOrDefault(file => file.Name.Replace(file.Extension, "") == path.Name);
+			if (exactFile != null) return exactFile;
+			else return xmlList.First();
 		}
 
 		/// <summary> Сохранение каталога в файл. </summary>
 		public void SaveCatalog(object sender, EventArgs e) {
+			// предупреждаем о перезаписи не открытого файла каталога
+			var vidCat = SearchForVidCatFile(CatalogRoot.CatDir);
+			if (!CatalogRoot.useCatFile & vidCat != null) {
+				var result = MessageBox.Show($"In folder found catalog file <{vidCat.Name}>, but it was NOT opened!\nDo you really want to OVERWRITE them?",
+					"Catalog found", MessageBoxButton.OKCancel, MessageBoxImage.Hand);
+				if (result == MessageBoxResult.Cancel) return;
+			}
+
 			var sfd = new Microsoft.Win32.SaveFileDialog();
 			sfd.InitialDirectory = CatalogRoot.CatDir.FullName;
 			sfd.FileName = CatalogRoot.CatDir.Name + catFileExt;
@@ -100,6 +106,7 @@ namespace VideoCatalog.Windows {
 
 			if (sfd.ShowDialog() == true) {
 				CatEng.SaveCatalogXML(sfd.FileName);
+				CatalogRoot.useCatFile = true;
 			}
 		}
 
@@ -121,7 +128,7 @@ namespace VideoCatalog.Windows {
 
 		/// <summary> Закрытие каталога (с проверкой изменений) и очистка ресурсов. </summary>
 		public bool CloseCatalog() {
-			if (!CheckDiff()) return false;	// отменили закрытие несохраненного каталога
+			if (!CheckDiff()) return false; // отменили закрытие несохраненного каталога
 
 			CatEng?.CatRoot?.StopLoadAlbumesCoversThread();
 
@@ -199,6 +206,8 @@ namespace VideoCatalog.Windows {
 			GC_Forcer();
 		}
 
+
+
 		///<summary> Магическая чистка, которая позволяет GC почти сразу затирать BitmapImage из неуправляемой памяти. </summary>
 		private void ForceLinkDestroy() {
 			var albList = CatEng?.CatRoot?.AlbumsList;
@@ -260,7 +269,7 @@ namespace VideoCatalog.Windows {
 			if (tabMap.ContainsKey(tabName)) {
 				if (focus) Dispatcher.BeginInvoke((Action)(() => tabMap[tabName].IsSelected = true));
 				return;
-			} 
+			}
 
 			// формируем альбомную панель
 			AlbumPanel albPanel = new AlbumPanel(album.EntryList);
@@ -271,15 +280,15 @@ namespace VideoCatalog.Windows {
 			AddTab(targetTab, tabName, focus);
 
 			// запускаем фоновый генератор обложек для эпизодов в альбоме
-			album.LoadEntCoversThreaded();		
+			album.LoadEntCoversThreaded();
 		}
 
 		///<summary> Открытие основной вкладки каталога. </summary>
 		public void OpenMainTab() {
 			string tabName = "Main";
-			if (tabMap.ContainsKey(tabName)) { 
-				Dispatcher.BeginInvoke((Action)(() => tabMap[tabName].IsSelected = true)); 
-				return; 
+			if (tabMap.ContainsKey(tabName)) {
+				Dispatcher.BeginInvoke((Action)(() => tabMap[tabName].IsSelected = true));
+				return;
 			}
 
 			MainPanel = new AlbumPanel(CatEng.CatRoot.AlbumsList, true);
@@ -386,7 +395,7 @@ namespace VideoCatalog.Windows {
 
 			// набираем недавние папки
 			recentSlot.Children.Clear();
-			foreach (var path in Properties.Settings.Default.RecentFolders.Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries)) {
+			foreach (var path in Properties.Settings.Default.RecentFolders.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)) {
 				DirectoryInfo dir = null;
 				try {
 					dir = new DirectoryInfo(path);
@@ -418,7 +427,7 @@ namespace VideoCatalog.Windows {
 		///<summary> Сохранение пути в недавно открытые. </summary>
 		private void SaveRecent(string folder) {
 			// если был, убираем, чтобы сместить к началу
-			if (Properties.Settings.Default.RecentFolders.Contains(folder + ";")) 
+			if (Properties.Settings.Default.RecentFolders.Contains(folder + ";"))
 				Properties.Settings.Default.RecentFolders = Properties.Settings.Default.RecentFolders.Replace(folder + ";", "");
 			// добавляем
 			Properties.Settings.Default.RecentFolders = folder + ";" + Properties.Settings.Default.RecentFolders;
@@ -479,6 +488,13 @@ namespace VideoCatalog.Windows {
 			}
 		}
 
+		///<summary> Удаление элемента каталога или альбома, затем обновление UI. </summary>
+		public void RemoveEntryAndUpdateUI(AbstractEntry ent) {
+			RemoveEntry(ent);
+			App.MainWin.UpdateCurrentPanel();
+			App.MainWin.ClearSidePanel();
+		}
+
 		///<summary> Обновление плиток текущей панели. </summary>
 		public void UpdateCurrentPanel() {
 			var albPanel = GetCurrentAlbumePanel();
@@ -528,18 +544,17 @@ namespace VideoCatalog.Windows {
 		///<summary> Сравнение текущего состояния каталога с каталогом в файле. Выводит диалог при наличии разницы. Возвращает false при отмене действий.</summary>
 		private bool CheckDiff() {
 			if (CatEng == null) return true;
-
-			int diffCount = 0;
+			if (!CatalogRoot.useCatFile) return true;
 
 			// сравниваем текщее состояние с файлом каталога
 			var vidCat = SearchForVidCatFile(CatalogRoot.CatDir);
-			if (vidCat != null) {
-				var curRootXml = Normalize(CatalogEngine.Serialize_YAX(CatEng.CatRoot)).ToString();
-				var oldRootXML = Normalize(XDocument.Load(vidCat.FullName).Root).ToString();
-				bool isDiff = curRootXml != oldRootXML;
-				if (!isDiff) return true;   // нет отличий
-				diffCount = curRootXml.Length - oldRootXML.Length;
-			}
+			if (vidCat == null) return true;
+
+			var curRootXml = Normalize(CatalogEngine.Serialize_YAX(CatEng.CatRoot)).ToString();
+			var oldRootXML = Normalize(XDocument.Load(vidCat.FullName).Root).ToString();
+			bool isDiff = curRootXml != oldRootXML;
+			if (!isDiff) return true;   // нет отличий
+			var diffCount = curRootXml.Length - oldRootXML.Length;
 
 			// спрашиваем про сохранение
 			MessageBoxResult result = MessageBox.Show($"Catalog was changed!\nSave to <{vidCat.Name}>?", $"Diff = {diffCount}", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
@@ -549,11 +564,9 @@ namespace VideoCatalog.Windows {
 			}
 
 			// отменяем действия
-			if (result == MessageBoxResult.Cancel) {
-				return false;
-			}
+			if (result == MessageBoxResult.Cancel) return false;
 
-			return true;	// выбрали нет, успешно закрываемся
+			return true;    // выбрали нет, успешно закрываемся
 		}
 
 		///<summary> Нормализация XElement. </summary>

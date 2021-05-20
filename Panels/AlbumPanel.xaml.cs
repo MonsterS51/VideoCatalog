@@ -59,6 +59,10 @@ namespace VideoCatalog.Panels {
 			// цепляем тут, иначе портит настройки, т.к. срабатывает после LoadSettings
 			sliderGridCol.ValueChanged += Slider_ValueChanged;
 			sliderListHeight.ValueChanged += SliderList_ValueChanged;
+
+			loadingPanel.Visibility = Visibility.Hidden;
+
+			SetTotalCountText($"Total: {srcList.Count()}");
 		}
 
 		//---Y
@@ -87,8 +91,46 @@ namespace VideoCatalog.Panels {
 			mRepReg.Items.Add(mRepRegAlb);
 			mRepReg.Items.Add(mRepRegEnt);
 
+			//---
+
+			var mExtRem = new MenuItem();
+			mExtRem.Header = @"Remove extensions in Entrys Names";
+			cm.Items.Add(mExtRem);
+			mExtRem.Click += (s, ea) => { RemoveExtInNames(); };
+
+			//---
+
+			var mTrim = new MenuItem();
+			mTrim.Header = @"Trim Names";
+			cm.Items.Add(mTrim);
+			mTrim.Click += (s, ea) => { TrimNames(); };
+
+			//---
+
 			cm.PlacementTarget = sender as Button;
 			cm.IsOpen = true;
+		}
+
+		///<summary> Трим пробелов в названиях. </summary>
+		private void TrimNames() {
+			foreach (var alb in App.MainWin.CatEng.CatRoot.AlbumsList) {
+				alb.Name = alb.Name.Trim();
+				foreach (var ent in alb.EntryList) {
+					ent.Name = ent.Name.Trim();
+				}
+			}
+		}
+
+		///<summary> Удаление расширения видеофайла из названия элемента. </summary>
+		private void RemoveExtInNames() {
+			foreach (var alb in App.MainWin.CatEng.CatRoot.AlbumsList) {
+				foreach (var ent in alb.EntryList) {
+					var extStr = ent.EntAbsFile.Extension;
+					Console.WriteLine($"{extStr} in {ent.Name}");
+					if (!ent.Name.EndsWith(extStr)) continue;
+					ent.Name = ent.Name.Remove(ent.Name.Length - extStr.Length, extStr.Length);
+				}
+			}
 		}
 
 		///<summary> Замена подстрок в названиях элементов по Regex паттерну. </summary>
@@ -279,7 +321,7 @@ namespace VideoCatalog.Panels {
 			readyMap.Clear();
 
 			Application.Current.Dispatcher.BeginInvoke((Action)(() => { 
-				if (App.MainWin?.MainPanel != null) App.MainWin.MainPanel.lblCountTotal.Text = "Total: " + srcList.Count(); 
+				SetTotalCountText($"Total: {srcList.Count()}"); 
 			}));
 		}
 
@@ -376,8 +418,8 @@ namespace VideoCatalog.Panels {
 			filterPanel.IsEnabled = false;
 			scrollHelperLbl.Visibility = Visibility.Hidden;
 			filterPanel.filterBox.Text = "";
-			infoText.Text = "";
-			lblCountTotal.Text = "";
+			SetInfoText(string.Empty);
+			SetTotalCountText(string.Empty);
 			loadingPanel.Visibility = Visibility.Hidden;
 		}
 
@@ -413,9 +455,17 @@ namespace VideoCatalog.Panels {
 
 			filterPanel.IsEnabled = true;
 			scrollHelperLbl.Visibility = Visibility.Hidden;
+			loadingPanel.Visibility = Visibility.Hidden;
 		}
 
+		///<summary> Установить текст в нижней панели. </summary>
+		public void SetInfoText(string text) {
+			infoText.Text = text;
+		}
 
+		public void SetTotalCountText(string text) {
+			lblCountTotal.Text = text;
+		}
 
 		#endregion
 

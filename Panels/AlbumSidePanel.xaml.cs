@@ -133,23 +133,15 @@ namespace VideoCatalog.Panels {
 			var entry = DataContext as AbstractEntry;
 			var result = MessageBox.Show($"Remove <{entry.Name}> from catalog?", "Remove", MessageBoxButton.YesNo, MessageBoxImage.Question);
 			if (result == MessageBoxResult.Yes) {
-				App.MainWin.RemoveEntry(entry);
-				App.MainWin.UpdateCurrentPanel();
-				App.MainWin.ClearSidePanel();
+				App.MainWin.RemoveEntryAndUpdateUI(entry);
 			}
 		}
 
 		///<summary> Нажатие на кнопку исключения записи. </summary>
 		private void ExceptEntBtnClick(object sender, EventArgs e) {
 			var entry = DataContext as AbstractEntry;
-
-			if (entry.IsExcepted) {
-				entry.IsExcepted = false;
-			} else {
-				entry.IsExcepted = true;
-			}
+			entry.IsExcepted = !entry.IsExcepted;
 			UpdateExceptLbl();
-
 			App.MainWin.GetCurrentAlbumePanel().UpdatePanelContent();
 		}
 
@@ -157,6 +149,16 @@ namespace VideoCatalog.Panels {
 		private void FolderEntBtnClick(object sender, EventArgs e) {
 			var entry = DataContext as AbstractEntry;
 			entry.OpenInExplorer();
+		}
+
+		private void CopyEntDataBtnClick(object sender, EventArgs e) {
+			var entry = DataContext as AbstractEntry;
+			CatalogRoot.entForDataCopy = entry;
+		}
+
+		private void PasteEntDataBtnClick(object sender, EventArgs e) {
+			var entry = DataContext as AbstractEntry;
+			if (CatalogRoot.entForDataCopy != null) entry.PasteEntData(CatalogRoot.entForDataCopy);
 		}
 
 		///<summary> Обновление отображения метки исключенности элемента. </summary>

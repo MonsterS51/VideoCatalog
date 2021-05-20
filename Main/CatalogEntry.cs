@@ -1,13 +1,9 @@
 ﻿using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
-using NReco.VideoInfo;
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using VideoCatalog.Panels;
@@ -22,14 +18,15 @@ namespace VideoCatalog.Main {
 
 		//---
 		[YAXDontSerialize]
-		public FileInfo EntAbsFile { 
-			get { return new FileInfo(CatalogRoot.CatDir.FullName + catAlb.RelPath + RelPath); } 
-			set { RelPath = value.FullName.Substring(CatalogRoot.CatDir.FullName.Length).Substring(catAlb.RelPath.Length); } }
+		public FileInfo EntAbsFile {
+			get { return new FileInfo(CatalogRoot.CatDir.FullName + catAlb.RelPath + RelPath); }
+			set { RelPath = value.FullName.Substring(CatalogRoot.CatDir.FullName.Length).Substring(catAlb.RelPath.Length); }
+		}
 
 		//---
 		public CatalogAlbum catAlb = null;
 
-		private string[] imgExt = new string[]{".png", ".gif", ".jpg", ".jpeg", ".bmp", ".tiff" };
+		private string[] imgExt = new string[] { ".png", ".gif", ".jpg", ".jpeg", ".bmp", ".tiff" };
 
 		private string coverArtPath = null;
 
@@ -50,8 +47,8 @@ namespace VideoCatalog.Main {
 		}
 
 
-		public CatalogEntry() {}
-		
+		public CatalogEntry() { }
+
 		public CatalogEntry(FileInfo file, CatalogAlbum CatAlb) {
 			catAlb = CatAlb;
 			EntAbsFile = file;
@@ -63,7 +60,7 @@ namespace VideoCatalog.Main {
 		///<summary> Поиск файла обложки для эпизода. </summary>
 		private void SearchCoverArt() {
 			coverArtPath = null;
-			string imgPath = EntAbsFile.Directory + Path.GetFileNameWithoutExtension(EntAbsFile.FullName) + "" ;
+			string imgPath = EntAbsFile.Directory + Path.GetFileNameWithoutExtension(EntAbsFile.FullName) + "";
 
 
 			try {
@@ -130,7 +127,7 @@ namespace VideoCatalog.Main {
 			UpdateIconBrokenState();
 			UpdateVideoResIcons();
 
-			return vp; 
+			return vp;
 		}
 
 		/// <summary> Создание плэйта эпизода. </summary>
@@ -161,6 +158,7 @@ namespace VideoCatalog.Main {
 
 
 		//---
+		///<summary> Получение метаданных из видеофайла. </summary>
 		public void GetMetaData() {
 			if (!EntAbsFile.Exists) return;
 
@@ -229,7 +227,7 @@ namespace VideoCatalog.Main {
 		}
 
 		///<summary> Оценка качества видео. </summary>
-		public void ChkVideoResolution() {
+		private void ChkVideoResolution() {
 			int.TryParse(height, out int h);
 			if (h < 700) { vidRes = VideoResolution.LQ; return; }
 			if (h < 1000) { vidRes = VideoResolution.HD; return; }

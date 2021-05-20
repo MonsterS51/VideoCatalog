@@ -7,13 +7,7 @@
 			 xmlns:main="clr-namespace:VideoCatalog.Main"
 			 mc:Ignorable="d" 
              d:DesignHeight="360" d:DesignWidth="635">
-	<UserControl.Resources>
-		<ContextMenu x:Key="cmButton">
-			<MenuItem Header="Open in Explorer" Click="MenuItem_OpenInExplorer"/>
-			<Separator />
-			<MenuItem Header="Update Cover" Click="MenuItem_UpdateCoverArt"/>
-		</ContextMenu>
-	</UserControl.Resources>
+	<UserControl.Resources/>
 	<Border x:Name="border" BorderBrush="Black" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="2" CornerRadius="2" 
 		Margin="1" UseLayoutRounding="True" SnapsToDevicePixels="True">
 		<main:AspectRatioLayoutDecorator x:Name="PreviewDecorator" AspectRatio="1.77" Margin="0" UseLayoutRounding="True" SnapsToDevicePixels="True">

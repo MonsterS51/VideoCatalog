@@ -2,19 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
-using YAXLib;
-using VideoCatalog.Windows;
 using System.Threading;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
-using System.Windows.Documents;
 using VideoCatalog.Panels;
 using VideoCatalog.Util;
-using System.Windows.Data;
-using System.Windows;
+using VideoCatalog.Windows;
+using YAXLib;
 
 namespace VideoCatalog.Main {
 	/// <summary>
@@ -25,27 +20,23 @@ namespace VideoCatalog.Main {
 		//---
 
 		[YAXDontSerialize]
-		public DirectoryInfo AlbAbsDir { 
-			get {
-				return new DirectoryInfo(CatalogRoot.CatDir.FullName + RelPath);
-			} 
-			set {
-				RelPath = value.FullName.Substring(CatalogRoot.CatDir.FullName.Length);
-			} }
-
+		public DirectoryInfo AlbAbsDir {
+			get { return new DirectoryInfo(CatalogRoot.CatDir.FullName + RelPath); }
+			set { RelPath = value.FullName.Substring(CatalogRoot.CatDir.FullName.Length); }
+		}
 
 		//---
 		public List<CatalogEntry> EntryList { get; set; } = new List<CatalogEntry>();
 
 		public bool WithSubDir { get; set; } = false;
 
-		public override CatalogEntry BaseEntry { get { return EntryList?.FirstOrDefault(); } }
+		public override CatalogEntry BaseEntry { get { return EntryList?.Where(ent => !ent.IsExcepted & !ent.isBroken).FirstOrDefault(); } }
 
 		private object locker = new object();
 
 
 
-		public CatalogAlbum() {}
+		public CatalogAlbum() { }
 
 		public CatalogAlbum(DirectoryInfo dir, bool withSubDir) {
 			AlbAbsDir = dir;
@@ -78,6 +69,9 @@ namespace VideoCatalog.Main {
 				return;
 			}
 
+			// удаляем файлы с пустым расширением, почему то они проходят проверку на расширения
+			vidList.RemoveAll(vid => string.IsNullOrWhiteSpace(vid.Extension));
+
 			Parallel.ForEach(vidList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
 				file => {
 					// не формируем, если такое было
@@ -97,7 +91,7 @@ namespace VideoCatalog.Main {
 
 		/// <summary> Формирование обложки альбома на основе первого эпизода. </summary>
 		public void LoadAlbumCover() {
-			BaseEntry?.LoadCover();
+			BaseEntry?.LoadCover(true);
 			CoverImage = BaseEntry?.CoverImage;
 			vp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);   // принудительная перерисовка обложки после загрузки
 		}
@@ -145,7 +139,7 @@ namespace VideoCatalog.Main {
 				vp.onWheelClick = () => App.MainWin.OpenAlbumTab(this, false);
 			}
 
-			TopRightText = ""+EntryList.Count;
+			TopRightText = "" + EntryList.Count;
 
 			UpdateIconBrokenState();
 			UpdateVideoResIcons();
@@ -193,7 +187,7 @@ namespace VideoCatalog.Main {
 		///<summary> Открыть место хранения файла элемента. </summary>
 		public override void OpenInExplorer() {
 			string path = GetFirstEntPath();
-			if (!string.IsNullOrWhiteSpace(path)) CatalogEngine.OpenExplorer(path);			
+			if (!string.IsNullOrWhiteSpace(path)) CatalogEngine.OpenExplorer(path);
 		}
 
 		//---

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Media;
 using VideoCatalog.Windows;
 using YAXLib;
@@ -20,15 +19,13 @@ namespace VideoCatalog.Main {
 		public string CatPath { get { return CatDir.FullName; } set { CatDir = new DirectoryInfo(value); } }
 		public List<CatalogAlbum> AlbumsList { get; set; } = new List<CatalogAlbum>();
 
-		private BackgroundWorker worker;    // воркер для асинхронной загрузки альбомов
-
-
 
 		public CatalogRoot() { }
 
 		private object locker = new object();
 
-
+		public static bool useCatFile = false;
+		public static AbstractEntry entForDataCopy = null;
 
 		public void LoadRootFolder(string path) {
 			CatPath = path;
@@ -38,7 +35,7 @@ namespace VideoCatalog.Main {
 			App.MainWin.MainPanel.SetUiStateLoading();
 			App.MainWin.MainPanel.pBar.IsIndeterminate = false;
 
-			worker = new BackgroundWorker();
+			var worker = new BackgroundWorker();
 			worker.DoWork += new DoWorkEventHandler(Worker_CreateAlbums);
 			worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Worker_CreateAlbumsDone);
 			worker.RunWorkerAsync();
@@ -61,21 +58,23 @@ namespace VideoCatalog.Main {
 				dir => { CreateAlbum(dir, true); }
 			);
 
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = "Search files done!"));
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.SetInfoText("Search files done!")));
 
 			Console.WriteLine($"Search files done for {sw.ElapsedMilliseconds} ms");
 			sw.Stop();
 		}
 
 		void Worker_CreateAlbumsDone(object sender, RunWorkerCompletedEventArgs e) {
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = "Done!"));
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.SetInfoText("Done!")));
 			RunLoadAlbumesCoversThread();
 			UpdateTagsList();
 			UpdateAttributesList();
 			ChkAlbAndEntState();
 			App.MainWin.MainPanel.UpdatePanelContent();
-			App.MainWin.MainPanel.loadingPanel.Visibility = Visibility.Hidden;
 			App.MainWin.MainPanel.SetUiStateOpened();
+
+			if (App.MainWin?.MainPanel != null) App.MainWin.MainPanel.SetTotalCountText($"Total: {AlbumsList.Count()}");
+
 			Console.WriteLine("Update albumes and entrys DONE !");
 		}
 
@@ -85,9 +84,9 @@ namespace VideoCatalog.Main {
 
 			App.MainWin.OpenMainTab();
 			App.MainWin.MainPanel.SetUiStateLoading();
-			App.MainWin.MainPanel.pBar.IsIndeterminate = true;
+			//App.MainWin.MainPanel.pBar.IsIndeterminate = true;
 
-			worker = new BackgroundWorker();
+			var worker = new BackgroundWorker();
 			worker.DoWork += new DoWorkEventHandler(DataRestore);
 			worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Worker_CreateAlbumsDone);
 			worker.RunWorkerAsync();
@@ -98,13 +97,12 @@ namespace VideoCatalog.Main {
 			int restCount = 0;
 			int restAlbCount = 0;
 
-			var dirs = CatDir.GetDirectories();
-			dirsCount = dirs.Count();
+			dirsCount = AlbumsList.Count();
 
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = "Restore data"));
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.SetInfoText("Restore data")));
 
 			foreach (var alb in AlbumsList) {
 				alb.UpdateEntCatAlb();
@@ -112,11 +110,13 @@ namespace VideoCatalog.Main {
 					ent => {
 						ent.GetMetaData();
 						Interlocked.Increment(ref restCount);
-						Application.Current.Dispatcher.BeginInvoke((Action)(() => 
-						App.MainWin.MainPanel.infoText.Text = $"Restore data =>   Alb: {restAlbCount}/{dirsCount}   Ent: {restCount}" ));
+						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.pBar.Value = (restAlbCount / (float)dirsCount) * 100));
+						Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+							App.MainWin.MainPanel.SetInfoText($"Restore data =>   Alb: {restAlbCount}/{dirsCount}   Ent: {restCount}")));
 					}
 				);
-				restAlbCount++;
+				Interlocked.Increment(ref restAlbCount);
+
 			}
 
 			Console.WriteLine($"Restore data done for {sw.ElapsedMilliseconds} ms");
@@ -134,7 +134,7 @@ namespace VideoCatalog.Main {
 					Interlocked.Increment(ref procDone);
 					if (App.MainWin?.MainPanel != null) {
 						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
-						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = $"({procDone} / {dirsCount})  {path}"));
+						Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.SetInfoText($"({procDone} / {dirsCount})  {path}")));
 					}
 					return;
 				}
@@ -153,7 +153,7 @@ namespace VideoCatalog.Main {
 			Interlocked.Increment(ref procDone);
 			if (App.MainWin?.MainPanel != null) {
 				Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.pBar.Value = (procDone / (float)dirsCount) * 100));
-				Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.infoText.Text = $"({procDone} / {dirsCount})  {path}"));
+				Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.SetInfoText($"({procDone} / {dirsCount})  {path}")));
 			}
 		}
 
@@ -182,9 +182,9 @@ namespace VideoCatalog.Main {
 				  ca => ca.LoadAlbumCover()
 				  );
 			}
-			
+
 			coverLoadThread = new Thread(thread);
-			coverLoadThread.Start();		
+			coverLoadThread.Start();
 		}
 
 		/// <summary> Принудительная остановка потока загрузки обложек. </summary>

@@ -347,6 +347,12 @@
   <ItemGroup>
     <Resource Include="Assets\Icons\utils.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\copy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\paste.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>RMDIR "$(TargetDir)de/" /S /Q

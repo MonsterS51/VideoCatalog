@@ -159,6 +159,20 @@ namespace VideoCatalog.Main {
 		///<summary> Открыть место хранения файла элемента. </summary>
 		public virtual void OpenInExplorer() {}
 
+		public void PasteEntData(AbstractEntry srcEnt) {
+			if (srcEnt == null) return;
+
+			Name = srcEnt.Name;
+			Descr = srcEnt.Descr;
+			TagStr = srcEnt.TagStr;
+
+			AtrMap.Clear();
+			foreach (var atrEnt in srcEnt.AtrMap) {
+				AtrMap.Add(new AtrEnt(atrEnt.AtrName, atrEnt.AtrData));
+			}
+
+		}
+
 		//---
 		
 		public event PropertyChangedEventHandler PropertyChanged;

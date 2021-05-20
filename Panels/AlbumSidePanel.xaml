@@ -93,6 +93,8 @@
 										<ColumnDefinition Width="25"/>
 										<ColumnDefinition Width="25"/>
 										<ColumnDefinition Width="25"/>
+										<ColumnDefinition Width="25"/>
+										<ColumnDefinition Width="25"/>
 									</Grid.ColumnDefinitions>
 
 									<TextBlock TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text="{Binding Path=Name}" 
@@ -106,7 +108,13 @@
 									<Button Grid.Column="3" x:Name="rootEntBtn" ToolTip="Open in File Explorer" Click="FolderEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
 									</Button>
-									<Button Grid.Column="4" x:Name="removeEntBtn" ToolTip="Remove entry" Click="RemoveEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Button Grid.Column="4" x:Name="copyDataBtn" ToolTip="Copy entry data" Click="CopyEntDataBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/copy.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+									</Button>
+									<Button Grid.Column="5" x:Name="pasteDataBtn" ToolTip="Copy entry data" Click="PasteEntDataBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/paste.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+									</Button>
+									<Button Grid.Column="6" x:Name="removeEntBtn" ToolTip="Remove entry" Click="RemoveEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/remove.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
 									</Button>
 								</Grid>
@@ -192,29 +200,37 @@
 							<Border BorderThickness="0,0,0,1" BorderBrush="Black" Padding="0">
 
 								<Grid Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Margin="0">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*"/>
-									<ColumnDefinition Width="25"/>
-									<ColumnDefinition Width="25"/>
-									<ColumnDefinition Width="25"/>
-									<ColumnDefinition Width="25"/>
-								</Grid.ColumnDefinitions>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*"/>
+										<ColumnDefinition Width="25"/>
+										<ColumnDefinition Width="25"/>
+										<ColumnDefinition Width="25"/>
+										<ColumnDefinition Width="25"/>
+										<ColumnDefinition Width="25"/>
+										<ColumnDefinition Width="25"/>
+									</Grid.ColumnDefinitions>
 
-								<TextBlock Text="Entry Data:" TextWrapping="WrapWithOverflow" 
-									   FontSize="16"  Padding="4"  HorizontalAlignment="Stretch" />
-								<Button Grid.Column="1" x:Name="searchEntBtn2" ToolTip="Search entry in internet" Click="ShowSearchPopUp" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/search.png"  Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
-								</Button>
-								<Button Grid.Column="2" x:Name="exceptEntBtn2" ToolTip="Except entry" Click="ExceptEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/hidden.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
-								</Button>
-								<Button Grid.Column="3" x:Name="rootEntBtn2" ToolTip="Open in File Explorer" Click="FolderEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
-								</Button>
-								<Button Grid.Column="4" x:Name="removeEntBtn2" ToolTip="Remove entry" Click="RemoveEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-									<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/remove.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
-								</Button>
-							</Grid>
+									<TextBlock Text="Entry Data:" TextWrapping="WrapWithOverflow" 
+										   FontSize="16"  Padding="4"  HorizontalAlignment="Stretch" />
+									<Button Grid.Column="1" x:Name="searchEntBtn2" ToolTip="Search entry in internet" Click="ShowSearchPopUp" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/search.png"  Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+									</Button>
+									<Button Grid.Column="2" x:Name="exceptEntBtn2" ToolTip="Except entry" Click="ExceptEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/hidden.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+									</Button>
+									<Button Grid.Column="3" x:Name="rootEntBtn2" ToolTip="Open in File Explorer" Click="FolderEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+									</Button>
+									<Button Grid.Column="4" x:Name="copyDataBtn2" ToolTip="Copy entry data" Click="CopyEntDataBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/copy.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+									</Button>
+									<Button Grid.Column="5" x:Name="pasteDataBtn2" ToolTip="Copy entry data" Click="PasteEntDataBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/paste.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+									</Button>
+									<Button Grid.Column="6" x:Name="removeEntBtn2" ToolTip="Remove entry" Click="RemoveEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/remove.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
+									</Button>
+								</Grid>
 						</Border>
 
 						<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0">

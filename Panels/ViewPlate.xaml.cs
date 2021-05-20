@@ -138,12 +138,51 @@ namespace VideoCatalog.Panels {
 				onWheelClick?.Invoke();
 			}
 			if (e.ChangedButton == MouseButton.Right) {
-				//Console.WriteLine("rmb");
-				ContextMenu cm = FindResource("cmButton") as ContextMenu;
-				cm.PlacementTarget = sender as Button;
-				cm.IsOpen = true;
+				RmbMenuOpen(sender, e);
 			}
 		}
+
+		private void RmbMenuOpen(object sender, MouseButtonEventArgs e) {
+			var cm = new ContextMenu();
+
+			var mOpenInExp = new MenuItem();
+			mOpenInExp.Header = "Open in Explorer";
+			mOpenInExp.Click += (s, ea) => { MenuItem_OpenInExplorer(sender, e); };
+			cm.Items.Add(mOpenInExp);
+
+			var mUpdCov = new MenuItem();
+			mUpdCov.Header = "Update Cover";
+			mUpdCov.Click += (s, ea) => { MenuItem_UpdateCoverArt(sender, e); };
+			cm.Items.Add(mUpdCov);
+
+			if (DataContext is AbstractEntry) {
+				cm.Items.Add(new Separator());
+
+				var entry = DataContext as AbstractEntry;
+				var mRemove = new MenuItem();
+				mRemove.Header = "Remove";
+				mRemove.Click += (s, ea) => {
+					var result = MessageBox.Show($"Remove <{entry.Name}> from catalog?", "Remove", MessageBoxButton.YesNo, MessageBoxImage.Question);
+					if (result == MessageBoxResult.Yes) App.MainWin.RemoveEntryAndUpdateUI(entry);
+				};
+				cm.Items.Add(mRemove);
+
+				var mExcept = new MenuItem();
+				mExcept.Header = "Except Entry";
+				mExcept.Click += (s, ea) => {
+					entry.IsExcepted = !entry.IsExcepted;
+					App.MainWin.ClearSidePanel();
+					App.MainWin.GetCurrentAlbumePanel().UpdatePanelContent();
+				};
+				cm.Items.Add(mExcept);
+			}
+			
+
+			cm.PlacementTarget = sender as Button;
+			cm.IsOpen = true;
+		}
+
+
 
 		/// <summary> Открытие в проводнике по привязанному DataContext. </summary>
 		private void MenuItem_OpenInExplorer(object sender, RoutedEventArgs e) {

@@ -35,6 +35,7 @@ namespace VideoCatalog.Main {
 		public void LoadCatalogRoot(string path) {
 			CatRoot = new CatalogRoot();
 			CatRoot.LoadRootFolder(path);
+			CatalogRoot.useCatFile = false;
 		}
 
 		///<summary> Сохранение каталога сериализацией объекта CatalogRoot. </summary>
@@ -54,6 +55,7 @@ namespace VideoCatalog.Main {
 					CatRoot = loadedCatRoot;
 					CatRoot.CatPath = new FileInfo(path).Directory.FullName;    // корень - папка с файлом
 					CatRoot.LoadDeserial();
+					CatalogRoot.useCatFile = true;
 				}
 			} else {
 				System.Windows.MessageBox.Show($"Can`t load <{path}>", "Error");
