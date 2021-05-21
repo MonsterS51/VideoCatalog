@@ -71,7 +71,7 @@ namespace VideoCatalog.Panels {
 			int tempSelInd = sortModeComBox.SelectedIndex;
 			sortModeComBox.Items.Clear();
 
-			List<string> itemNames = new List<string>() { "Name", "Add Date", "File Create Date", "File Modify Date" };
+			List<string> itemNames = new List<string>() { "Name", "Add Date", "File Create Date", "File Modify Date", "Resolution" };
 			foreach (var atrName in CatalogRoot.atrList) {
 				itemNames.Add("Atribute " + atrName);
 			}

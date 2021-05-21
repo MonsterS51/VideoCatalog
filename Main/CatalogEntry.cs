@@ -55,6 +55,7 @@ namespace VideoCatalog.Main {
 			Name = file.Name;
 			SearchCoverArt();
 			GetMetaData();
+			DateAdded = DateTime.Today;
 		}
 
 		///<summary> Поиск файла обложки для эпизода. </summary>
@@ -258,6 +259,11 @@ namespace VideoCatalog.Main {
 					vidRes == (CatalogEntry.VideoResolution.UHD)
 				);
 			}
+		}
+
+		///<summary> Получить максимальное качество из всех элементов альбома. </summary>
+		public override CatalogEntry.VideoResolution GetMaxRes() {
+			return vidRes;
 		}
 
 		public override string ToString() {

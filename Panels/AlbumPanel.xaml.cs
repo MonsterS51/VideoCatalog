@@ -53,7 +53,6 @@ namespace VideoCatalog.Panels {
 			}
 
 			baseList = BaseList;
-			Btn_SidePanelSwitch(null, null);
 			LoadSettings();
 
 			// цепляем тут, иначе портит настройки, т.к. срабатывает после LoadSettings
@@ -249,6 +248,11 @@ namespace VideoCatalog.Panels {
 				case 3: {
 					sortMode = FilterSorterModule.SortMode.DATE_MODIFIED;
 					grpMode = GroupModes.DATE_MODIFIED;
+					break;
+				}
+				case 4: {
+					sortMode = FilterSorterModule.SortMode.RESOLUTION;
+					grpMode = GroupModes.RESOLUTION;
 					break;
 				}
 				case -1: goto case 0;
@@ -471,7 +475,8 @@ namespace VideoCatalog.Panels {
 
 		//---
 
-		private bool spIsShown = true;
+		private bool spIsShown = false;
+		private GridLength lastSpGridLength = new GridLength(0.4d, GridUnitType.Star);
 
 		public void SetSidePanel(UIElement contPanel) {
 			sidePanelSlot.Children.Clear();
@@ -479,21 +484,28 @@ namespace VideoCatalog.Panels {
 			sidePanelSlot.Children.Add(contPanel);
 		}
 
-		private double lastSpWidth = 400;
 		private void Btn_SidePanelSwitch(object sender, RoutedEventArgs e) {
-			if (spIsShown) {
-				lastSpWidth = spColumn.Width.Value;
-				spColumn.Width = new GridLength(0, GridUnitType.Star);
+			SidePanelSwitch(!spIsShown);
+
+			// запоминаем состояние боковой панели при переключении вручную
+			if (this.DataContext == App.MainWin.CatEng.CatRoot) Properties.Settings.Default.SidePanelMainShown = spIsShown;
+			else Properties.Settings.Default.SidePanelAlbShown = spIsShown;
+		}
+
+		public void SidePanelSwitch(bool show) {
+			if (show) {
+				sidePanelSlot.Visibility = Visibility.Visible;
+				gridSplitter.IsEnabled = true;
+				spColumn.Width = lastSpGridLength;
+				spBtnSwitchIcon.Source = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/right.png", UriKind.RelativeOrAbsolute));
+				spIsShown = true;
+			} else {
+				if (spColumn.Width.Value > 0) lastSpGridLength = spColumn.Width;
+				spColumn.Width = new GridLength(0, GridUnitType.Pixel);
 				gridSplitter.IsEnabled = false;
 				sidePanelSlot.Visibility = Visibility.Collapsed;
 				spIsShown = false;
 				spBtnSwitchIcon.Source = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/left.png", UriKind.RelativeOrAbsolute));
-			} else {
-				sidePanelSlot.Visibility = Visibility.Visible;
-				gridSplitter.IsEnabled = true;
-				spColumn.Width = new GridLength(lastSpWidth, GridUnitType.Star);
-				spBtnSwitchIcon.Source = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/right.png", UriKind.RelativeOrAbsolute));
-				spIsShown = true;
 			}
 		}
 
@@ -501,6 +513,8 @@ namespace VideoCatalog.Panels {
 
 		///<summary> Загрузка настроек панели и ее элементов. </summary>
 		private void LoadSettings() {
+			Console.WriteLine($"LoadSettings !!!");
+
 			// восстанавливаем настройку размеров плиток
 			if (isRoot) {
 				sliderGridCol.Value = Properties.Settings.Default.GridSizeAlbum;
@@ -512,6 +526,24 @@ namespace VideoCatalog.Panels {
 				ListMode = Properties.Settings.Default.ListModeEnt;
 			}
 			UpdateUiMode();
+
+			// принудительно переводим боковую панель в закрытый режим
+			SidePanelSwitch(false);
+			lastSpGridLength = new GridLength(0.4d, GridUnitType.Star);
+
+			// вспоминаем состояние боковой панели
+			bool spShodShown;
+			if (this.DataContext == App.MainWin.CatEng.CatRoot) spShodShown = Properties.Settings.Default.SidePanelMainShown;
+			else spShodShown = Properties.Settings.Default.SidePanelAlbShown;
+
+			if (spShodShown) {
+				spColumn.Width = lastSpGridLength;
+				SidePanelSwitch(true);
+			} else {
+				SidePanelSwitch(false);
+				spColumn.Width = new GridLength(0, GridUnitType.Pixel);
+			}
+
 		}
 
 		///<summary> Сохранение настроек панели и ее элементов. </summary>

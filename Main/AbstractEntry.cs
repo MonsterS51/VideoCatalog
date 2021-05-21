@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -31,6 +32,12 @@ namespace VideoCatalog.Main {
 		///<summary> Элемент каталога скрыт и не обрабатывается. </summary>
 		public bool IsExcepted { get; set; } = false;
 
+		[YAXFormat("d")]
+		public DateTime DateAdded { get; set; } = DateTime.Today;
+		[YAXDontSerialize]
+		public DateTime DateMod { get { return GetDateModify().Date; } }
+		[YAXDontSerialize]
+		public DateTime DateCreated { get { return GetDateCreate().Date; } }
 		//---
 
 		private string _tagStr = "";
@@ -122,6 +129,16 @@ namespace VideoCatalog.Main {
 		///<summary> Возвращает самую раннюю(позднюю) дату изменения файла из всех входящих элементов. </summary>
 		public virtual DateTime GetDateModify(bool byLatest = false) {
 			return DateTime.Now;
+		}
+
+		///<summary> Возвращает дату добавления элемента в каталог. </summary>
+		public virtual DateTime GetDateAdded() {
+			return DateAdded;
+		}
+
+		///<summary> Получить максимальное качество из всех элементов альбома. </summary>
+		public virtual CatalogEntry.VideoResolution GetMaxRes() {
+			return CatalogEntry.VideoResolution.LQ;
 		}
 
 		//---

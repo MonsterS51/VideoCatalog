@@ -136,6 +136,26 @@
 									<!-- поле с тегами -->
 									<WrapPanel x:Name="TagPanel" Margin="1" DataContext="{Binding Path=TagStr}" DataContextChanged="TagSrcChanged"/>
 
+									<!-- даты -->
+									<GroupBox Margin="0" BorderThickness="0,1,0,0" BorderBrush="Black">
+										<GroupBox.Header>
+											<Label FontSize="9" Padding="0">Dates</Label>
+										</GroupBox.Header>
+										<StackPanel Orientation="Horizontal" >
+											<TextBlock FontSize="9" Padding="1,1,1,1" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}">Add: </TextBlock>
+											<TextBlock FontSize="9" Padding="3,1,1,1" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" 
+													   Text="{Binding Path=DateAdded, ConverterCulture='de-DE', StringFormat=d }"/>
+											<TextBlock FontSize="9" Padding="10,1,1,1" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}">Create: </TextBlock>
+											<TextBlock FontSize="9" Padding="3,1,1,1" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+													   Text="{Binding Path=DateCreated, ConverterCulture='de-DE', StringFormat=d}"/>
+											<TextBlock FontSize="9" Padding="10,1,1,1" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}">Mod: </TextBlock>
+											<TextBlock FontSize="9" Padding="3,1,1,1" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+													   Text="{Binding Path=DateMod, ConverterCulture='de-DE', StringFormat=d}"/>
+
+										</StackPanel>
+									</GroupBox>
+
+									<!-- описание -->
 									<GroupBox Margin="0" BorderThickness="0,1,0,0" BorderBrush="Black">
 										<GroupBox.Header>
 											<Label FontSize="9" Padding="0">Description</Label>

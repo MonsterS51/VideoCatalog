@@ -14,6 +14,7 @@ namespace VideoCatalog.Main {
 			DATE_ADD,
 			DATE_CREATE,
 			DATE_MODIFIED,
+			RESOLUTION,
 			ATTRIBUTE
 		}
 
@@ -167,6 +168,24 @@ namespace VideoCatalog.Main {
 					}
 					break;
 				}
+				case SortMode.DATE_ADD: {
+					resultList = resultList.OrderBy(o => o.GetDateAdded()).ToList();
+					if (!ascend) resultList.Reverse();
+
+					foreach (var ent in resultList) {
+						ent.sortHelper = ent.GetDateAdded().ToString("d");
+					}
+					break;
+				}
+				case SortMode.RESOLUTION: {
+					resultList = resultList.OrderBy(o => o.GetMaxRes().ToString()).ToList();
+					if (!ascend) resultList.Reverse();
+
+					foreach (var ent in resultList) {
+						ent.sortHelper = ent.GetMaxRes().ToString().ToUpper();
+					}
+					break;
+				}
 				case SortMode.ATTRIBUTE: {
 					resultList = resultList.OrderBy(o => o.GetAttribute(atrName)).ToList();
 					if (!ascend) resultList.Reverse();
@@ -192,6 +211,7 @@ namespace VideoCatalog.Main {
 			DATE_ADD,
 			DATE_CREATE,
 			DATE_MODIFIED,
+			RESOLUTION,
 			ATTRIBUTE
 		}
 
@@ -246,6 +266,17 @@ namespace VideoCatalog.Main {
 					// правильная сортировка дат
 					readyMap = subListsMap.ToList().OrderBy(kv => DateTime.Parse(kv.Key)).ToList();
 					break;
+				}				
+				case GroupModes.DATE_ADD: {
+					foreach (var ent in srcList) {
+						var date = ent.GetDateAdded().ToString("d");
+						if (!subListsMap.ContainsKey(date)) subListsMap.Add(date, new List<AbstractEntry>());
+						subListsMap[date].Add(ent);
+					}
+
+					// правильная сортировка дат
+					readyMap = subListsMap.ToList().OrderBy(kv => DateTime.Parse(kv.Key)).ToList();
+					break;
 				}
 				case GroupModes.ATTRIBUTE: {
 					foreach (var ent in srcList) {
@@ -255,6 +286,15 @@ namespace VideoCatalog.Main {
 					}
 
 					readyMap = subListsMap.ToList();
+					break;
+				}
+				case GroupModes.RESOLUTION: {
+					foreach (var ent in srcList) {
+						var resStr = ent.GetMaxRes().ToString();
+						if (!subListsMap.ContainsKey(resStr)) subListsMap.Add(resStr, new List<AbstractEntry>());
+						subListsMap[resStr].Add(ent);
+					}
+					readyMap = subListsMap.ToList().OrderBy(kv => kv.Key).ToList();
 					break;
 				}
 				case GroupModes.FOLDER: {

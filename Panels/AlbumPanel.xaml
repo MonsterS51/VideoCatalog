@@ -70,7 +70,7 @@
 						</Grid.RowDefinitions>
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="*"/>
-							<ColumnDefinition x:Name="spColumn" Width="0.5*"/>
+							<ColumnDefinition x:Name="spColumn" Width="0.4*"/>
 						</Grid.ColumnDefinitions>
 
 						<!-- Поле с плитками элементов -->

@@ -43,6 +43,7 @@ namespace VideoCatalog.Main {
 			//UpdatePaths();
 			WithSubDir = withSubDir;
 			Name = dir.Name;
+			DateAdded = DateTime.Today;
 		}
 
 		///<summary> Обновление ссылок элементов альбома на содержащий их альбом. </summary>
@@ -245,12 +246,10 @@ namespace VideoCatalog.Main {
 
 		///<summary> Обновление отображения плашек качества. </summary>
 		public void UpdateVideoResIcons() {
-			List<CatalogEntry.VideoResolution> resList = new List<CatalogEntry.VideoResolution>();
+			var resList = new List<CatalogEntry.VideoResolution>();
 
 			foreach (var ent in EntryList) {
-				if (!resList.Contains(ent.vidRes)) {
-					resList.Add(ent.vidRes);
-				}
+				if (!resList.Contains(ent.vidRes)) resList.Add(ent.vidRes);
 			}
 
 			if (vp != null) {
@@ -276,6 +275,19 @@ namespace VideoCatalog.Main {
 
 		}
 
+		///<summary> Получить максимальное качество из всех элементов альбома. </summary>
+		public override CatalogEntry.VideoResolution GetMaxRes() {
+			var resList = new List<CatalogEntry.VideoResolution>();
+			foreach (var ent in EntryList) {
+				if (!resList.Contains(ent.vidRes)) resList.Add(ent.vidRes);			
+			}
+
+			if (resList.Contains(CatalogEntry.VideoResolution.UHD)) return CatalogEntry.VideoResolution.UHD;
+			if (resList.Contains(CatalogEntry.VideoResolution.QHD)) return CatalogEntry.VideoResolution.QHD;
+			if (resList.Contains(CatalogEntry.VideoResolution.FHD)) return CatalogEntry.VideoResolution.FHD;
+			if (resList.Contains(CatalogEntry.VideoResolution.HD)) return CatalogEntry.VideoResolution.HD;
+			return CatalogEntry.VideoResolution.LQ;
+		}
 
 		public override string ToString() {
 			return Name;

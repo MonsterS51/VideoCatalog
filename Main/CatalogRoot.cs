@@ -81,7 +81,6 @@ namespace VideoCatalog.Main {
 
 		public void LoadDeserial() {
 			Console.WriteLine($"Load Root <{CatDir}>");
-
 			App.MainWin.OpenMainTab();
 			App.MainWin.MainPanel.SetUiStateLoading();
 			//App.MainWin.MainPanel.pBar.IsIndeterminate = true;
@@ -116,7 +115,6 @@ namespace VideoCatalog.Main {
 					}
 				);
 				Interlocked.Increment(ref restAlbCount);
-
 			}
 
 			Console.WriteLine($"Restore data done for {sw.ElapsedMilliseconds} ms");

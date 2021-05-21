@@ -68,5 +68,11 @@
     <Setting Name="AtrToShowList" Type="System.String" Scope="User">
       <Value Profile="(Default)">Year</Value>
     </Setting>
+    <Setting Name="SidePanelMainShown" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="SidePanelAlbShown" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
