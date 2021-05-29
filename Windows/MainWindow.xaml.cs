@@ -31,6 +31,12 @@ namespace VideoCatalog.Windows {
 				UpdateStartToolbarState();
 			};
 
+			//HACK открываем и закрываем невидимое контекстное меню, чтобы принудительно загрузилась NETовская Accessibility.dll
+			// иначе происходит ощутимый лаг при первом вызове контекстного меню или попапа - ленивая загрузка это круто (=_= )
+			var cm = new ContextMenu();
+			cm.Opacity = 0;
+			cm.IsOpen = true;
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => cm.IsOpen = false));
 		}
 
 
@@ -220,7 +226,7 @@ namespace VideoCatalog.Windows {
 						alb.vp.BG.Source = null;
 						alb.vp = null;
 					}
-					alb.StopThread();
+					alb.StopLoadEntCoversThread();
 					alb.CoverImage = null;
 
 					foreach (var ent in alb.EntryList) {
@@ -239,6 +245,7 @@ namespace VideoCatalog.Windows {
 
 		///<summary> Принудительный запуск GC. </summary>
 		public static void GC_Forcer() {
+			if (!Properties.Settings.Default.ForceGC) return;
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
 			GC.Collect();
@@ -280,7 +287,7 @@ namespace VideoCatalog.Windows {
 			AddTab(targetTab, tabName, focus);
 
 			// запускаем фоновый генератор обложек для эпизодов в альбоме
-			album.LoadEntCoversThreaded();
+			album.RunLoadEntCoversThreaded();
 		}
 
 		///<summary> Открытие основной вкладки каталога. </summary>
@@ -331,7 +338,7 @@ namespace VideoCatalog.Windows {
 				albPanel.ClearPanel();
 				if (albPanel.DataContext is CatalogAlbum) {
 					var album = albPanel.DataContext as CatalogAlbum;
-					album?.StopThread();
+					album?.StopLoadEntCoversThread();
 				}
 			}
 
@@ -350,7 +357,7 @@ namespace VideoCatalog.Windows {
 
 					if (albPanel.DataContext is CatalogAlbum) {
 						var album = albPanel.DataContext as CatalogAlbum;
-						album?.StopThread();
+						album?.StopLoadEntCoversThread();
 					}
 				}
 

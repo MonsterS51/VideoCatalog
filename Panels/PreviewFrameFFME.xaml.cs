@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
@@ -11,13 +13,16 @@ namespace VideoCatalog.Panels {
 	public partial class PreviewFrameFFME : UserControl {
 		public PreviewFrameFFME() {
 			InitializeComponent();
+
 			mediaPlayerFFME.IsMuted = true;
 			mediaPlayerFFME.ScrubbingEnabled = false;
 			mediaPlayerFFME.VerticalSyncEnabled = true;
+			mediaPlayerFFME.RendererOptions.UseLegacyAudioOut = true;
 			mediaPlayerFFME.RendererOptions.VideoImageType = Unosquare.FFME.Common.VideoRendererImageType.InteropBitmap;
 
 			totalSteps = Properties.Settings.Default.PreviewSteps;
 			secSpan = Properties.Settings.Default.PreviewTime;
+
 		}
 
 		private int curStep = 1;
@@ -26,8 +31,11 @@ namespace VideoCatalog.Panels {
 		private int duration = 100;
 		private int secSpan = 2;
 
+		public bool isPlaying = false;
+
 		/// <summary> Запуск превью видео. </summary>
 		public void StartPreview(string path, int duration) {
+			if (isPlaying) return;
 			this.duration = duration;
 			mediaPlayerFFME.Opacity = 0;
 
@@ -61,7 +69,7 @@ namespace VideoCatalog.Panels {
 				prevProgress.Visibility = Visibility.Visible;
 				prevProgress.IsIndeterminate = true;
 				mediaPlayerFFME.MediaEnded += new EventHandler(m_MediaEnded); // заLOOPа
-
+				mediaPlayerFFME.LoopingBehavior = Unosquare.FFME.Common.MediaPlaybackState.Manual;
 				Application.Current.Dispatcher.BeginInvoke((Action)(async () => {
 					await mediaPlayerFFME.Open(new Uri(@path));
 					await mediaPlayerFFME.Play();
@@ -70,6 +78,7 @@ namespace VideoCatalog.Panels {
 					mediaPlayerFFME.BeginAnimation(OpacityProperty, alphaIn);
 				}));
 			}
+			isPlaying = true;
 		}
 
 		public void StopPreview() {
@@ -81,8 +90,9 @@ namespace VideoCatalog.Panels {
 			Application.Current.Dispatcher.BeginInvoke((Action)(async () => {
 				await mediaPlayerFFME.Stop();
 				await mediaPlayerFFME.Close();
-
+				await mediaPlayerFFME.ChangeMedia();
 				mediaPlayerFFME.Dispose();      //! обязательно - иначе не будет давать очищать элементы по всему дереву родителей
+				isPlaying = false;
 			}));
 
 
@@ -94,15 +104,18 @@ namespace VideoCatalog.Panels {
 				prevProgress.Value = curStep;
 				await mediaPlayerFFME.Seek(new TimeSpan(0, 0, 0, (duration / totalSteps) * curStep));
 				curStep++;
-				if (curStep >= totalSteps) curStep = 1;
-			}));		
+				if (curStep >= totalSteps) curStep = 0;
+			}));
 		}
 
-		void m_MediaEnded(object sender, EventArgs e) {
-			Application.Current.Dispatcher.BeginInvoke((Action)(async () => {
-				await mediaPlayerFFME.Stop();
-				await mediaPlayerFFME.Play();
-			}));
+
+		async void m_MediaEnded(object sender, EventArgs e) {
+			//BUG штатная перемотка сжирает первую секунду, использую переоткрытие
+			var src = mediaPlayerFFME.Source;
+			await mediaPlayerFFME.Close();
+			await mediaPlayerFFME.Open(src);
+			await mediaPlayerFFME.Play();
+
 		}
 
 

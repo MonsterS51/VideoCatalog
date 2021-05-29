@@ -3,7 +3,6 @@
 			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-			 xmlns:local="clr-namespace:VideoCatalog.Panels"
 			 xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
 			 mc:Ignorable="d" 
 			 d:DesignHeight="750" d:DesignWidth="800">
@@ -13,11 +12,8 @@
 				<Label Content="Settings" DockPanel.Dock="Top" FontSize="16" 
 						Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
 
-				<!--Кнопки подтверждения и отмены-->
-				<UniformGrid Rows="1" Columns="2" VerticalAlignment="Bottom" DockPanel.Dock="Bottom">
-					<Button Content="Apply" Height="25" DockPanel.Dock="Bottom" Grid.Column="0" Grid.Row="0" Click="Accept_Click"/>
-					<Button Content="Cancel" Height="25" DockPanel.Dock="Bottom" Grid.Column="1" Grid.Row="0"/>
-				</UniformGrid>
+				<!--Кнопки подтверждения-->
+				<Button Content="Apply" Height="25" DockPanel.Dock="Bottom" Grid.Column="0" Grid.Row="0" Click="Accept_Click" FontSize="14" FontWeight="Bold"/>
 
 				<ScrollViewer x:Name="scrollViewer" DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" Margin="2">
 					<StackPanel>
@@ -60,7 +56,7 @@
 											<Image Height="20" Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/folder.png" RenderOptions.BitmapScalingMode="HighQuality"/>
 										</Button>
 										<TextBlock Grid.Row="1" Margin="0,-2,0,5" FontSize="9" Grid.Column="1" Foreground="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}" >
-											Libs can be downloaded from <Hyperlink NavigateUri="https://ffmpeg.zeranoe.com/builds/" RequestNavigate="LinkOnRequestNavigate">this site</Hyperlink> (shared version). Unpack and select /bin folder.
+											Libs can be downloaded from <Hyperlink NavigateUri="https://www.gyan.dev/ffmpeg/builds/" RequestNavigate="LinkOnRequestNavigate">this site</Hyperlink> (SHARED version). Unpack and select /bin folder.
 										</TextBlock>
 									</Grid>
 
@@ -79,6 +75,16 @@
 										<Label Content="Time (sec): " Width="100"/>
 										<xctk:IntegerUpDown x:Name="PreviewTime"
 											Increment="1" Value="2" Minimum="1" Width="100" HorizontalAlignment="Left"
+											Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+											Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+											BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
+									</DockPanel>
+
+									<!-- время предпросмотра каждого шага -->
+									<DockPanel>
+										<Label Content="Delay (ms): " Width="100"/>
+										<xctk:IntegerUpDown x:Name="PreviewDelay"
+											Increment="100" Value="500" Minimum="0" Width="100" HorizontalAlignment="Left"
 											Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
 											Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
 											BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
@@ -105,6 +111,11 @@
 								<Label FontSize="9" Padding="0">Cover</Label>
 							</GroupBox.Header>
 							<StackPanel Orientation="Vertical">
+								<!-- число шагов предпросмотра -->
+								<DockPanel>
+									<Label Content="Use Shell Cover: " ToolTip="Take cover/thumbnail from Windows explorer." Width="100"/>
+									<CheckBox x:Name="UseShellCoverEnabler" IsChecked="True" VerticalAlignment="Center"/>
+								</DockPanel>
 								<!-- максимальная ширина получаемого изображения ковра при загрузке -->
 								<DockPanel>
 									<Label Content="Max Size (px): " Width="100"/>
@@ -161,6 +172,21 @@
 								</Grid.ColumnDefinitions>
 								<Label Content="Atributes: " Grid.Column="0" ToolTip="Atributes to show"/>
 								<TextBox x:Name="atrListStrTB" Grid.Column="1" TextWrapping="WrapWithOverflow" AcceptsReturn="True" AcceptsTab="True" HorizontalAlignment="Stretch"/>
+							</Grid>
+						</GroupBox>
+
+						<!-- разное -->
+						<GroupBox Margin="1,1,1,5">
+							<GroupBox.Header>
+								<Label FontSize="9" Padding="0">Misc</Label>
+							</GroupBox.Header>
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="100"/>
+									<ColumnDefinition Width="*"/>
+								</Grid.ColumnDefinitions>
+								<Label Content="ForceGC: " ToolTip="Force run garbage collector after close of catalog for memory clean." Grid.Column="0"/>
+								<CheckBox x:Name="ForceGC_Enabler" Grid.Column="1" IsChecked="True" VerticalAlignment="Center" Click="CheckBox_Click" />
 							</Grid>
 						</GroupBox>
 					</StackPanel>

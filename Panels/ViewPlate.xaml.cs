@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using VideoCatalog.Main;
+using VideoCatalog.Util;
 using VideoCatalog.Windows;
 
 namespace VideoCatalog.Panels {
@@ -36,7 +37,6 @@ namespace VideoCatalog.Panels {
 		protected override void OnMouseEnter(MouseEventArgs e) {
 			base.OnMouseEnter(e);
 
-
 			border.BorderBrush = SystemColors.MenuHighlightBrush;
 
 			// если предпросмотр отключен
@@ -45,7 +45,7 @@ namespace VideoCatalog.Panels {
 			var entry = DataContext as AbstractEntry;
 			if (entry == null | entry.BaseEntry == null || !entry.BaseEntry.EntAbsFile.Exists) return;
 
-			Task.Delay(500).ContinueWith((task) => {
+			Task.Delay(Properties.Settings.Default.PreviewStartDelay).ContinueWith((task) => {
 				Dispatcher.BeginInvoke((Action)(() => {
 					if (IsMouseOver) {
 						// определяем метод отрисовки предпросмотра и формируем нужную панель
@@ -138,90 +138,10 @@ namespace VideoCatalog.Panels {
 				onWheelClick?.Invoke();
 			}
 			if (e.ChangedButton == MouseButton.Right) {
-				RmbMenuOpen(sender, e);
-			}
+				PlateUtil.RmbMenuOpen(sender, DataContext);
+			}		
 		}
-
-		private void RmbMenuOpen(object sender, MouseButtonEventArgs e) {
-			var cm = new ContextMenu();
-
-			var mOpenInExp = new MenuItem();
-			mOpenInExp.Header = "Open in Explorer";
-			mOpenInExp.Click += (s, ea) => { MenuItem_OpenInExplorer(sender, e); };
-			cm.Items.Add(mOpenInExp);
-
-			var mUpdCov = new MenuItem();
-			mUpdCov.Header = "Update Cover";
-			mUpdCov.Click += (s, ea) => { MenuItem_UpdateCoverArt(sender, e); };
-			cm.Items.Add(mUpdCov);
-
-			if (DataContext is AbstractEntry) {
-				cm.Items.Add(new Separator());
-
-				var entry = DataContext as AbstractEntry;
-				var mRemove = new MenuItem();
-				mRemove.Header = "Remove";
-				mRemove.Click += (s, ea) => {
-					var result = MessageBox.Show($"Remove <{entry.Name}> from catalog?", "Remove", MessageBoxButton.YesNo, MessageBoxImage.Question);
-					if (result == MessageBoxResult.Yes) App.MainWin.RemoveEntryAndUpdateUI(entry);
-				};
-				cm.Items.Add(mRemove);
-
-				var mExcept = new MenuItem();
-				mExcept.Header = "Except Entry";
-				mExcept.Click += (s, ea) => {
-					entry.IsExcepted = !entry.IsExcepted;
-					App.MainWin.ClearSidePanel();
-					App.MainWin.GetCurrentAlbumePanel().UpdatePanelContent();
-				};
-				cm.Items.Add(mExcept);
-			}
-			
-
-			cm.PlacementTarget = sender as Button;
-			cm.IsOpen = true;
-		}
-
-
-
-		/// <summary> Открытие в проводнике по привязанному DataContext. </summary>
-		private void MenuItem_OpenInExplorer(object sender, RoutedEventArgs e) {
-			if (DataContext != null) {
-				(DataContext as AbstractEntry)?.OpenInExplorer();
-			}
-		}
-
-		/// <summary> Обновление обложек альбома/эпизода. </summary>
-		private void MenuItem_UpdateCoverArt(object sender, RoutedEventArgs e) {
-			if (DataContext != null) {
-				// альбом
-				if (DataContext is CatalogAlbum) {
-					var dc = DataContext as CatalogAlbum;
-					dc.UpdateAlbumArt();
-				} else
-				// эпизод альбома
-				if (DataContext is CatalogEntry) {
-					var dc = DataContext as CatalogEntry;
-					dc.LoadCover(true);
-				}
-			}
-		}
-
-		/// <summary> Запуск поиска новых файлов. </summary>
-		private void MenuItem_UpdateFiles(object sender, RoutedEventArgs e) {
-			if (DataContext != null) {
-				// альбом
-				if (DataContext is CatalogAlbum) {
-					var dc = DataContext as CatalogAlbum;
-
-				} else
-				// эпизод альбома
-				if (DataContext is CatalogEntry) {
-					var dc = DataContext as CatalogEntry;
-
-				}
-			}
-		}
+	
 
 		///<summary> Обновление отображения плашек качества. </summary>
 		public void UpdateVideoResIcons(bool lq, bool hd, bool fhd, bool qhd, bool uhd) {

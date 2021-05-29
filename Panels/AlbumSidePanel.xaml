@@ -3,10 +3,6 @@
 			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-			 xmlns:local="clr-namespace:VideoCatalog.Windows" 
-			 xmlns:local1="clr-namespace:VideoCatalog.Main" 
-			 xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-			 xmlns:panels="clr-namespace:VideoCatalog.Panels"
 			 xmlns:tabs="clr-namespace:VideoCatalog.Tabs"
 			 mc:Ignorable="d" 
 			 d:DesignHeight="350" d:DesignWidth="500">
@@ -111,7 +107,7 @@
 									<Button Grid.Column="4" x:Name="copyDataBtn" ToolTip="Copy entry data" Click="CopyEntDataBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/copy.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
 									</Button>
-									<Button Grid.Column="5" x:Name="pasteDataBtn" ToolTip="Copy entry data" Click="PasteEntDataBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Button Grid.Column="5" x:Name="pasteDataBtn" ToolTip="Paste entry data" Click="PasteEntDataBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/paste.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
 									</Button>
 									<Button Grid.Column="6" x:Name="removeEntBtn" ToolTip="Remove entry" Click="RemoveEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
@@ -244,7 +240,7 @@
 									<Button Grid.Column="4" x:Name="copyDataBtn2" ToolTip="Copy entry data" Click="CopyEntDataBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/copy.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
 									</Button>
-									<Button Grid.Column="5" x:Name="pasteDataBtn2" ToolTip="Copy entry data" Click="PasteEntDataBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+									<Button Grid.Column="5" x:Name="pasteDataBtn2" ToolTip="Paste entry data" Click="PasteEntDataBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
 										<Image Style="{StaticResource imgTbBtn}" Source="/Assets/Icons/paste.png" Margin="0" RenderOptions.BitmapScalingMode="HighQuality"/>
 									</Button>
 									<Button Grid.Column="6" x:Name="removeEntBtn2" ToolTip="Remove entry" Click="RemoveEntBtnClick" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Padding="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">

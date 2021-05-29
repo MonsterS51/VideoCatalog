@@ -12,15 +12,19 @@ using VideoCatalog.Windows;
 using YAXLib;
 
 namespace VideoCatalog.Main {
+
 	public class CatalogRoot {
+
 		[YAXDontSerialize]
 		public static DirectoryInfo CatDir { get; set; }   // например D:\data
+
 		[YAXDontSerialize]
 		public string CatPath { get { return CatDir.FullName; } set { CatDir = new DirectoryInfo(value); } }
+
 		public List<CatalogAlbum> AlbumsList { get; set; } = new List<CatalogAlbum>();
 
-
-		public CatalogRoot() { }
+		public CatalogRoot() {
+		}
 
 		private object locker = new object();
 
@@ -44,7 +48,7 @@ namespace VideoCatalog.Main {
 		private int procDone = 0;
 		private int dirsCount = 1;
 
-		void Worker_CreateAlbums(object sender, DoWorkEventArgs e) {
+		private void Worker_CreateAlbums(object sender, DoWorkEventArgs e) {
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			procDone = 0;
@@ -64,20 +68,19 @@ namespace VideoCatalog.Main {
 			sw.Stop();
 		}
 
-		void Worker_CreateAlbumsDone(object sender, RunWorkerCompletedEventArgs e) {
-			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.SetInfoText("Done!")));
+		private void Worker_CreateAlbumsDone(object sender, RunWorkerCompletedEventArgs e) {
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => App.MainWin.MainPanel.SetInfoText("Create albums done!")));
 			RunLoadAlbumesCoversThread();
 			UpdateTagsList();
 			UpdateAttributesList();
 			ChkAlbAndEntState();
-			App.MainWin.MainPanel.UpdatePanelContent();
 			App.MainWin.MainPanel.SetUiStateOpened();
+			App.MainWin.MainPanel.UpdatePanelContent();
 
 			if (App.MainWin?.MainPanel != null) App.MainWin.MainPanel.SetTotalCountText($"Total: {AlbumsList.Count()}");
 
 			Console.WriteLine("Update albumes and entrys DONE !");
 		}
-
 
 		public void LoadDeserial() {
 			Console.WriteLine($"Load Root <{CatDir}>");
@@ -165,34 +168,39 @@ namespace VideoCatalog.Main {
 			}
 		}
 
-
 		//---
 
 		#region Albums Covers Load
 
-		private Thread coverLoadThread;
+		private CancellationTokenSource cts = null;
+
 		///<summary> Запуск загрузки обложек только альбомов параллельно в отдельном потоке. </summary>
 		public void RunLoadAlbumesCoversThread() {
 			StopLoadAlbumesCoversThread();
+			cts = new CancellationTokenSource();
 
-			void thread() {
-				Parallel.ForEach(AlbumsList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
-				  ca => ca.LoadAlbumCover()
-				  );
-			}
+			var po = new ParallelOptions();
+			po.CancellationToken = cts.Token;
+			po.MaxDegreeOfParallelism = CatalogEngine.maxThreads;
 
-			coverLoadThread = new Thread(thread);
-			coverLoadThread.Start();
+			Task.Run(() => {
+				try {
+					Parallel.ForEach(AlbumsList, po, (ca) => ca.LoadAlbumCover());
+				} catch (OperationCanceledException) {
+					Console.WriteLine("Cancel LoadAlbumesCovers");
+				} finally {
+					cts.Dispose();
+					cts = null;
+				}
+			});
 		}
 
 		/// <summary> Принудительная остановка потока загрузки обложек. </summary>
 		public void StopLoadAlbumesCoversThread() {
-			if (coverLoadThread != null) {
-				coverLoadThread.Abort();
-			}
+			if (cts != null) cts.Cancel();
 		}
-		#endregion
 
+		#endregion Albums Covers Load
 
 		#region Tags & Attributes
 
@@ -259,9 +267,6 @@ namespace VideoCatalog.Main {
 			atrList.Sort();
 		}
 
-
-
-		#endregion
-
+		#endregion Tags & Attributes
 	}
 }

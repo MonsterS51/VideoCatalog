@@ -11,6 +11,7 @@ using VideoCatalog.Windows;
 using YAXLib;
 
 namespace VideoCatalog.Main {
+
 	/// <summary>
 	/// Класс элемента каталога.
 	/// </summary>
@@ -46,8 +47,8 @@ namespace VideoCatalog.Main {
 			UHD
 		}
 
-
-		public CatalogEntry() { }
+		public CatalogEntry() {
+		}
 
 		public CatalogEntry(FileInfo file, CatalogAlbum CatAlb) {
 			catAlb = CatAlb;
@@ -62,7 +63,6 @@ namespace VideoCatalog.Main {
 		private void SearchCoverArt() {
 			coverArtPath = null;
 			string imgPath = EntAbsFile.Directory + Path.GetFileNameWithoutExtension(EntAbsFile.FullName) + "";
-
 
 			try {
 				// первое изображение  с тем же именем, что и файл
@@ -91,21 +91,25 @@ namespace VideoCatalog.Main {
 					// грузим ковер из папки
 					bmi = CatalogEngine.LoadBitMap(coverArtPath);
 				} else {
-					// создаем ковер из кадра файла
-
-					float vidPos = 0;
-					if (duration > 1) vidPos = (float)(duration / 2);       // если меньше секунды, кадр из середины выдернуть не может и выбрасывает
-
-					bmi = CatalogEngine.LoadBitMapFromVideo(EntAbsFile.FullName, int.Parse(width), vidPos);
+					var w = int.Parse(width);
+					if (Properties.Settings.Default.UseShellCover) {
+						// грузим обложку/кадр, созданную виндой
+						bmi = CatalogEngine.GetBitMapFromShell(EntAbsFile.FullName, w);
+					} else {
+						// создаем ковер из кадра файла
+						float vidPos = 0;
+						if (duration > 1) vidPos = (float)(duration / 2);       // если меньше секунды, кадр из середины выдернуть не может и выбрасывает
+						bmi = CatalogEngine.LoadBitMapFromVideo(EntAbsFile.FullName, w, vidPos);
+					}
 				}
 				CoverImage = bmi;
 			}
 
-			vp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);   // принудительная перерисовка обложки после загрузки
-			lp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);   // принудительная перерисовка обложки после загрузки
+			// принудительная перерисовка обложки после загрузки
+			Action EmptyDelegate = delegate () { };
+			vp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);
+			lp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);
 		}
-
-		private static Action EmptyDelegate = delegate () { };
 
 		//---
 
@@ -156,7 +160,6 @@ namespace VideoCatalog.Main {
 
 			return lp;
 		}
-
 
 		//---
 		///<summary> Получение метаданных из видеофайла. </summary>
@@ -230,16 +233,25 @@ namespace VideoCatalog.Main {
 		///<summary> Оценка качества видео. </summary>
 		private void ChkVideoResolution() {
 			int.TryParse(height, out int h);
-			if (h < 700) { vidRes = VideoResolution.LQ; return; }
-			if (h < 1000) { vidRes = VideoResolution.HD; return; }
-			if (h < 1400) { vidRes = VideoResolution.FHD; return; }
-			if (h < 2100) { vidRes = VideoResolution.QHD; return; }
+			int.TryParse(width, out int w);
+
+			if (((float)w / h) < 1.77f) {
+				if (h < 700) { vidRes = VideoResolution.LQ; return; }
+				if (h < 1000) { vidRes = VideoResolution.HD; return; }
+				if (h < 1400) { vidRes = VideoResolution.FHD; return; }
+				if (h < 2100) { vidRes = VideoResolution.QHD; return; }
+			} else {
+				if (w < 1200) { vidRes = VideoResolution.LQ; return; }
+				if (w < 1900) { vidRes = VideoResolution.HD; return; }
+				if (w < 2500) { vidRes = VideoResolution.FHD; return; }
+				if (w < 4000) { vidRes = VideoResolution.QHD; return; }
+			}
+
 			vidRes = VideoResolution.UHD;
 		}
 
 		///<summary> Обновление отображения плашек качества. </summary>
 		public void UpdateVideoResIcons() {
-
 			if (vp != null) {
 				vp.UpdateVideoResIcons(
 					vidRes == (CatalogEntry.VideoResolution.LQ),
@@ -269,6 +281,5 @@ namespace VideoCatalog.Main {
 		public override string ToString() {
 			return Name;
 		}
-
 	}
 }

@@ -33,22 +33,21 @@ namespace VideoCatalog.Panels {
 
 			PreviewSteps.Value = Properties.Settings.Default.PreviewSteps;
 			PreviewTime.Value = Properties.Settings.Default.PreviewTime;
+			PreviewDelay.Value = Properties.Settings.Default.PreviewStartDelay;
 			CoverMaxSize.Value = Properties.Settings.Default.CoverMaxSize;
 			AspectRatio.Value = Properties.Settings.Default.CoverAspectRatio;
+			UseShellCoverEnabler.IsChecked = Properties.Settings.Default.UseShellCover;
 			//---
 			searchStrTB.Text = Properties.Settings.Default.SearchStrings;
 			//---
 			atrListStrTB.Text = Properties.Settings.Default.AtrToShowList;
+			//---
+			ForceGC_Enabler.IsChecked = Properties.Settings.Default.ForceGC;
 		}
 
 		///<summary> Принятие изменений в настройках. </summary>
 		private void Accept_Click(object sender, RoutedEventArgs e) {
-
-
-			//---
-			// preview
 			Properties.Settings.Default.PreviewEnabled = (bool) PreviewEnabler.IsChecked;
-
 			Properties.Settings.Default.PreviewMode = CB_previewMode.SelectedValue as string;
 
 			if (new DirectoryInfo(ffmpegPath.Text).Exists) { 
@@ -58,12 +57,16 @@ namespace VideoCatalog.Panels {
 
 			Properties.Settings.Default.PreviewSteps = (int) PreviewSteps.Value;
 			Properties.Settings.Default.PreviewTime = (int) PreviewTime.Value;
+			Properties.Settings.Default.PreviewStartDelay = (int) PreviewDelay.Value;
 			Properties.Settings.Default.CoverMaxSize = (int) CoverMaxSize.Value;
 			Properties.Settings.Default.CoverAspectRatio = (decimal) AspectRatio.Value;
+			Properties.Settings.Default.UseShellCover = (bool)UseShellCoverEnabler.IsChecked;
 			//---
 			Properties.Settings.Default.SearchStrings = searchStrTB.Text;
 			//---
 			Properties.Settings.Default.AtrToShowList = atrListStrTB.Text;
+			//---
+			Properties.Settings.Default.ForceGC = (bool)ForceGC_Enabler.IsChecked;
 			//---
 			Properties.Settings.Default.Save();
 		}
@@ -95,15 +98,13 @@ namespace VideoCatalog.Panels {
 
 
 
-
-
 		//---B
 
 		#region Context Menu
 
 		private string comString = "Open with VidCat";
 
-		///<summary> Добавляет контекстное меню открытия папки через реестр. </summary>
+		///<summary> Добавляет контекстное меню открытия папки Explorer через реестр. </summary>
 		private void AddContextActionToReg(object sender, RoutedEventArgs e) {
 			string exePath = "\"" + System.Reflection.Assembly.GetExecutingAssembly().Location + "\"";
 

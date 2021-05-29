@@ -15,7 +15,8 @@ namespace VideoCatalog.Main {
 			DATE_CREATE,
 			DATE_MODIFIED,
 			RESOLUTION,
-			ATTRIBUTE
+			ATTRIBUTE,
+			ENTRYS_COUNT
 		}
 
 		///<summary> Фильтрация и сортировка списка элементов. </summary>
@@ -76,10 +77,6 @@ namespace VideoCatalog.Main {
 
 
 			tempStr = tempStr.Trim();   // строка поиска без тегов
-			//Console.WriteLine("tempStr " + tempStr);
-			//Console.WriteLine("incTag " + string.Join(",", incTag));
-			//Console.WriteLine("optTag " + string.Join(",", optTag)); 
-			//Console.WriteLine("excTag " + string.Join(",", excTag));
 
 			//+ фильтрация по имени или его части с отбросом мещающих знаков
 			List<AbstractEntry> resultList;
@@ -118,7 +115,6 @@ namespace VideoCatalog.Main {
 			if (incTag.Count > 0 | excTag.Count > 0 | optTag.Count > 0) {
 				foreach (var filtEnt in resultList.ToArray()) {
 					var entTagArr = filtEnt.GetTagList();
-					//Console.WriteLine(filtEnt.Name + " " + string.Join(",", entTagArr));
 
 					if (optTag.Count > 0) {
 						// не проходит по частичным тегам
@@ -187,11 +183,20 @@ namespace VideoCatalog.Main {
 					break;
 				}
 				case SortMode.ATTRIBUTE: {
-					resultList = resultList.OrderBy(o => o.GetAttribute(atrName)).ToList();
+					resultList = resultList.OrderBy(o => o.GetAttribute(atrName), new AlphanumComparatorFast()).ToList();
 					if (!ascend) resultList.Reverse();
 
 					foreach (var ent in resultList) {
 						ent.sortHelper = ent.GetAttribute(atrName);
+					}
+					break;
+				}
+				case SortMode.ENTRYS_COUNT: {
+					resultList = resultList.OrderBy(o => o.GetEntrysCount().ToString(), new AlphanumComparatorFast()).ToList();
+					if (!ascend) resultList.Reverse();
+
+					foreach (var ent in resultList) {
+						ent.sortHelper = ent.GetEntrysCount().ToString();
 					}
 					break;
 				}
@@ -212,6 +217,7 @@ namespace VideoCatalog.Main {
 			DATE_CREATE,
 			DATE_MODIFIED,
 			RESOLUTION,
+			ENTRYS_COUNT,
 			ATTRIBUTE
 		}
 
@@ -230,12 +236,10 @@ namespace VideoCatalog.Main {
 			switch (grpMode) {
 				case GroupModes.NONE: {
 					subListsMap.Add("", srcList as List<AbstractEntry>);
-
 					readyMap = subListsMap.ToList();
 					break;
 				}
 				case GroupModes.FIRST_CHAR: {
-
 					foreach (var ent in srcList) {
 						var ch = ent.Name.First().ToString().ToUpper();
 						if (!subListsMap.ContainsKey(ch)) subListsMap.Add(ch, new List<AbstractEntry>());
@@ -294,7 +298,16 @@ namespace VideoCatalog.Main {
 						if (!subListsMap.ContainsKey(resStr)) subListsMap.Add(resStr, new List<AbstractEntry>());
 						subListsMap[resStr].Add(ent);
 					}
-					readyMap = subListsMap.ToList().OrderBy(kv => kv.Key).ToList();
+					readyMap = subListsMap.ToList();
+					break;
+				}
+				case GroupModes.ENTRYS_COUNT: {
+					foreach (var ent in srcList) {
+						var resStr = ent.GetEntrysCount().ToString();
+						if (!subListsMap.ContainsKey(resStr)) subListsMap.Add(resStr, new List<AbstractEntry>());
+						subListsMap[resStr].Add(ent);
+					}
+					readyMap = subListsMap.ToList();
 					break;
 				}
 				case GroupModes.FOLDER: {

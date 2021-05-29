@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,7 +11,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using VideoCatalog.Main;
-using VideoCatalog.Util;
 using VideoCatalog.Windows;
 using static VideoCatalog.Main.FilterSorterModule;
 
@@ -54,10 +53,6 @@ namespace VideoCatalog.Panels {
 
 			baseList = BaseList;
 			LoadSettings();
-
-			// цепляем тут, иначе портит настройки, т.к. срабатывает после LoadSettings
-			sliderGridCol.ValueChanged += Slider_ValueChanged;
-			sliderListHeight.ValueChanged += SliderList_ValueChanged;
 
 			loadingPanel.Visibility = Visibility.Hidden;
 
@@ -125,7 +120,6 @@ namespace VideoCatalog.Panels {
 			foreach (var alb in App.MainWin.CatEng.CatRoot.AlbumsList) {
 				foreach (var ent in alb.EntryList) {
 					var extStr = ent.EntAbsFile.Extension;
-					Console.WriteLine($"{extStr} in {ent.Name}");
 					if (!ent.Name.EndsWith(extStr)) continue;
 					ent.Name = ent.Name.Remove(ent.Name.Length - extStr.Length, extStr.Length);
 				}
@@ -189,23 +183,23 @@ namespace VideoCatalog.Panels {
 		}
 
 		/// <summary> Изменение слайдера размера плашек. </summary>
-		private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+		private void Slider_DragComplite(object sender, EventArgs e) {
 			if (entPlates != null) {
 				foreach (var item in entPlates.Children) {
 					if (item is UniformGrid) {
 						var grid = item as UniformGrid;
-						grid.Columns = (int)e.NewValue;
-						SaveSettings();				
+						grid.Columns = (int)sliderGridCol.Value;
+						SaveSettings();
 					}
 				}
 			}
 		}
 
 		private int oneLineHeight = 20;
-		/// <summary> Изменение слайдера размера плашек. </summary>
-		private void SliderList_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+		/// <summary> Изменение слайдера размера списочных плашек. </summary>
+		private void SliderList_DragComplite(object sender, EventArgs e) {
 			foreach (var ent in srcList) {
-				ent.ListHeight = (int) (oneLineHeight * e.NewValue) + 4;
+				ent.ListHeight = (int) (oneLineHeight * sliderListHeight.Value) + 4;
 			}
 			SaveSettings();
 		}
@@ -217,7 +211,6 @@ namespace VideoCatalog.Panels {
 		///<summary> Переформирование содержимого панели с учетом фильтрации/сортировки. </summary>
 		public void UpdatePanelContent() {
 			FilterChanged(null, null);
-			filterPanel.FillSortCombo();
 		}
 
 		private FilterSorterModule.SortMode sortMode;
@@ -255,12 +248,17 @@ namespace VideoCatalog.Panels {
 					grpMode = GroupModes.RESOLUTION;
 					break;
 				}
+				case 5: {
+					sortMode = FilterSorterModule.SortMode.ENTRYS_COUNT;
+					grpMode = GroupModes.ENTRYS_COUNT;
+					break;
+				}
 				case -1: goto case 0;
 				default: {
 					sortMode = FilterSorterModule.SortMode.ATTRIBUTE;
 					grpMode = GroupModes.ATTRIBUTE;
 					string selItemName = (filterPanel.sortModeComBox.SelectedItem as TextBlock).Text;
-					atrName = selItemName.Substring(selItemName.IndexOf(" ") + 1);	// отрезаем слово аттрибут
+					atrName = selItemName.Substring(selItemName.IndexOf(" ") + 1);  // отрезаем слово аттрибут
 					break;
 				}
 			}
@@ -274,12 +272,28 @@ namespace VideoCatalog.Panels {
 				grpMode = GroupModes.FOLDER;
 			}
 
-
-			srcList = FilterSorterModule.FilterAndSort(baseList, filterPanel.filterBox.Text, CatalogRoot.tagsList, sortMode, ascend, broken, excepted, atrName);
-			FillPlates(grpMode, ascend, atrName);
+			loadingPanel.Visibility = Visibility.Visible;
+			Application.Current.Dispatcher.BeginInvoke((Action)(() => SetInfoText("Loading Plates!") ));
 			
-			Console.WriteLine($"FilterChanged {sw.ElapsedMilliseconds}ms");
-			sw.Stop();
+			pBar.Value = 50d;
+
+			var filtStr = filterPanel.filterBox.Text;
+
+			BackgroundWorker bw = new BackgroundWorker();
+			bw.WorkerReportsProgress = true;
+			bw.DoWork += (s, a) => {
+				srcList = FilterSorterModule.FilterAndSort(baseList, filtStr, CatalogRoot.tagsList, sortMode, ascend, broken, excepted, atrName);
+			};
+
+			bw.RunWorkerCompleted += (s, a) => {
+				FillPlates(grpMode, ascend, atrName);
+				filterPanel.FillSortCombo();
+				SetUiStateOpened();
+				Console.WriteLine($"FilterChanged {sw.ElapsedMilliseconds}ms");
+				sw.Stop();
+			};
+
+			bw.RunWorkerAsync();
 		}
 
 		/// <summary> Перезаполнение плитками панель. </summary>
@@ -321,7 +335,7 @@ namespace VideoCatalog.Panels {
 
 				entPlates.Children.Add(newGrid);
 			}
-
+			
 			readyMap.Clear();
 
 			Application.Current.Dispatcher.BeginInvoke((Action)(() => { 
@@ -351,7 +365,8 @@ namespace VideoCatalog.Panels {
 				newSepBtn.Padding = new Thickness(0);
 				newSepBtn.Margin = new Thickness(2, 0, 5, 0);
 				newSepBtn.VerticalAlignment = VerticalAlignment.Center;
-				newSepBtn.Click += (o, reh) => {
+				newSepBtn.Name = "SepBtn";
+				newSepBtn.Click += (o, reArg) => {
 					if (postElem.Visibility == Visibility.Visible) { 
 						postElem.Visibility = Visibility.Collapsed;
 						img = new Image {
@@ -391,6 +406,42 @@ namespace VideoCatalog.Panels {
 			newSeparatorPanel.Children.Add(subHeader);
 			newSeparatorPanel.Children.Add(line);
 			return newSeparatorPanel;
+		}
+
+		///<summary> Установка состояния для всех групп на панели. </summary>
+		public void SetVisibilityOfAllGroups(Visibility vis) {
+			foreach (var panelEnt in entPlates.Children) {
+				if (panelEnt is UniformGrid) {
+					var grid = panelEnt as UniformGrid;
+					grid.Visibility = vis;
+				}
+				if (panelEnt is StackPanel) {
+					var sepPan = panelEnt as StackPanel;
+					var sepBtn = sepPan.Children.Cast<FrameworkElement>().FirstOrDefault(el => el.Name == "SepBtn") as Button;
+					if (sepBtn != null) {
+						if (vis == Visibility.Collapsed) {
+							var img = new Image {
+								Source = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/plus.png", UriKind.RelativeOrAbsolute)),
+								VerticalAlignment = VerticalAlignment.Center
+							};
+							RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+							sepBtn.Content = img;
+						} else {
+							var img = new Image {
+								Source = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/minus.png", UriKind.RelativeOrAbsolute)),
+								VerticalAlignment = VerticalAlignment.Center
+							};
+							RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+							sepBtn.Content = img;
+						}
+					}
+				}
+			}
+		}
+
+		///<summary> На панели есть группировка. </summary>
+		public bool IsContainGroups() {
+			return entPlates.Children.Cast<FrameworkElement>().Any(el => el is StackPanel);
 		}
 
 		/// <summary> Очистка панели (для повторного использования плашек). </summary>
@@ -444,6 +495,9 @@ namespace VideoCatalog.Panels {
 			filterPanel.IsEnabled = false;
 			scrollHelperLbl.Visibility = Visibility.Hidden;
 			filterPanel.filterBox.Text = "";
+
+			sliderGridCol.IsEnabled = false;
+			sliderListHeight.IsEnabled = false;
 		}
 
 		public void SetUiStateOpened() {
@@ -460,6 +514,9 @@ namespace VideoCatalog.Panels {
 			filterPanel.IsEnabled = true;
 			scrollHelperLbl.Visibility = Visibility.Hidden;
 			loadingPanel.Visibility = Visibility.Hidden;
+
+			sliderGridCol.IsEnabled = true;
+			sliderListHeight.IsEnabled = true;
 		}
 
 		///<summary> Установить текст в нижней панели. </summary>
@@ -488,7 +545,7 @@ namespace VideoCatalog.Panels {
 			SidePanelSwitch(!spIsShown);
 
 			// запоминаем состояние боковой панели при переключении вручную
-			if (this.DataContext == App.MainWin.CatEng.CatRoot) Properties.Settings.Default.SidePanelMainShown = spIsShown;
+			if (isRoot) Properties.Settings.Default.SidePanelMainShown = spIsShown;
 			else Properties.Settings.Default.SidePanelAlbShown = spIsShown;
 		}
 
@@ -513,8 +570,6 @@ namespace VideoCatalog.Panels {
 
 		///<summary> Загрузка настроек панели и ее элементов. </summary>
 		private void LoadSettings() {
-			Console.WriteLine($"LoadSettings !!!");
-
 			// восстанавливаем настройку размеров плиток
 			if (isRoot) {
 				sliderGridCol.Value = Properties.Settings.Default.GridSizeAlbum;
@@ -533,7 +588,7 @@ namespace VideoCatalog.Panels {
 
 			// вспоминаем состояние боковой панели
 			bool spShodShown;
-			if (this.DataContext == App.MainWin.CatEng.CatRoot) spShodShown = Properties.Settings.Default.SidePanelMainShown;
+			if (isRoot) spShodShown = Properties.Settings.Default.SidePanelMainShown;
 			else spShodShown = Properties.Settings.Default.SidePanelAlbShown;
 
 			if (spShodShown) {
@@ -543,7 +598,6 @@ namespace VideoCatalog.Panels {
 				SidePanelSwitch(false);
 				spColumn.Width = new GridLength(0, GridUnitType.Pixel);
 			}
-
 		}
 
 		///<summary> Сохранение настроек панели и ее элементов. </summary>
@@ -565,6 +619,7 @@ namespace VideoCatalog.Panels {
 			UpdateUiMode();
 			UpdatePanelContent();
 			SaveSettings();
+
 		}
 
 		///<summary> Скрываем регуляторы для других режимов. </summary>

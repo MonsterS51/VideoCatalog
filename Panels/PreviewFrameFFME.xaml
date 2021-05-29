@@ -4,12 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 			 xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
-             xmlns:local="clr-namespace:VideoCatalog.Windows"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 	<Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
-		<ffme:MediaElement x:Name="mediaPlayerFFME" Background="Black" LoadedBehavior="Manual" UnloadedBehavior="Manual" Visibility="Visible"
-						Margin="0,0,0,0" Stretch="UniformToFill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+		<ffme:MediaElement x:Name="mediaPlayerFFME" Background="Black" LoadedBehavior="Manual" UnloadedBehavior="Manual" Visibility="Visible" RenderOptions.BitmapScalingMode="HighQuality"
+						Margin="0,0,0,0" Stretch="UniformToFill" StretchDirection="Both"
+						HorizontalAlignment="Center" VerticalAlignment="Stretch" />
 		<ProgressBar x:Name="prevProgress" Maximum="10" Value="5" Visibility="Hidden"
 						Height="3.5" HorizontalAlignment="Stretch" VerticalAlignment="Top" BorderThickness="0" BorderBrush="#00000000"
 						Margin="0,0,0,0" Padding="0,0,0,0" Background="#CC000000" Foreground="#FF00B4FF">

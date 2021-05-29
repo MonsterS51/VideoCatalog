@@ -33,24 +33,28 @@ namespace VideoCatalog.Windows {
 
 		///<summary> Загрузка библиотек ffmpeg для FFME. </summary>
 		public static void LoadFFMpegLibs() {
-			if (new DirectoryInfo(VideoCatalog.Properties.Settings.Default.FFMpegBinPath).Exists) {
+			var dirInfo = new DirectoryInfo(VideoCatalog.Properties.Settings.Default.FFMpegBinPath);
+			if (dirInfo.Exists) {
 				try {
-					Console.WriteLine("Try load FFmpeg libs at " + VideoCatalog.Properties.Settings.Default.FFMpegBinPath);
-					Unosquare.FFME.Library.FFmpegDirectory = VideoCatalog.Properties.Settings.Default.FFMpegBinPath;
+					Console.WriteLine($"Try load FFmpeg libs at {dirInfo}");
+					Unosquare.FFME.Library.FFmpegDirectory = dirInfo.FullName;
 					Unosquare.FFME.Library.LoadFFmpeg();
 					FoundFFMpegLibs = true;
+				} catch (DllNotFoundException) {
+					FoundFFMpegLibs = false;
+					Console.WriteLine($"Can`t load FFmpeg libs at {dirInfo}");
 				} catch (FileNotFoundException) {
 					FoundFFMpegLibs = false;
-					Console.WriteLine("Can`t load FFmpeg libs at " + VideoCatalog.Properties.Settings.Default.FFMpegBinPath);
+					Console.WriteLine($"Can`t find some files of FFmpeg libs at {dirInfo}");
 				}
 			} else {
 				FoundFFMpegLibs = false;
-				Console.WriteLine("Folder with FFmpeg libs at " + VideoCatalog.Properties.Settings.Default.FFMpegBinPath + " not found !");
+				Console.WriteLine($"Folder with FFmpeg libs at {dirInfo} not found !");
 			}
 		}
 
 
 
-		}
+	}
 
 }

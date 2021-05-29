@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VideoCatalog.Util {
 	/// <summary>
-	/// Цифро-буквенный компаратор для правильной сортировки.
+	/// Буквенно-цифровой компаратор для правильной сортировки строк.
+	/// https://www.dotnetperls.com/alphanumeric-sorting
 	/// </summary>
 	public class AlphanumComparatorFast : IComparer<string> {
 		public int Compare(string x, string y) {

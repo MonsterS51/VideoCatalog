@@ -12,7 +12,7 @@ namespace VideoCatalog.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -37,7 +37,7 @@ namespace VideoCatalog.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("FFME")]
+        [global::System.Configuration.DefaultSettingValueAttribute("WPF")]
         public string PreviewMode {
             get {
                 return ((string)(this["PreviewMode"]));
@@ -181,7 +181,7 @@ namespace VideoCatalog.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Google;https://www.google.com/search?q=%s")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Google;https://www.google.com/search?q=%s;")]
         public string SearchStrings {
             get {
                 return ((string)(this["SearchStrings"]));
@@ -308,6 +308,42 @@ namespace VideoCatalog.Properties {
             }
             set {
                 this["SidePanelAlbShown"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ForceGC {
+            get {
+                return ((bool)(this["ForceGC"]));
+            }
+            set {
+                this["ForceGC"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseShellCover {
+            get {
+                return ((bool)(this["UseShellCover"]));
+            }
+            set {
+                this["UseShellCover"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public int PreviewStartDelay {
+            get {
+                return ((int)(this["PreviewStartDelay"]));
+            }
+            set {
+                this["PreviewStartDelay"] = value;
             }
         }
     }

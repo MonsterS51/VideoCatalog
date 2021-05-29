@@ -81,7 +81,8 @@ namespace VideoCatalog.Panels {
 
 
 		void m_MediaEnded(object sender, RoutedEventArgs e) {
-			mediaPlayer.Position = TimeSpan.FromSeconds(0);
+			//! полностью нулевой не работает на видео короче 1 сек
+			mediaPlayer.Position = new TimeSpan(0, 0, 0, 0, 1);
 			mediaPlayer.Play();
 		}
 

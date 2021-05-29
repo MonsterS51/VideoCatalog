@@ -20,7 +20,7 @@
 					<DockPanel  Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}">
 						<StackPanel x:Name="loadingPanel" Orientation="Horizontal" DockPanel.Dock="Left" Visibility="Visible">
 							<ProgressBar x:Name="pBar" Value="0" Width="90" Height="16" BorderThickness="0" />
-							<TextBlock Name="infoText" Text="c:\path\of\current\file.txt" Margin="3,0,0,0" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"/>
+							<TextBlock Name="infoText" Text="Loading!" Margin="5,0,0,0" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"/>
 						</StackPanel>
 						<StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right" >
 							<TextBlock x:Name="lblCountTotal" Text="Total: " DockPanel.Dock="Right" HorizontalAlignment="Right" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"/>
@@ -30,14 +30,14 @@
 							</Button>
 							<Slider x:Name="sliderGridCol" ToolTip="Grid columns" Value="4" DockPanel.Dock="Right" Width="100"  
 										Minimum="1" Maximum="15" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True"
-										HorizontalAlignment="Right">
+										HorizontalAlignment="Right" LostMouseCapture="Slider_DragComplite" Focusable="false">
 								<Slider.LayoutTransform>
 									<ScaleTransform ScaleY="0.6"/>
 								</Slider.LayoutTransform>
 							</Slider>
 							<Slider x:Name="sliderListHeight" ToolTip="List element height" Value="6" DockPanel.Dock="Right" Width="100"  
 										Minimum="1" Maximum="6" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True"
-										HorizontalAlignment="Right">
+										HorizontalAlignment="Right" LostMouseCapture="SliderList_DragComplite" Focusable="false">
 								<Slider.LayoutTransform>
 									<ScaleTransform ScaleY="0.6"/>
 								</Slider.LayoutTransform>

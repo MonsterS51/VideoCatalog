@@ -1,35 +1,35 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Shell;
+using NReco.VideoConverter;     // для FFMpegConverter (выдергивание кадра)
+using NReco.VideoInfo;          // для FFProbe
+using System;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
-using Microsoft.WindowsAPICodePack.Shell;
-using NReco.VideoConverter;     // для FFMpegConverter (выдергивание кадра)
-using NReco.VideoInfo;          // для FFProbe
-using VideoCatalog.Util;
 using VideoCatalog.Windows;
 using YAXLib;
 
 namespace VideoCatalog.Main {
-	/// <summary>
-	/// Основной класс каталога.
-	/// </summary>
+
+	/// <summary> Основной класс каталога. /// </summary>
 	public class CatalogEngine {
 		public static FFProbe ffProbe = new FFProbe();
-		public static string[] vidExt = new string[] { ".mkv", ".mp4", ".m4v", ".avi", ".mpg", ".m2ts", ".mpeg", ".wmv", ".flw", ".flv", ".mov", ".divx", ".webm", ".gif", ".vob"};
+
+		public static string[] vidExt = new string[] {
+			".mkv", ".mp2", ".mp4", ".m4v", ".avi", ".mpg", ".mpv", ".mpe", ".m2ts", ".mpeg",
+			".wmv", ".flw", ".flv", ".swf", ".mov", ".qt",".divx", ".webm", ".gif", ".vob"
+		};
+
 		public CatalogRoot CatRoot;
 
-		//public static int maxCoverWidth = 0;
 		public static int maxThreads = 8;
 
 		public CatalogEngine() {
 			if (App.FoundFFMpegLibs) ffProbe.ToolPath = Properties.Settings.Default.FFMpegBinPath;
-			//emptyCover = new BitmapImage(new Uri(@"pack://application:,,,/Assets/Icons/cross.png", UriKind.RelativeOrAbsolute));
+			maxThreads = Environment.ProcessorCount - 1;
 		}
-
 
 		///<summary> Формирование нового объекта каталога по папке. </summary>
 		public void LoadCatalogRoot(string path) {
@@ -48,7 +48,7 @@ namespace VideoCatalog.Main {
 		public void LoadCatalogXML(string path) {
 			XDocument xDoc = XDocument.Load(path);
 			if (xDoc != null) {
-				Console.WriteLine("Deserialize " + path);
+				Console.WriteLine($"Deserialize <{path}>");
 				CatalogRoot loadedCatRoot = Deserialize_YAX(xDoc.Root) as CatalogRoot;
 				if (loadedCatRoot != null) {
 					Console.WriteLine($"Loaded <{path}>");
@@ -61,10 +61,10 @@ namespace VideoCatalog.Main {
 				System.Windows.MessageBox.Show($"Can`t load <{path}>", "Error");
 				App.MainWin.CloseCatalog();
 			}
-
 		}
 
 		//---B
+
 		#region Util`s
 
 		/// <summary> Загрузка изображения по пути к файлу. </summary>
@@ -106,11 +106,9 @@ namespace VideoCatalog.Main {
 					Console.WriteLine(ex);
 				}
 			}
-			coverImage.Freeze();	// замораживаем только после избавления от стрима, иначе GC уже не может его ликвидировать
+			coverImage.Freeze();    // замораживаем только после избавления от стрима, иначе GC уже не может его ликвидировать
 			return coverImage;
 		}
-
-
 
 		/// <summary> Загрузка изображения из середины видео по пути к файлу. </summary>
 		public static BitmapImage LoadBitMapFromVideo(string path, int vidWidth, float vidPos) {
@@ -126,7 +124,7 @@ namespace VideoCatalog.Main {
 					if (App.FoundFFMpegLibs) ffMpeg.FFMpegToolPath = Properties.Settings.Default.FFMpegBinPath;
 
 					var imgWidth = Properties.Settings.Default.CoverMaxSize;
-					if (vidWidth < imgWidth) imgWidth = vidWidth;	// формируем кавер размером с видео для экономии
+					if (vidWidth < imgWidth) imgWidth = vidWidth;   // формируем кавер размером с видео для экономии
 
 					ffMpeg.GetVideoThumbnail(path, memory, vidPos);
 					memory.Position = 0;
@@ -139,7 +137,7 @@ namespace VideoCatalog.Main {
 						coverImage.DecodePixelWidth = imgWidth;
 						coverImage.EndInit();
 						coverImage.StreamSource = null;
-					} catch (NotSupportedException ex2) { 
+					} catch (NotSupportedException ex2) {
 						Console.WriteLine(ex2);
 						coverImage = new BitmapImage();
 					}
@@ -158,7 +156,58 @@ namespace VideoCatalog.Main {
 				}
 			}
 
-			coverImage.Freeze();	// замораживаем только после избавления от стрима, иначе GC уже не может его ликвидировать
+			coverImage.Freeze();    // замораживаем только после избавления от стрима, иначе GC уже не может его ликвидировать
+			return coverImage;
+		}
+
+		/// <summary> Загрузка изображения обложки из файла средствами ShellFile. </summary>
+		public static BitmapImage GetBitMapFromShell(string path, int vidWidth) {
+			BitmapImage coverImage = new BitmapImage();
+
+			if (string.IsNullOrWhiteSpace(path)) return coverImage;
+			FileInfo fi = new FileInfo(path);
+			if (!fi.Exists) return coverImage;
+
+			using (MemoryStream memory = new MemoryStream()) {
+				try {
+					BitmapSource bms = ShellFile.FromFilePath(fi.FullName)?.Thumbnail?.ExtraLargeBitmapSource;
+
+					var imgWidth = Properties.Settings.Default.CoverMaxSize;
+					if (vidWidth < imgWidth) imgWidth = vidWidth;   // формируем кавер размером с видео для экономии
+
+					JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+					encoder.QualityLevel = 99;
+					encoder.Frames.Add(BitmapFrame.Create(bms));
+					encoder.Save(memory);
+					memory.Position = 0;
+
+					try {
+						coverImage = new BitmapImage();
+						coverImage.BeginInit();
+						coverImage.StreamSource = memory;
+						coverImage.CacheOption = BitmapCacheOption.OnLoad;
+						coverImage.DecodePixelWidth = imgWidth;
+						coverImage.EndInit();
+						coverImage.StreamSource = null;
+					} catch (NotSupportedException ex2) {
+						Console.WriteLine(ex2);
+						coverImage = new BitmapImage();
+					}
+
+					memory.Close();
+					memory.Dispose();
+				} catch (FFMpegException ex) {
+					Console.WriteLine(ex);
+				} catch (IOException ex3) {
+					Console.WriteLine(ex3);
+				} catch (ThreadAbortException ex4) {
+					Console.WriteLine(ex4);
+				} catch (Exception ex5) {
+					Console.WriteLine(ex5);
+				}
+			}
+
+			coverImage.Freeze();    // замораживаем только после избавления от стрима, иначе GC уже не может его ликвидировать
 			return coverImage;
 		}
 
@@ -186,21 +235,22 @@ namespace VideoCatalog.Main {
 				}
 			}
 
-			var t = (ulong) dur;
-			return (int) TimeSpan.FromTicks((long)t).TotalSeconds;
+			var t = (ulong)dur;
+			return (int)TimeSpan.FromTicks((long)t).TotalSeconds;
 		}
-		#endregion
+
+		#endregion Util`s
 
 		//---R
 
 		#region YAX Serializer
+
 		public static XElement Serialize_YAX(object obj) {
 			YAXSerializer serializer = new YAXSerializer(obj.GetType(), YAXSerializationOptions.DontSerializeNullObjects);
 			return serializer.SerializeToXDocument(obj).Root;
 		}
 
 		public static object Deserialize_YAX(XElement xml) {
-			Console.WriteLine($"Load type <{xml.Name.LocalName}>");
 			Type type = Type.GetType("VideoCatalog.Main." + xml.Name.LocalName);
 			if (type != null) {
 				//! ! отключены все исключения YAX - более опасный режим восстановления каталога (не будет ругаться на отсутствующие поля)
@@ -213,11 +263,13 @@ namespace VideoCatalog.Main {
 			}
 			return null;
 		}
-		#endregion
+
+		#endregion YAX Serializer
 
 		//---B
 
 		#region Shell32
+
 		public static void OpenExplorer(string filePath) {
 			if (filePath == null)
 				throw new ArgumentNullException("filePath");
@@ -235,6 +287,7 @@ namespace VideoCatalog.Main {
 
 		[DllImport("shell32.dll")]
 		private static extern void ILFree(IntPtr pidl);
-		#endregion
+
+		#endregion Shell32
 	}
 }

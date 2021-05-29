@@ -1,13 +1,11 @@
-﻿<UserControl x:Class="VideoCatalog.Panels.ViewPlate"
+﻿<UserControl  x:Class="VideoCatalog.Panels.ViewPlate"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:VideoCatalog.Windows"
 			 xmlns:main="clr-namespace:VideoCatalog.Main"
 			 mc:Ignorable="d" 
              d:DesignHeight="360" d:DesignWidth="635">
-	<UserControl.Resources/>
 	<Border x:Name="border" BorderBrush="Black" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="2" CornerRadius="2" 
 		Margin="1" UseLayoutRounding="True" SnapsToDevicePixels="True">
 		<main:AspectRatioLayoutDecorator x:Name="PreviewDecorator" AspectRatio="1.77" Margin="0" UseLayoutRounding="True" SnapsToDevicePixels="True">
@@ -21,7 +19,7 @@
 
 				<!-- Обложка -->
 				<Image x:Name="CoverArt" Source="{Binding Path=CoverImage}" RenderOptions.BitmapScalingMode="HighQuality" Visibility="Visible"
-						Margin="0" Stretch="UniformToFill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Stretch">
+						Margin="0" Stretch="UniformToFill" StretchDirection="Both" HorizontalAlignment="Center" VerticalAlignment="Center">
 
 				</Image>
 

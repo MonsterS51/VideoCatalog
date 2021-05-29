@@ -12,11 +12,11 @@ using VideoCatalog.Windows;
 using YAXLib;
 
 namespace VideoCatalog.Main {
+
 	/// <summary>
 	/// Набор объектов каталога.
 	/// </summary>
 	public class CatalogAlbum : AbstractEntry {
-
 		//---
 
 		[YAXDontSerialize]
@@ -34,9 +34,8 @@ namespace VideoCatalog.Main {
 
 		private object locker = new object();
 
-
-
-		public CatalogAlbum() { }
+		public CatalogAlbum() {
+		}
 
 		public CatalogAlbum(DirectoryInfo dir, bool withSubDir) {
 			AlbAbsDir = dir;
@@ -94,38 +93,47 @@ namespace VideoCatalog.Main {
 		public void LoadAlbumCover() {
 			BaseEntry?.LoadCover(true);
 			CoverImage = BaseEntry?.CoverImage;
-			vp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);   // принудительная перерисовка обложки после загрузки
+
+			// принудительная перерисовка обложки после загрузки
+			Action EmptyDelegate = delegate () { };
+			vp?.Dispatcher?.Invoke(DispatcherPriority.Render, EmptyDelegate);
 		}
 
-		private static Action EmptyDelegate = delegate () { };
+		private CancellationTokenSource cts = null;
 
-		private Thread updThread;
-		/// <summary> Формирование обложек эпизодов альбома в отдельном потоке в паралельном режиме. </summary>
-		public void LoadEntCoversThreaded(bool forceUpdate = false) {
-			void thread() {
-				Parallel.ForEach(EntryList, new ParallelOptions { MaxDegreeOfParallelism = CatalogEngine.maxThreads },
-				  ent => { ent.LoadCover(forceUpdate); }
-				  );
+		///<summary> Запуск загрузки обложек элементов, входящих в альбом, в отдельном потоке. </summary>
+		public void RunLoadEntCoversThreaded(bool forceUpdate = false) {
+			StopLoadEntCoversThread();
+			cts = new CancellationTokenSource();
 
-				// таски здесь почему то запускаются с лютой задержкой в ~20 сек
-			}
-			updThread = new Thread(thread);
-			updThread.Start();
+			var po = new ParallelOptions();
+			po.CancellationToken = cts.Token;
+			po.MaxDegreeOfParallelism = CatalogEngine.maxThreads;
+
+			Task.Run(() => {
+				try {
+					Parallel.ForEach(EntryList, po, (ent) => ent.LoadCover(forceUpdate));
+				} catch (OperationCanceledException) {
+					Console.WriteLine("Cancel LoadEntCovers");
+				} finally {
+					cts.Dispose();
+					cts = null;
+				}
+			});
 		}
 
-		/// <summary> Принудительная остановка потока загрузки обложек. </summary>
-		public void StopThread() {
-			if (updThread != null) {
-				updThread.Abort();
-			}
+		/// <summary> Принудительная остановка загрузки обложек элементов, входящих в альбом. </summary>
+		public void StopLoadEntCoversThread() {
+			if (cts != null) cts.Cancel();
 		}
 
 		/// <summary> Принудительное обновление обложек альбома и его эпизодов. </summary>
 		public void UpdateAlbumArt() {
 			LoadAlbumCover();
-			LoadEntCoversThreaded(true);
+			RunLoadEntCoversThreaded(true);
 		}
-		#endregion
+
+		#endregion Covers Load
 
 		//---
 
@@ -217,7 +225,6 @@ namespace VideoCatalog.Main {
 				isBroken = true;
 				Console.WriteLine($"Albume {Name} path {AlbAbsDir} not exist !");
 			} else {
-
 				try {
 					if (WithSubDir) {
 						if (!AlbAbsDir.EnumerateFiles("*.*", SearchOption.AllDirectories).Any(f => CatalogEngine.vidExt.ContainsIC(f.Extension))) {
@@ -271,15 +278,13 @@ namespace VideoCatalog.Main {
 					resList.Contains(CatalogEntry.VideoResolution.UHD)
 				);
 			}
-
-
 		}
 
 		///<summary> Получить максимальное качество из всех элементов альбома. </summary>
 		public override CatalogEntry.VideoResolution GetMaxRes() {
 			var resList = new List<CatalogEntry.VideoResolution>();
 			foreach (var ent in EntryList) {
-				if (!resList.Contains(ent.vidRes)) resList.Add(ent.vidRes);			
+				if (!resList.Contains(ent.vidRes)) resList.Add(ent.vidRes);
 			}
 
 			if (resList.Contains(CatalogEntry.VideoResolution.UHD)) return CatalogEntry.VideoResolution.UHD;
@@ -289,10 +294,12 @@ namespace VideoCatalog.Main {
 			return CatalogEntry.VideoResolution.LQ;
 		}
 
+		public override int GetEntrysCount() {
+			return EntryList.Count;
+		}
+
 		public override string ToString() {
 			return Name;
 		}
-
 	}
-
 }

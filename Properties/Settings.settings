@@ -6,7 +6,7 @@
       <Value Profile="(Default)">C:\ffmpeg\bin\</Value>
     </Setting>
     <Setting Name="PreviewMode" Type="System.String" Scope="User">
-      <Value Profile="(Default)">FFME</Value>
+      <Value Profile="(Default)">WPF</Value>
     </Setting>
     <Setting Name="GridSizeAlbum" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">4</Value>
@@ -42,7 +42,7 @@
       <Value Profile="(Default)">1.77</Value>
     </Setting>
     <Setting Name="SearchStrings" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Google;https://www.google.com/search?q=%s</Value>
+      <Value Profile="(Default)">Google;https://www.google.com/search?q=%s;</Value>
     </Setting>
     <Setting Name="RecentFolders" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -73,6 +73,15 @@
     </Setting>
     <Setting Name="SidePanelAlbShown" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ForceGC" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="UseShellCover" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="PreviewStartDelay" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">500</Value>
     </Setting>
   </Settings>
 </SettingsFile>
